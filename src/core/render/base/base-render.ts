@@ -1,4 +1,3 @@
-
-export class BaseRender{
+export class BaseRender {
 
 }
