@@ -1,4 +1,5 @@
 import Block, {BlockType, IBlock} from "../core/block/block.class";
+import {RhineBlock} from "../core/RhineBlock";
 
 const controlBlocks: Array<IBlock> = [
   {
@@ -13,7 +14,20 @@ const controlBlocks: Array<IBlock> = [
         {statement: null},
       ]
     ],
+    toolbox: [
+      {
+        id: 1,
+        name: 'control_if',
+        value: [
+          {
+            name: 'control_if',
+          }
+        ]
+      }
+    ]
   }
 ]
+
+RhineBlock.registerBlocks(controlBlocks);
 
 export default controlBlocks

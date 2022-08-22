@@ -1,50 +1,50 @@
 export default class SvgBuilder {
   path: Array<any> = new Array<string>();
 
-  moveTo(x: number, y: number, absolute: boolean): SvgBuilder {
+  moveTo(x: number, y: number, absolute: boolean = false): SvgBuilder {
     return this.add('m', absolute, x, y)
   }
 
-  lineTo(x: number, y: number, absolute: boolean): SvgBuilder {
+  lineTo(x: number, y: number, absolute: boolean = false): SvgBuilder {
     return this.add('l', absolute, x, y)
   }
 
-  horizontalTo(x: number, absolute: boolean): SvgBuilder {
+  horizontalTo(x: number, absolute: boolean = false): SvgBuilder {
     return this.add('h', absolute, x)
   }
 
-  verticalTo(y: number, absolute: boolean): SvgBuilder {
+  verticalTo(y: number, absolute: boolean = false): SvgBuilder {
     return this.add('v', absolute, y)
   }
 
-  curveTo(x1: number, y1: number, x2: number, y2: number, x: number, y: number, absolute: boolean): SvgBuilder {
+  curveTo(x1: number, y1: number, x2: number, y2: number, x: number, y: number, absolute: boolean = false): SvgBuilder {
     return this.add('c', absolute, x1, y1, x2, y2, x, y)
   }
 
-  smoothCurveTo(x2: number, y2: number, x: number, y: number, absolute: boolean): SvgBuilder {
+  smoothCurveTo(x2: number, y2: number, x: number, y: number, absolute: boolean = false): SvgBuilder {
     return this.add('s', absolute, x2, y2, x, y)
   }
 
-  quadraticCurveTo(x1: number, y1: number, x: number, y: number, absolute: boolean): SvgBuilder {
+  quadraticCurveTo(x1: number, y1: number, x: number, y: number, absolute: boolean = false): SvgBuilder {
     return this.add('q', absolute, x1, y1, x, y)
   }
 
-  smoothQuadraticCurveTo(x: number, y: number, absolute: boolean): SvgBuilder {
+  smoothQuadraticCurveTo(x: number, y: number, absolute: boolean = false): SvgBuilder {
     return this.add('t', absolute, x, y)
   }
 
-  arcTo(rx: number, ry: number, xAxisRotation: number, largeArcFlag: boolean, sweepFlag: boolean, x: number, y: number, absolute: boolean): SvgBuilder {
+  arcTo(rx: number, ry: number, xAxisRotation: number, largeArcFlag: boolean, sweepFlag: boolean, x: number, y: number, absolute: boolean = false): SvgBuilder {
     return this.add('a', absolute, rx, ry, xAxisRotation, largeArcFlag ? 1 : 0, sweepFlag ? 1 : 0, x, y)
   }
 
-  add(opt: 'm'|'l'|'h'|'v'|'c'|'s'|'q'|'t'|'a'|'z', absolute: boolean, ...args: any[]): SvgBuilder {
+  add(opt: 'm'|'l'|'h'|'v'|'c'|'s'|'q'|'t'|'a'|'z', absolute: boolean = false, ...args: any[]): SvgBuilder {
     const optChar = absolute ? opt.toUpperCase() : opt
     this.path.push([optChar, ...args].join(' '))
     return this
   }
 
-  closePath(path: Array<string>): SvgBuilder {
-    this.path.push("Z")
+  close(): SvgBuilder {
+    this.add('z')
     return this
   }
 

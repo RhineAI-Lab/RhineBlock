@@ -7,12 +7,14 @@ export default class Block {
     public lines: Array<Array<Arg>>,
     public output: string | null,
     public color: string,
-  ) {}
+  ) {
+  }
 
-  static fromJson(data: IBlock, theme: any): Block{
-    const lines = data.lines.map((line, index) => {
-      return line.map((arg, index) => {
-        return Arg.fromJson(index, arg);
+  static fromJson(data: IBlock, theme: any): Block {
+    let argI = 0;
+    const lines = data.lines.map(line => {
+      return line.map(arg => {
+        return Arg.fromJson(argI, arg);
       })
     })
     return new Block(
@@ -41,6 +43,14 @@ export interface IBlock {
   lines: Array<Array<IArg>>;
   output?: string | null;
   color?: string;
+  toolbox?: Array<DefaultArg>;
 }
 
+export type DefaultArgValue = string | number | boolean | Array<DefaultArg>;
+
+export interface DefaultArg {
+  id?: number;
+  name: string;
+  value?: DefaultArgValue;
+}
 
