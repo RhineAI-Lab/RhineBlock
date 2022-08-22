@@ -1,5 +1,5 @@
 export default class PathBuilder {
-  path: Array<any> = new Array<string>();
+  path: string[] = [];
 
   moveTo(x: number, y: number, absolute: boolean = false): PathBuilder {
     return this.add('m', absolute, x, y)

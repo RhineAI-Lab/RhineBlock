@@ -1,5 +1,5 @@
 import Block , {IBlock} from "../../block/block.class";
-import {BaseRender} from "../../render/base/base-render";
+import BaseRender from "../../render/base/base-render";
 
 export default function renderFlyout(dom: HTMLElement, blocks: Array<IBlock>) {
 
@@ -13,11 +13,10 @@ export default function renderFlyout(dom: HTMLElement, blocks: Array<IBlock>) {
 
     let block = Block.fromJson(blocks[i], null);
 
-    let blockEl = BaseRender.render(block)
+    let blockEl = BaseRender.render(block, svg)
     blockEl.setAttribute("transform",
       `translate(${MARGIN_LEFT},${HEIGHT * parseInt(i) + MARGIN_TOP})`
     )
-    svg.appendChild(blockEl);
   }
 }
 

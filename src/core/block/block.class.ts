@@ -1,14 +1,14 @@
 import Arg, {IArg} from "./arg.class";
 
 export default class Block {
+
   constructor(
     public name: string,
     public type: BlockType,
     public lines: Array<Array<Arg>>,
     public output: string | null,
     public color: string,
-  ) {
-  }
+  ) {}
 
   static fromJson(data: IBlock, theme: any): Block {
     let argI = 0;
