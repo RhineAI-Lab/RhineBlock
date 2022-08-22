@@ -1,0 +1,7 @@
+.rb-block-holder{
+  position: relative;
+}
+
+.rb-block-holder *{
+  position: absolute;
+}

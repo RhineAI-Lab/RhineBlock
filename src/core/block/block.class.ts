@@ -22,7 +22,7 @@ export default class Block {
       data.type ? data.type : BlockType.Statement,
       lines,
       data.output ? data.output : null,
-      data.color ? data.color : '#dc3d68',
+      data.color ? data.color : '#329eff',
     )
   }
 }

@@ -47,7 +47,7 @@ const controlBlocks: IBlock[] = [
     ],
   }, {
     name: 'control_start',
-    type: BlockType.Hat,
+    type: BlockType.Start,
     lines: [
       [
         {text: '当程序开始运行'},

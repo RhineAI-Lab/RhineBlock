@@ -15,13 +15,13 @@ export default class Arg {
 
   static fromJson(id: number, data: IArg): Arg {
     if (!data.type) {
-      if (data.text) {
+      if (data.text !== undefined) {
         data.type = ArgType.Text
-      }else if (data.field) {
+      }else if (data.field !== undefined) {
         data.type = ArgType.Field;
-      }else if (data.value) {
+      }else if (data.value !== undefined) {
         data.type = ArgType.Value;
-      }else if (data.statement) {
+      }else if (data.statement !== undefined) {
         data.type = ArgType.Statement;
       }else {
         data.type = ArgType.Text

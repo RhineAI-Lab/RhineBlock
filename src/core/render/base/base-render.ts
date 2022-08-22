@@ -1,21 +1,23 @@
 import Block from "../../block/block.class";
 import PathBuilder from "../../utils/path-builder";
 import {ArgType} from "../../block/arg.class";
+import './base-render.css'
 
 export default class BaseRender {
-  static PADDING = 10;
-  static MIN_WIDTH = 60;
-  static LINE_HEIGHT = 60;
+  static PADDING = 5;
+  static MIN_WIDTH = 100;
+  static LINE_HEIGHT = 30;
 
   static CONTENT_SPACING = 4;
-  static TEXT_COLOR = '#f00'
+  static TEXT_COLOR = '#ffffff'
 
   static FONT_SIZE = 14;
+  static TEXT_LINE_HEIGHT = 14;
 
   static render(block: Block, svg:SVGGElement): SVGGElement {
 
     const el = this.newGroup({
-      class: 'blockHolder'
+      class: 'rb-block-holder'
     })
     svg.appendChild(el)
 
@@ -31,7 +33,7 @@ export default class BaseRender {
       for (const arg of line) {
         let svgEl = null
         if (arg.type === ArgType.Text) {
-          svgEl = this.newText(arg.text, currentX, currentY, this.TEXT_COLOR);
+          svgEl = this.newText(arg.text, currentX, currentY + this.TEXT_LINE_HEIGHT, this.TEXT_COLOR);
         } else if (arg.type === ArgType.Statement) {
           statementsX.push(currentX + this.PADDING)
         } else if (arg.type === ArgType.Field) {
@@ -40,15 +42,16 @@ export default class BaseRender {
 
         }
         if(svgEl){
+          el.appendChild(svgEl)
           const rect = svgEl.getBoundingClientRect()
           currentX += this.CONTENT_SPACING + rect.width
-          el.appendChild(svgEl)
         }
       }
       currentY += lineHeight
       linesWidth.push(currentX + this.PADDING)
       linesHeight.push(lineHeight);
     }
+    console.log(linesHeight)
 
     const width = Math.max(...linesWidth)
     const height = sum(linesHeight)
@@ -63,9 +66,9 @@ export default class BaseRender {
     let bodyPath = builder.build() + ' ' + innerPath.join(' ')
 
     const background = this.newPath(bodyPath, block.color, 'none');
-    background.setAttribute('class', 'blockBackground');
+    background.setAttribute('class', 'rb-block-body');
 
-    el.appendChild(background);
+    appendChildToFirst(el, background);
 
     return el
   }
@@ -107,4 +110,12 @@ function sum(arr: number[]): number{
   return arr.reduce((prev, curr, idx, arr)=>{
     return prev + curr
   })
+}
+
+function appendChildToFirst(parent: HTMLElement | SVGElement, child: HTMLElement | SVGElement){
+  if(parent.children.length===0){
+    parent.appendChild(child)
+  }else{
+    parent.insertBefore(child, parent.children[0])
+  }
 }
