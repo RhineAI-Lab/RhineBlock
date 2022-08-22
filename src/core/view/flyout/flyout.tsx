@@ -2,11 +2,21 @@ import Block , {IBlock} from "../../block/block.class";
 import {BaseRender} from "../../render/base/base-render";
 
 export default function renderFlyout(dom: HTMLElement, blocks: Array<IBlock>) {
+
+  const MARGIN_LEFT = 40;
+  const MARGIN_TOP = 40;
+  const HEIGHT = 200;
+
   const svg = appendSvg(dom)
   for(let i in blocks) {
+    if(blocks[i].toolbox === false) continue;
+
     let block = Block.fromJson(blocks[i], null);
+
     let blockEl = BaseRender.render(block)
-    blockEl.setAttribute("transform", "translate(50,50)")
+    blockEl.setAttribute("transform",
+      `translate(${MARGIN_LEFT},${HEIGHT * parseInt(i) + MARGIN_TOP})`
+    )
     svg.appendChild(blockEl);
   }
 }

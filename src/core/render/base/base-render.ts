@@ -1,5 +1,5 @@
 import Block from "../../block/block.class";
-import SvgBuilder from "../../utils/svg-builder";
+import PathBuilder from "../../utils/path-builder";
 
 export class BaseRender {
   static render(block: Block): SVGGElement {
@@ -18,7 +18,7 @@ export class BaseRender {
   }
 
   static makeBodyPath(block: Block): string {
-    const builder = new SvgBuilder()
+    const builder = new PathBuilder()
       .moveTo(0, 0, true)
       .horizontalTo(200)
       .verticalTo(200)
@@ -39,6 +39,7 @@ export class BaseRender {
       d: path,
       fill: color,
       stroke: stroke,
+      'fill-rule': 'evenodd',
     }) as SVGPathElement;
   }
 

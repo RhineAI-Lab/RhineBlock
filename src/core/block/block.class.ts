@@ -43,7 +43,7 @@ export interface IBlock {
   lines: Array<Array<IArg>>;
   output?: string | null;
   color?: string;
-  toolbox?: Array<DefaultArg>;
+  toolbox?: Array<DefaultArg> | boolean;
 }
 
 export type DefaultArgValue = string | number | boolean | Array<DefaultArg>;

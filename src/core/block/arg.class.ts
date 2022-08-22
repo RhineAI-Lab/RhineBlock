@@ -4,7 +4,7 @@ export default class Arg {
 
   text: string = '';
   field: FieldType = FieldType.None;
-  value: string = '';
+  value: string | number | boolean = '';
   statement: string = '';
 
   constructor(
@@ -63,7 +63,7 @@ export interface IArg {
 
   text?: string;
   field?: FieldType;
-  value?: string;
+  value?: string | number | boolean;
   statement?: string | null;
 }
 

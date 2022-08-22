@@ -7,7 +7,7 @@ export class RhineBlock{
     this.blocks = this.blocks.concat(blocks);
   }
 
-  static getBlock(name: string): IBlock | null{
+  static getBlockData(name: string): IBlock | null{
     return this.blocks.find(block => block.name === name) || null;
   }
 
