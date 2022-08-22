@@ -1,9 +1,9 @@
 import {IBlock} from "./block/block.class";
 
 export class RhineBlock{
-  static blocks: Array<IBlock> = [];
+  static blocks: IBlock[] = [];
 
-  static registerBlocks(blocks: Array<IBlock>){
+  static registerBlocks(blocks: IBlock[]){
     this.blocks = this.blocks.concat(blocks);
   }
 

@@ -10,7 +10,7 @@ export default function Flyout(props: FlyoutProps) {
 
   useEffect(() => {
     if (ref.current) {
-      if(!initialised){
+      if (!initialised) {
         renderFlyout(ref.current, props.blocks);
         initialised = true;
       }
@@ -25,5 +25,5 @@ export default function Flyout(props: FlyoutProps) {
 
 interface FlyoutProps {
   children?: React.ReactNode;
-  blocks: Array<IBlock>
+  blocks: IBlock[];
 }

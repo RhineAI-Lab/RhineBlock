@@ -5,7 +5,7 @@ export default class Block {
   constructor(
     public name: string,
     public type: BlockType,
-    public lines: Array<Array<Arg>>,
+    public lines: Arg[][],
     public output: string | null,
     public color: string,
   ) {}
@@ -40,10 +40,10 @@ export enum BlockType {
 export interface IBlock {
   name: string;
   type?: BlockType;
-  lines: Array<Array<IArg>>;
+  lines: IArg[][];
   output?: string | null;
   color?: string;
-  toolbox?: Array<DefaultArg> | boolean;
+  toolbox?: DefaultArg[] | boolean;
 }
 
 export type DefaultArgValue = string | number | boolean | Array<DefaultArg>;

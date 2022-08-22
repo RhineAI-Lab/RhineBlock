@@ -1,7 +1,7 @@
 import Block , {IBlock} from "../../block/block.class";
 import BaseRender from "../../render/base/base-render";
 
-export default function renderFlyout(dom: HTMLElement, blocks: Array<IBlock>) {
+export default function renderFlyout(dom: HTMLElement, blocks: IBlock[]) {
 
   const MARGIN_LEFT = 40;
   const MARGIN_TOP = 40;

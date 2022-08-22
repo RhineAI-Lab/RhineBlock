@@ -23,6 +23,7 @@ export default class BaseRender {
 
     const linesWidth = [];
     const linesHeight = [];
+    const statementsX = []
     let currentY = this.PADDING
     for (const line of block.lines) {
       let lineHeight = this.LINE_HEIGHT;
@@ -32,7 +33,7 @@ export default class BaseRender {
         if (arg.type === ArgType.Text) {
           svgEl = this.newText(arg.text, currentX, currentY, this.TEXT_COLOR);
         } else if (arg.type === ArgType.Statement) {
-
+          statementsX.push(currentX + this.PADDING)
         } else if (arg.type === ArgType.Field) {
 
         } else if (arg.type === ArgType.Value) {
@@ -54,6 +55,11 @@ export default class BaseRender {
 
     const builder = new PathBuilder()
       .moveTo(0, 0, true)
+      .horizontalTo(width)
+      .verticalTo(height)
+      .horizontalTo(-width)
+      .verticalTo(-height)
+      .close()
     let bodyPath = builder.build() + ' ' + innerPath.join(' ')
 
     const background = this.newPath(bodyPath, block.color, 'none');
@@ -97,7 +103,7 @@ export default class BaseRender {
   }
 }
 
-function sum(arr: Array<number>): number{
+function sum(arr: number[]): number{
   return arr.reduce((prev, curr, idx, arr)=>{
     return prev + curr
   })
