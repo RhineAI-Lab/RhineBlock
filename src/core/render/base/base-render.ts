@@ -2,8 +2,11 @@ import Block from "../../block/block.class";
 import PathBuilder from "../../utils/path-builder";
 import {ArgType} from "../../block/arg.class";
 import './base-render.css'
+import {ShapeProvider} from "./shape-provider";
 
 export default class BaseRender {
+  static provider = new ShapeProvider()
+
   static PADDING = 5;
   static MIN_WIDTH = 100;
   static LINE_HEIGHT = 30;
@@ -14,7 +17,7 @@ export default class BaseRender {
   static FONT_SIZE = 14;
   static TEXT_LINE_HEIGHT = 14;
 
-  static render(block: Block, svg:SVGGElement): SVGGElement {
+  static render(block: Block, svg: SVGGElement): SVGGElement {
 
     const el = this.newGroup({
       class: 'rb-block-holder'
@@ -41,7 +44,7 @@ export default class BaseRender {
         } else if (arg.type === ArgType.Value) {
 
         }
-        if(svgEl){
+        if (svgEl) {
           el.appendChild(svgEl)
           const rect = svgEl.getBoundingClientRect()
           currentX += this.CONTENT_SPACING + rect.width
@@ -51,17 +54,18 @@ export default class BaseRender {
       linesWidth.push(currentX + this.PADDING)
       linesHeight.push(lineHeight);
     }
-    console.log(linesHeight)
 
     const width = Math.max(...linesWidth)
     const height = sum(linesHeight)
 
     const builder = new PathBuilder()
-      .moveTo(0, 0, true)
-      .horizontalTo(width)
+      .moveTo(this.provider.CORNER_SIZE, 0, true)
+      .horizontalTo(width - this.provider.CORNER_SIZE)
       .verticalTo(height)
-      .horizontalTo(-width)
-      .verticalTo(-height)
+      .horizontalTo(-width + this.provider.CORNER_SIZE)
+      .pushPath(this.provider.makeBottomLeftCorner())
+      .verticalTo(-height + this.provider.CORNER_SIZE * 2)
+      .pushPath(this.provider.makeTopLeftCorner())
       .close()
     let bodyPath = builder.build() + ' ' + innerPath.join(' ')
 
@@ -106,16 +110,16 @@ export default class BaseRender {
   }
 }
 
-function sum(arr: number[]): number{
-  return arr.reduce((prev, curr, idx, arr)=>{
+function sum(arr: number[]): number {
+  return arr.reduce((prev, curr, idx, arr) => {
     return prev + curr
   })
 }
 
-function appendChildToFirst(parent: HTMLElement | SVGElement, child: HTMLElement | SVGElement){
-  if(parent.children.length===0){
+function appendChildToFirst(parent: HTMLElement | SVGElement, child: HTMLElement | SVGElement) {
+  if (parent.children.length === 0) {
     parent.appendChild(child)
-  }else{
+  } else {
     parent.insertBefore(child, parent.children[0])
   }
 }
