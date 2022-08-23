@@ -1,5 +1,5 @@
 export default class PathBuilder {
-  path: string[] = [];
+  path: PLine[] = [];
 
   moveTo(x: number, y: number, absolute: boolean = false): PathBuilder {
     return this.push('m', absolute, x, y)
@@ -37,14 +37,14 @@ export default class PathBuilder {
     return this.push('a', absolute, rx, ry, xAxisRotation, largeArcFlag ? 1 : 0, sweepFlag ? 1 : 0, x, y)
   }
 
-  push(opt: 'm'|'l'|'h'|'v'|'c'|'s'|'q'|'t'|'a'|'z', absolute: boolean = false, ...args: any[]): PathBuilder {
+  push(opt: 'm' | 'l' | 'h' | 'v' | 'c' | 's' | 'q' | 't' | 'a' | 'z', absolute: boolean = false, ...args: PLine): PathBuilder {
     const optChar = absolute ? opt.toUpperCase() : opt
-    this.pushPath([optChar, ...args].join(' '))
+    this.pushPath([[optChar, ...args]])
     return this
   }
 
-  pushPath(path: string){
-    this.path.push(path)
+  pushPath(path: PLine[]) {
+    this.path = this.path.concat(path)
     return this
   }
 
@@ -53,7 +53,34 @@ export default class PathBuilder {
     return this
   }
 
+  reverse(): this {
+    const np: PLine[] = []
+    for (let i=this.path.length-1;i>=0;i--) {
+      const p = this.path[i]
+      for (const j in p) {
+        if(typeof(p[j]) === 'number'){
+          p[j] = -p[j]
+        }
+      }
+      np.push(p)
+    }
+    this.path = np
+    return this
+  }
+
+  getPath(reverse: boolean = true): PLine[] {
+    if(reverse) this.reverse()
+    return this.path
+  }
+
+  connect(): (string | number)[] {
+    if (this.path.length < 1) return []
+    return this.path.reduce((a, b) => a.concat(b))
+  }
+
   build(): string {
-    return this.path.join(' ')
+    return this.connect().join(' ')
   }
 }
+
+export type PLine = (string | number)[]
