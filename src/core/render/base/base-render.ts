@@ -18,6 +18,9 @@ export default class BaseRender {
   static FONT_SIZE = 14;
   static TEXT_LINE_HEIGHT = 16;
 
+  static MIN_VALUE_WIDTH = 40
+  static MIN_VALUE_HEIGHT = this.LINE_HEIGHT
+
   static render(block: Block, svg: SVGGElement): SVGGElement {
 
     const el = SvgElCreator.newGroup({
@@ -36,6 +39,7 @@ export default class BaseRender {
       let currentX = this.PADDING;
       for (const arg of line) {
         let svgEl = null
+        let wh = [0, 0]
         if (arg.type === ArgType.Text) {
           svgEl = SvgElCreator.newText(arg.text, currentX, currentY + this.TEXT_LINE_HEIGHT, this.FONT_SIZE, this.TEXT_COLOR);
         } else if (arg.type === ArgType.Statement) {
@@ -43,13 +47,15 @@ export default class BaseRender {
         } else if (arg.type === ArgType.Field) {
 
         } else if (arg.type === ArgType.Value) {
-
+          innerPath.push(this.makeValuePath(currentX, currentY))
+          wh = [this.MIN_VALUE_WIDTH, this.MIN_VALUE_HEIGHT + this.PADDING * 2]
         }
         if (svgEl) {
           el.appendChild(svgEl)
           const rect = svgEl.getBoundingClientRect()
-          currentX += this.CONTENT_SPACING + rect.width
+          wh = [rect.width, rect.height]
         }
+        currentX += this.CONTENT_SPACING + wh[0]
       }
       currentY += lineHeight
       linesWidth.push(currentX + this.PADDING)
@@ -88,6 +94,25 @@ export default class BaseRender {
       .pushPath(this.provider.makePuzzle())
       .horizontalTo(width - this.provider.PUZZLE_WIDTH - this.provider.PUZZLE_LEFT)
       .getPath(reverse)
+  }
+
+  static makeTabLine(height: number, reverse: boolean = false): PLine[] {
+    return new PathBuilder()
+      .verticalTo(this.provider.TAB_TOP)
+      .pushPath(this.provider.makeTab())
+      .verticalTo(height - this.provider.TAB_HEIGHT - this.provider.TAB_TOP)
+      .getPath(reverse)
+  }
+
+  static makeValuePath(x: number = 0, y: number = 0, width: number = this.MIN_VALUE_WIDTH, height: number = this.MIN_VALUE_HEIGHT): string {
+    return new PathBuilder()
+      .moveTo(x, y, true)
+      .horizontalTo(width)
+      .verticalTo(height)
+      .horizontalTo(-width)
+      .pushPath(this.makeTabLine(height, true))
+      .close()
+      .build()
   }
 
 
