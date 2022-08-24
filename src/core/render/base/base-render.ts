@@ -4,6 +4,7 @@ import {ArgType} from "../../block/arg.class";
 import './base-render.css'
 import {ShapeProvider} from "./shape-provider";
 import SvgElCreator from "./svg-el-creator";
+import {adjustColorBright} from "../../utils/color";
 
 export default class BaseRender {
   // 细节形状提供器
@@ -28,16 +29,18 @@ export default class BaseRender {
 
   static render(block: Block, svg: SVGGElement): SVGGElement {
 
+    // 创建图形块根元素
     const el = SvgElCreator.newGroup({
       class: 'rb-block-holder'
     })
     svg.appendChild(el)
 
+    // 绘制内部元素 并记录坐标情况
     const innerPath: string[] = []
-
     const linesWidth = [];
     const linesHeight = [];
     const statementsX = []
+
     let currentY = this.PADDING_VERTICAL
     let startX = this.PADDING_HORIZONTAL + this.CONTENT_SPACING;
     if (block.type === BlockType.Output) {
@@ -81,6 +84,7 @@ export default class BaseRender {
       linesHeight.push(lineHeight);
     }
 
+    // 计算图形块主体路径
     const width = Math.max(this.MIN_WIDTH, ...linesWidth)
     const height = sum(linesHeight)
 
@@ -114,10 +118,20 @@ export default class BaseRender {
     let bodyPath = builder.build() + ' ' + innerPath.join(' ')
     console.log(bodyPath)
 
+    // 添加图形块阴影
+    const shadowStroke = 1.3;
+    const shadowColorSpace = 30;
     const background = SvgElCreator.newPath(bodyPath, block.color, 'none');
     background.setAttribute('class', 'rb-block-body');
+    const backgroundDark = SvgElCreator.newPath(bodyPath, adjustColorBright(block.color, -shadowColorSpace), 'none');
+    backgroundDark.style.transform = `translate(${shadowStroke}px, ${shadowStroke}px)`
+    background.setAttribute('class', 'rb-block-body');
+    const backgroundLight = SvgElCreator.newPath(bodyPath, adjustColorBright(block.color, shadowColorSpace), 'none');
+    backgroundLight.style.transform = `translate(0, ${-shadowStroke}px)`
 
     appendChildToFirst(el, background);
+    appendChildToFirst(el, backgroundLight)
+    appendChildToFirst(el, backgroundDark)
 
     return el
   }
