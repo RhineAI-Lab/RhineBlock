@@ -101,7 +101,7 @@ export default class BaseRender {
     this.linesHeight = []
     // 计算每行宽度及高度
     for (let i = 0; i < block.lines.length; i++) {
-      let height = this.MIN_LINE_HEIGHT
+      let height = this.MIN_LINE_HEIGHT - this.PADDING_VERTICAL * 2
       for (let j = 0; j < block.lines[i].length; j++) {
         const arg = block.lines[i][j]
         if (arg.h > height) {
@@ -137,7 +137,7 @@ export default class BaseRender {
 
     const builder = new PathBuilder()
     if (block.type === BlockType.Output) {
-      builder.pushPath(this.makeValuePath(0, 0, [], width, height).getPath(false))
+      builder.pushPath(this.makeValuePath(0, 0, width, height, []).getPath(false))
     } else {
       if (block.hadHat()) {
         builder.moveTo(0, this.provider.HAT_HEIGHT, true)
@@ -163,7 +163,7 @@ export default class BaseRender {
     }
     block.mapValueArgs((arg, id, i, j) => {
       if (arg.type === ArgType.Value) {
-        builder.pushPath(this.makeValuePath(arg.x, arg.y, [], arg.w, arg.h).getPath())
+        builder.pushPath(this.makeValuePath(arg.x, arg.y, arg.w, arg.h, []).getPath())
       }
     })
     return builder.build()
@@ -171,7 +171,7 @@ export default class BaseRender {
 
 
   // 绘制内部拼接路径边框
-  static makeValuePath(x: number = 0, y: number = 0, rightLine: PLine[] = [], width: number = this.MIN_VALUE_WIDTH, height: number = this.MIN_VALUE_HEIGHT): PathBuilder {
+  static makeValuePath(x: number = 0, y: number = 0, width: number = this.MIN_VALUE_WIDTH, height: number = this.MIN_VALUE_HEIGHT, rightLine: PLine[] = []): PathBuilder {
     return new PathBuilder()
       .moveTo(x + width, y + height, true)
       .horizontalTo(-width + this.provider.TAB_WIDTH)
