@@ -11,7 +11,7 @@ export default class BaseRender {
   static provider = new ShapeProvider()
 
   // 整图形块参数
-  static MIN_WIDTH = 36; // 最小宽度
+  static MIN_WIDTH = 40; // 最小宽度
   static MIN_LINE_HEIGHT = 28; // 每行最小高度
   static PADDING_VERTICAL = 5; // 每行垂直边距
   static PADDING_VERTICAL_VL = 5; // 当此行有VALUE输入时 额外增加垂直边距高度
@@ -24,6 +24,7 @@ export default class BaseRender {
   static TEXT_LINE_HEIGHT = 16; // 文本行高
 
   // 输入图形块大小
+  static MIN_STATEMENT_WIDTH = 40 // 最小STATEMENT宽度
   static MIN_VALUE_WIDTH = 36 // 最小VALUE块宽度
   static MIN_VALUE_HEIGHT = this.MIN_LINE_HEIGHT // 最小VALUE块高度
 
@@ -42,6 +43,7 @@ export default class BaseRender {
     this.renderView(block, el)
     this.renderPositionCalculate(block, el)
     const bodyPath = this.renderBodyPath(block, el)
+    console.log(bodyPath)
 
     // 添加图形块阴影
     for (const i in this.SHADOW_COLORS) {
@@ -70,7 +72,7 @@ export default class BaseRender {
         if (arg.value) {
           el = this.render(arg.value, parent)
         } else {
-          arg.w = this.MIN_VALUE_WIDTH
+          arg.w = this.MIN_STATEMENT_WIDTH
           arg.h = this.MIN_VALUE_HEIGHT
         }
       } else if (arg.type === ArgType.Value) {
@@ -94,69 +96,111 @@ export default class BaseRender {
   static linesWidth: number[] = []
   static linesHeight: number[] = []
   static statementsX: number[] = []
+  static topSeatLine: boolean = false
+  static needBottomSeatLine: boolean[] = []
+  static width = 0
+  static height = 0
 
   // 计算所有参数对应位置
   static renderPositionCalculate(block: Block, parent: SVGElement): void {
-    this.linesWidth = []
-    this.linesHeight = []
-    // 计算每行宽度及高度
+    // 计算语句输入是否需要上下占位行
+    this.needBottomSeatLine = []
     for (let i = 0; i < block.lines.length; i++) {
-      let height = this.MIN_LINE_HEIGHT - this.PADDING_VERTICAL * 2
-      for (let j = 0; j < block.lines[i].length; j++) {
-        const arg = block.lines[i][j]
-        if (arg.h > height) {
-          height = arg.h
+      this.needBottomSeatLine.push(false)
+      if(block.hadStatementInLine(i)){
+        if(i===0){
+          this.topSeatLine = true
+        }
+        if(i===block.lines.length-1 || block.hadStatementInLine(i+1)){
+          this.needBottomSeatLine[i] = true
         }
       }
-      this.linesHeight.push(height + this.PADDING_VERTICAL * 2)
+    }
+    // 计算每行宽度及高度
+    this.linesWidth = []
+    this.linesHeight = []
+    for (let i = 0; i < block.lines.length; i++) {
+      let height = this.MIN_LINE_HEIGHT
+      for (let j = 0; j < block.lines[i].length; j++) {
+        const arg = block.lines[i][j]
+        let th = arg.h
+        if(arg.type !== ArgType.Statement) th += this.PADDING_VERTICAL * 2
+        if (th > height) height = th
+      }
+      this.linesHeight.push(height)
     }
     // 计算每个元素具体位置
     let startX = this.PADDING_HORIZONTAL
     if (block.type === BlockType.Output) startX += this.provider.TAB_WIDTH
     let y = 0
     if (block.type === BlockType.Hat) y += this.provider.HAT_HEIGHT
+    if(this.topSeatLine) y += this.provider.SEAT_HEIGHT
     for (let i = 0; i < block.lines.length; i++) {
       let h = this.linesHeight[i]
       let x = startX
+      this.statementsX.push(0)
       for (let j = 0; j < block.lines[i].length; j++) {
         const arg = block.lines[i][j]
         arg.x = x
         arg.y = y + (h - arg.h) / 2
         arg.updateViewPosition()
+        if(arg.type === ArgType.Statement) {
+          this.statementsX[i] = x
+          if(j+1 < block.lines[i].length) console.warn('Statement should be the last argument in a line')
+          x += arg.w + this.CONTENT_SPACING
+          break
+        }
         x += arg.w + this.CONTENT_SPACING
       }
       this.linesWidth.push(x + this.PADDING_HORIZONTAL - this.CONTENT_SPACING)
+      if(this.needBottomSeatLine[i]){
+        y += this.provider.SEAT_HEIGHT
+      }
       y += h
     }
+    this.height = y
+    this.width = Math.max(this.MIN_WIDTH, ...this.linesWidth)
   }
 
   // 计算图形块主体路径
   static renderBodyPath(block: Block, parent: SVGElement): string {
-    const width = Math.max(this.MIN_WIDTH, ...this.linesWidth)
-    const height = sum(this.linesHeight)
-
     const builder = new PathBuilder()
     if (block.type === BlockType.Output) {
-      builder.pushPath(this.makeValuePath(0, 0, width, height, []).getPath(false))
+      builder.pushPath(this.makeValuePath(0, 0, this.width, this.height, []).getPath(false))
     } else {
       if (block.hadHat()) {
         builder.moveTo(0, this.provider.HAT_HEIGHT, true)
         builder.pushPath(this.provider.makeHat())
-        builder.horizontalTo(width - this.provider.HAT_WIDTH)
+        builder.horizontalTo(this.width - this.provider.HAT_WIDTH)
       } else if (block.type === BlockType.Start || block.type === BlockType.Single) {
         builder.moveTo(0, this.provider.CORNER_SIZE, true)
         builder.pushPath(this.provider.makeTopLeftCorner())
-        builder.horizontalTo(width - this.provider.CORNER_SIZE)
+        builder.horizontalTo(this.width - this.provider.CORNER_SIZE)
       } else {
         builder.moveTo(0, this.provider.CORNER_SIZE, true)
         builder.pushPath(this.provider.makeTopLeftCorner())
-        builder.pushPath(this.makePuzzleLine(width))
+        builder.pushPath(this.makePuzzleLine(this.width))
       }
-      builder.verticalTo(height)
+      this.linesHeight.map((h, i) => {
+        if(block.hadStatementInLine(i)){
+          console.log(this.statementsX)
+          const statementW = this.width - this.statementsX[i]
+          builder.pushPath(this.makePuzzleLine(statementW, true))
+          builder.pushPath(this.provider.makeTopLeftCorner(true))
+          builder.verticalTo(h - this.provider.CORNER_SIZE * 2)
+          builder.pushPath(this.provider.makeBottomLeftCorner())
+          builder.horizontalTo(statementW - this.provider.CORNER_SIZE)
+        }else{
+          builder.verticalTo(h)
+        }
+        if(this.needBottomSeatLine[i]){
+          builder.verticalTo(this.provider.SEAT_HEIGHT)
+        }
+      });
       if (block.type === BlockType.Finish || block.type === BlockType.Single) {
-        builder.horizontalTo(-width + this.provider.CORNER_SIZE)
+        builder.horizontalTo(-this.width + this.provider.CORNER_SIZE)
       } else {
-        builder.pushPath(this.makePuzzleLine(width, true))
+        builder.pushPath(this.makePuzzleLine(this.width, true))
       }
       builder.pushPath(this.provider.makeBottomLeftCorner(true))
       builder.close()

@@ -33,6 +33,10 @@ export default class Block {
     return this.type == BlockType.HatSingle || this.type == BlockType.Hat
   }
 
+  hadStatementInLine(i: number): boolean {
+    return this.lines[i].some(arg => arg.type === ArgType.Statement)
+  }
+
   mapArgs(fn: (arg: Arg, i: number, j: number) => void): void {
     this.lines.forEach((line, i) => {
       line.forEach((arg, j) => {
