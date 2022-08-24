@@ -105,6 +105,7 @@ export default class BaseRender {
   static renderPositionCalculate(block: Block, parent: SVGElement): void {
     // 计算语句输入是否需要上下占位行
     this.needBottomSeatLine = []
+    this.topSeatLine = false
     for (let i = 0; i < block.lines.length; i++) {
       this.needBottomSeatLine.push(false)
       if(block.hadStatementInLine(i)){
@@ -181,9 +182,11 @@ export default class BaseRender {
         builder.pushPath(this.provider.makeTopLeftCorner())
         builder.pushPath(this.makePuzzleLine(this.width))
       }
+      if(this.topSeatLine){
+        builder.verticalTo(this.provider.SEAT_HEIGHT)
+      }
       this.linesHeight.map((h, i) => {
         if(block.hadStatementInLine(i)){
-          console.log(this.statementsX)
           const statementW = this.width - this.statementsX[i]
           builder.pushPath(this.makePuzzleLine(statementW, true))
           builder.pushPath(this.provider.makeTopLeftCorner(true))

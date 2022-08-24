@@ -8,9 +8,6 @@ const controlBlocks: IBlock[] = [
     type: BlockType.Statement,
     lines: [
       [
-        {text: '如果'},
-        {value: 'boo'},
-      ], [
         {text: '执行'},
         {statement: null},
       ],
