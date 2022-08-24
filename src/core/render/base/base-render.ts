@@ -15,7 +15,7 @@ export default class BaseRender {
   static MIN_LINE_HEIGHT = 28; // 每行最小高度
   static PADDING_VERTICAL = 5; // 每行垂直边距
   static PADDING_VERTICAL_VL = 5; // 当此行有VALUE输入时 额外增加垂直边距高度
-  static PADDING_HORIZONTAL = 3; // 图形块水平边距(不含CONTENT_SPACING)
+  static PADDING_HORIZONTAL = 7; // 图形块水平边距
   static CONTENT_SPACING = 4; // 行内内容之间间距
 
   // 文本参数
@@ -23,14 +23,14 @@ export default class BaseRender {
   static FONT_SIZE = 14; // 字体大小
   static TEXT_LINE_HEIGHT = 16; // 文本行高
 
-  // VALUE输入图形块大小
+  // 输入图形块大小
   static MIN_VALUE_WIDTH = 36 // 最小VALUE块宽度
   static MIN_VALUE_HEIGHT = this.MIN_LINE_HEIGHT // 最小VALUE块高度
 
   // 阴影效果
   static SHADOW_STROKE = 1.2
   static SHADOW_COLORS = [0, -24, 32]
-  static SHADOW_POSITIONS = [[0,0], [1, 1], [0, -1]]
+  static SHADOW_POSITIONS = [[0, 0], [1, 1], [0, -1]]
 
   static render(block: Block, parent: SVGElement): SVGElement {
     // 创建图形块根元素
@@ -46,9 +46,9 @@ export default class BaseRender {
     // 添加图形块阴影
     for (const i in this.SHADOW_COLORS) {
       const body = SvgElCreator.newPath(bodyPath, adjustColorBright(block.color, this.SHADOW_COLORS[i]), 'none');
-      if(i==='0'){
+      if (i === '0') {
         body.classList.add('rb-block-body')
-      }else{
+      } else {
         body.style.transform = `translate(${this.SHADOW_POSITIONS[i][0]}px, ${this.SHADOW_POSITIONS[i][1]}px)`
       }
       appendChildToFirst(el, body);
@@ -64,25 +64,26 @@ export default class BaseRender {
       let el: SVGElement | null = null;
       if (arg.type === ArgType.Text) {
         el = SvgElCreator.newText(arg.text, 0, 0, this.FONT_SIZE, this.TEXT_COLOR);
-      }else if (arg.type === ArgType.Field) {
+      } else if (arg.type === ArgType.Field) {
 
-      }else if (arg.type === ArgType.Statement) {
-        if(arg.value){
+      } else if (arg.type === ArgType.Statement) {
+        if (arg.value) {
           el = this.render(arg.value, parent)
-        }else{
+        } else {
           arg.w = this.MIN_VALUE_WIDTH
           arg.h = this.MIN_VALUE_HEIGHT
         }
-      }else if (arg.type === ArgType.Value) {
-        if(arg.value){
+      } else if (arg.type === ArgType.Value) {
+        if (arg.value) {
           el = this.render(arg.value, parent)
-        }else{
+        } else {
           arg.w = this.MIN_VALUE_WIDTH
           arg.h = this.MIN_VALUE_HEIGHT
         }
       }
-      if(el != null) {
+      if (el != null) {
         parent.appendChild(el)
+        arg.view = el
         let rect = el.getBoundingClientRect()
         arg.w = rect.width
         arg.h = rect.height
@@ -101,31 +102,30 @@ export default class BaseRender {
     // 计算每行宽度及高度
     for (let i = 0; i < block.lines.length; i++) {
       let height = this.MIN_LINE_HEIGHT
-      let width = this.PADDING_HORIZONTAL*2 - this.CONTENT_SPACING
       for (let j = 0; j < block.lines[i].length; j++) {
         const arg = block.lines[i][j]
-        if(arg.h>height){
+        if (arg.h > height) {
           height = arg.h
         }
-        width += arg.w + this.CONTENT_SPACING
       }
-      this.linesWidth.push(width)
-      this.linesHeight.push(height)
+      this.linesHeight.push(height + this.PADDING_VERTICAL * 2)
     }
     // 计算每个元素具体位置
+    let startX = this.PADDING_HORIZONTAL
+    if (block.type === BlockType.Output) startX += this.provider.TAB_WIDTH
     let y = 0
+    if (block.type === BlockType.Hat) y += this.provider.HAT_HEIGHT
     for (let i = 0; i < block.lines.length; i++) {
       let h = this.linesHeight[i]
-      let x = this.PADDING_HORIZONTAL
+      let x = startX
       for (let j = 0; j < block.lines[i].length; j++) {
         const arg = block.lines[i][j]
         arg.x = x
-        arg.y = y
+        arg.y = y + (h - arg.h) / 2
+        arg.updateViewPosition()
         x += arg.w + this.CONTENT_SPACING
-        if(arg.view){
-          arg.view.setAttribute('transform', `translate(${arg.x} ${arg.y})`)
-        }
       }
+      this.linesWidth.push(x + this.PADDING_HORIZONTAL - this.CONTENT_SPACING)
       y += h
     }
   }
@@ -139,28 +139,33 @@ export default class BaseRender {
     if (block.type === BlockType.Output) {
       builder.pushPath(this.makeValuePath(0, 0, [], width, height).getPath(false))
     } else {
-      if(block.hadHat()){
+      if (block.hadHat()) {
         builder.moveTo(0, this.provider.HAT_HEIGHT, true)
         builder.pushPath(this.provider.makeHat())
         builder.horizontalTo(width - this.provider.HAT_WIDTH)
-      }else if(block.type === BlockType.Start || block.type === BlockType.Single){
+      } else if (block.type === BlockType.Start || block.type === BlockType.Single) {
         builder.moveTo(0, this.provider.CORNER_SIZE, true)
         builder.pushPath(this.provider.makeTopLeftCorner())
         builder.horizontalTo(width - this.provider.CORNER_SIZE)
-      }else{
+      } else {
         builder.moveTo(0, this.provider.CORNER_SIZE, true)
         builder.pushPath(this.provider.makeTopLeftCorner())
         builder.pushPath(this.makePuzzleLine(width))
       }
       builder.verticalTo(height)
-      if(block.type === BlockType.Finish || block.type === BlockType.Single){
+      if (block.type === BlockType.Finish || block.type === BlockType.Single) {
         builder.horizontalTo(-width + this.provider.CORNER_SIZE)
-      }else{
+      } else {
         builder.pushPath(this.makePuzzleLine(width, true))
       }
       builder.pushPath(this.provider.makeBottomLeftCorner(true))
       builder.close()
     }
+    block.mapValueArgs((arg, id, i, j) => {
+      if (arg.type === ArgType.Value) {
+        builder.pushPath(this.makeValuePath(arg.x, arg.y, [], arg.w, arg.h).getPath())
+      }
+    })
     return builder.build()
   }
 

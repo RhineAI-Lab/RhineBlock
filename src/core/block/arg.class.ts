@@ -22,6 +22,12 @@ export default class Arg {
   ) {
   }
 
+  updateViewPosition(): void {
+    if (this.view) {
+      this.view.setAttribute('transform', `translate(${this.x}, ${this.y})`);
+    }
+  }
+
   static fromJson(id: number, data: IArg): Arg {
     if (!data.type) {
       if (data.text !== undefined) {

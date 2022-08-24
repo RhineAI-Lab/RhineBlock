@@ -41,7 +41,7 @@ export default class Block {
     })
   }
 
-  mapValueArgs(fn: (arg: Arg, id: number, i: number, j: number) => Arg): void {
+  mapValueArgs(fn: (arg: Arg, id: number, i: number, j: number) => void): void {
     this.lines.forEach((line, i) => {
       line.forEach((arg, j) => {
         if (arg.type !== ArgType.Text) {
