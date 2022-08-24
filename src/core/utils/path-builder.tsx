@@ -37,6 +37,11 @@ export default class PathBuilder {
     return this.push('a', absolute, rx, ry, xAxisRotation, largeArcFlag ? 1 : 0, sweepFlag ? 1 : 0, x, y)
   }
 
+  close(): PathBuilder {
+    this.push('z')
+    return this
+  }
+
   push(opt: 'm' | 'l' | 'h' | 'v' | 'c' | 's' | 'q' | 't' | 'a' | 'z', absolute: boolean = false, ...args: PLine): PathBuilder {
     const optChar = absolute ? opt.toUpperCase() : opt
     this.pushPath([[optChar, ...args]])
@@ -45,11 +50,6 @@ export default class PathBuilder {
 
   pushPath(path: PLine[]) {
     this.path = this.path.concat(path)
-    return this
-  }
-
-  close(): PathBuilder {
-    this.push('z')
     return this
   }
 
@@ -68,7 +68,7 @@ export default class PathBuilder {
     return this
   }
 
-  getPath(reverse: boolean = true): PLine[] {
+  getPath(reverse: boolean = false): PLine[] {
     if(reverse) this.reverse()
     return this.path
   }

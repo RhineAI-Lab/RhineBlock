@@ -5,7 +5,7 @@ export default function renderFlyout(dom: HTMLElement, blocks: IBlock[]) {
 
   const MARGIN_LEFT = 40;
   const MARGIN_TOP = 40;
-  const HEIGHT = 200;
+  const HEIGHT = 140;
 
   const svg = appendSvg(dom)
   for(let i in blocks) {

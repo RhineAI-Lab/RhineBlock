@@ -1,4 +1,4 @@
-import Block from "../../block/block.class";
+import Block, {BlockType} from "../../block/block.class";
 import PathBuilder, {PLine} from "../../utils/path-builder";
 import {ArgType} from "../../block/arg.class";
 import './base-render.css'
@@ -10,10 +10,10 @@ export default class BaseRender {
   static provider = new ShapeProvider()
 
   // 整图形块参数
-  static MIN_WIDTH = 46; // 最小宽度
+  static MIN_WIDTH = 36; // 最小宽度
   static MIN_LINE_HEIGHT = 28; // 每行最小高度
   static PADDING_VERTICAL = 5; // 每行垂直边距
-  static PADDING_HORIZONTAL = 0; // 图形块水平边距(不含CONTENT_SPACING)
+  static PADDING_HORIZONTAL = 3; // 图形块水平边距(不含CONTENT_SPACING)
   static CONTENT_SPACING = 4; // 行内内容之间间距
 
   // 文本参数
@@ -21,7 +21,7 @@ export default class BaseRender {
   static FONT_SIZE = 14; // 字体大小
   static TEXT_LINE_HEIGHT = 16; // 文本行高
 
-  static MIN_VALUE_WIDTH = 40 // 最小VALUE块宽度
+  static MIN_VALUE_WIDTH = 36 // 最小VALUE块宽度
   static MIN_VALUE_HEIGHT = this.MIN_LINE_HEIGHT // 最小VALUE块高度
 
   static render(block: Block, svg: SVGGElement): SVGGElement {
@@ -37,9 +37,13 @@ export default class BaseRender {
     const linesHeight = [];
     const statementsX = []
     let currentY = this.PADDING_VERTICAL
+    let startX = this.PADDING_HORIZONTAL + this.CONTENT_SPACING;
+    if(block.type === BlockType.Output){
+      startX += this.provider.TAB_WIDTH
+    }
     for (const line of block.lines) {
       let lineHeight = this.MIN_LINE_HEIGHT;
-      let currentX = this.PADDING_HORIZONTAL + this.CONTENT_SPACING + 3;
+      let currentX = startX
       for (const arg of line) {
         let svgEl = null
         let wh = [0, 0]
@@ -50,8 +54,8 @@ export default class BaseRender {
         } else if (arg.type === ArgType.Field) {
 
         } else if (arg.type === ArgType.Value) {
-          innerPath.push(this.makeValuePath(currentX, currentY))
           wh = [this.MIN_VALUE_WIDTH, this.MIN_VALUE_HEIGHT]
+          innerPath.push(this.makeValuePath(currentX, currentY, [], wh[0], wh[1]).build())
         }
         if (svgEl) {
           el.appendChild(svgEl)
@@ -70,12 +74,19 @@ export default class BaseRender {
     const height = sum(linesHeight)
 
     const builder = new PathBuilder()
-      .moveTo(0, this.provider.CORNER_SIZE, true)
-      .pushPath(this.makePuzzleLine(width))
-      .verticalTo(height)
-      .pushPath(this.makePuzzleLine(width, false, true))
-      .verticalTo(-height + this.provider.CORNER_SIZE * 2)
-      .close()
+    if(block.type === BlockType.Output){
+      builder.pushPath(this.makeValuePath(0, 0, [], width, height).getPath(false))
+    }else{
+      builder.moveTo(0, this.provider.CORNER_SIZE, true)
+      builder.pushPath(this.provider.makeTopLeftCorner())
+      builder.pushPath(this.makePuzzleLine(width))
+      builder.verticalTo(height)
+      builder.pushPath(this.makePuzzleLine(width, true))
+      builder.pushPath(this.provider.makeBottomLeftCorner(true))
+      builder.verticalTo(-height + this.provider.CORNER_SIZE * 2)
+      builder.close()
+    }
+
     let bodyPath = builder.build() + ' ' + innerPath.join(' ')
     console.log(bodyPath)
 
@@ -87,25 +98,19 @@ export default class BaseRender {
     return el
   }
 
-  static makeValuePath(x: number = 0, y: number = 0, width: number = this.MIN_VALUE_WIDTH, height: number = this.MIN_VALUE_HEIGHT): string {
+  static makeValuePath(x: number = 0, y: number = 0, rightLine: PLine[] = [], width: number = this.MIN_VALUE_WIDTH, height: number = this.MIN_VALUE_HEIGHT): PathBuilder {
     return new PathBuilder()
-      .moveTo(x + this.provider.TAB_WIDTH, y, true)
-      .horizontalTo(width - this.provider.TAB_WIDTH)
-      .verticalTo(height)
-      .horizontalTo(-width + this.provider.TAB_WIDTH)
+      .moveTo(x + width, y + height, true)
+      .horizontalTo(- width + this.provider.TAB_WIDTH)
       .pushPath(this.makeTabLine(height, true))
+      .horizontalTo(width - this.provider.TAB_WIDTH)
+      .pushPath(rightLine)
       .close()
-      .build()
   }
 
 
-  static makePuzzleLine(width: number, isTop: boolean = true, reverse: boolean = false): PLine[] {
+  static makePuzzleLine(width: number, reverse: boolean = false): PLine[] {
     return new PathBuilder()
-      .pushPath(
-        isTop ?
-          this.provider.makeTopLeftCorner() :
-          this.provider.makeBottomLeftCorner()
-      )
       .horizontalTo(this.provider.PUZZLE_LEFT - this.provider.CORNER_SIZE)
       .pushPath(this.provider.makePuzzle())
       .horizontalTo(width - this.provider.PUZZLE_WIDTH - this.provider.PUZZLE_LEFT)

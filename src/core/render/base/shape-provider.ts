@@ -6,7 +6,7 @@ export class ShapeProvider{
   CORNER_SIZE = 4 // 边角大小
 
   PUZZLE_LEFT = 14 // 上下拼图距左侧距离(相对图形块)
-  PUZZLE_WIDTH = 9 // 上下拼图宽度
+  PUZZLE_WIDTH = 15 // 上下拼图宽度
   PUZZLE_HEIGHT = 4 // 上下拼图高度
 
   TAB_TOP = 5 // 左右拼图距顶部距离(相对图形块)
@@ -39,7 +39,7 @@ export class ShapeProvider{
   makePuzzle(reverse: boolean = false): PLine[]{
     return new PathBuilder()
       .lineTo(this.PUZZLE_HEIGHT, this.PUZZLE_HEIGHT)
-      .horizontalTo(this.PUZZLE_WIDTH - this.PUZZLE_HEIGHT/2)
+      .horizontalTo(this.PUZZLE_WIDTH - this.PUZZLE_HEIGHT * 2)
       .lineTo(this.PUZZLE_HEIGHT, -this.PUZZLE_HEIGHT)
       .getPath(reverse)
   }

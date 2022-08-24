@@ -32,7 +32,7 @@ const controlBlocks: IBlock[] = [
     lines: [
       [
         {text: '输出'},
-        {field: FieldType.Text, default: 'Hello World'},
+        {value: 'String'},
       ],
     ],
   }, {
@@ -51,6 +51,15 @@ const controlBlocks: IBlock[] = [
     lines: [
       [
         {text: '当程序开始运行'},
+      ],
+    ],
+  }, {
+    name: 'text_text',
+    type: BlockType.Output,
+    lines: [
+      [
+        {text: '文本'},
+        {field: FieldType.Text},
       ],
     ],
   },
