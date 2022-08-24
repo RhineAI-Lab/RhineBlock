@@ -8,20 +8,26 @@ const controlBlocks: IBlock[] = [
     type: BlockType.Statement,
     lines: [
       [
-        {text: '执行'},
+        {text: '如果'},
+        {value: 'boolean'},
+      ],
+      [
+        {text: '执行B'},
         {statement: null},
       ],
     ],
-    toolbox: [
-      {
-        id: 1,
-        name: 'console_print',
-        value: [
-          {
-            name: 'control_if',
-          },
-        ],
-      },
+  }, {
+    name: 'events_do',
+    type: BlockType.Statement,
+    lines: [
+      [
+        {text: '执行A'},
+        {statement: null},
+      ],
+      [
+        {text: '执行B'},
+        {statement: null},
+      ],
     ],
   }, {
     name: 'console_print',

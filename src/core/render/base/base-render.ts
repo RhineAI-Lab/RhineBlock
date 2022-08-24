@@ -11,7 +11,7 @@ export default class BaseRender {
   static provider = new ShapeProvider()
 
   // 整图形块参数
-  static MIN_WIDTH = 40; // 最小宽度
+  static MIN_WIDTH = 36; // 最小宽度
   static MIN_LINE_HEIGHT = 28; // 每行最小高度
   static PADDING_VERTICAL = 5; // 每行垂直边距
   static PADDING_VERTICAL_VL = 5; // 当此行有VALUE输入时 额外增加垂直边距高度
@@ -24,7 +24,7 @@ export default class BaseRender {
   static TEXT_LINE_HEIGHT = 16; // 文本行高
 
   // 输入图形块大小
-  static MIN_STATEMENT_WIDTH = 40 // 最小STATEMENT宽度
+  static MIN_STATEMENT_WIDTH = 36 // 最小STATEMENT宽度
   static MIN_VALUE_WIDTH = 36 // 最小VALUE块宽度
   static MIN_VALUE_HEIGHT = this.MIN_LINE_HEIGHT // 最小VALUE块高度
 
@@ -165,9 +165,28 @@ export default class BaseRender {
 
   // 计算图形块主体路径
   static renderBodyPath(block: Block, parent: SVGElement): string {
+    // 绘制图形块右侧纵向路径
+    const rightBuilder = new PathBuilder()
+    const statementW = this.width - Math.max(...this.statementsX) // 共享语句块左边距
+    this.linesHeight.map((h, i) => {
+      if(block.hadStatementInLine(i)){
+        // const statementW = this.width - this.statementsX[i]  // 独立语句块左边距
+        rightBuilder.pushPath(this.makePuzzleLine(statementW, true))
+        rightBuilder.pushPath(this.provider.makeTopLeftCorner(true))
+        rightBuilder.verticalTo(h - this.provider.CORNER_SIZE * 2)
+        rightBuilder.pushPath(this.provider.makeBottomLeftCorner())
+        rightBuilder.horizontalTo(statementW - this.provider.CORNER_SIZE)
+      }else{
+        rightBuilder.verticalTo(h)
+      }
+      if(this.needBottomSeatLine[i]){
+        rightBuilder.verticalTo(this.provider.SEAT_HEIGHT)
+      }
+    });
+    // 绘制图形块主体路径
     const builder = new PathBuilder()
     if (block.type === BlockType.Output) {
-      builder.pushPath(this.makeValuePath(0, 0, this.width, this.height, []).getPath(false))
+      builder.pushPath(this.makeValuePath(0, 0, this.width, this.height, rightBuilder.getPath()).getPath(false))
     } else {
       if (block.hadHat()) {
         builder.moveTo(0, this.provider.HAT_HEIGHT, true)
@@ -185,21 +204,7 @@ export default class BaseRender {
       if(this.topSeatLine){
         builder.verticalTo(this.provider.SEAT_HEIGHT)
       }
-      this.linesHeight.map((h, i) => {
-        if(block.hadStatementInLine(i)){
-          const statementW = this.width - this.statementsX[i]
-          builder.pushPath(this.makePuzzleLine(statementW, true))
-          builder.pushPath(this.provider.makeTopLeftCorner(true))
-          builder.verticalTo(h - this.provider.CORNER_SIZE * 2)
-          builder.pushPath(this.provider.makeBottomLeftCorner())
-          builder.horizontalTo(statementW - this.provider.CORNER_SIZE)
-        }else{
-          builder.verticalTo(h)
-        }
-        if(this.needBottomSeatLine[i]){
-          builder.verticalTo(this.provider.SEAT_HEIGHT)
-        }
-      });
+      builder.pushPath(rightBuilder.getPath())
       if (block.type === BlockType.Finish || block.type === BlockType.Single) {
         builder.horizontalTo(-this.width + this.provider.CORNER_SIZE)
       } else {
