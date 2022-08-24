@@ -6,20 +6,23 @@ import {ShapeProvider} from "./shape-provider";
 import SvgElCreator from "./svg-el-creator";
 
 export default class BaseRender {
+  // 细节形状提供器
   static provider = new ShapeProvider()
 
-  static PADDING = 5;
-  static MIN_WIDTH = 48;
-  static LINE_HEIGHT = 30;
+  // 整图形块参数
+  static MIN_WIDTH = 46; // 最小宽度
+  static MIN_LINE_HEIGHT = 28; // 每行最小高度
+  static PADDING_VERTICAL = 5; // 每行垂直边距
+  static PADDING_HORIZONTAL = 0; // 图形块水平边距(不含CONTENT_SPACING)
+  static CONTENT_SPACING = 4; // 行内内容之间间距
 
-  static CONTENT_SPACING = 4;
-  static TEXT_COLOR = '#ffffff'
+  // 文本参数
+  static TEXT_COLOR = '#ffffff' // 文本颜色
+  static FONT_SIZE = 14; // 字体大小
+  static TEXT_LINE_HEIGHT = 16; // 文本行高
 
-  static FONT_SIZE = 14;
-  static TEXT_LINE_HEIGHT = 16;
-
-  static MIN_VALUE_WIDTH = 40
-  static MIN_VALUE_HEIGHT = this.LINE_HEIGHT
+  static MIN_VALUE_WIDTH = 40 // 最小VALUE块宽度
+  static MIN_VALUE_HEIGHT = this.MIN_LINE_HEIGHT // 最小VALUE块高度
 
   static render(block: Block, svg: SVGGElement): SVGGElement {
 
@@ -33,32 +36,33 @@ export default class BaseRender {
     const linesWidth = [];
     const linesHeight = [];
     const statementsX = []
-    let currentY = this.PADDING
+    let currentY = this.PADDING_VERTICAL
     for (const line of block.lines) {
-      let lineHeight = this.LINE_HEIGHT;
-      let currentX = this.PADDING;
+      let lineHeight = this.MIN_LINE_HEIGHT;
+      let currentX = this.PADDING_HORIZONTAL + this.CONTENT_SPACING + 3;
       for (const arg of line) {
         let svgEl = null
         let wh = [0, 0]
         if (arg.type === ArgType.Text) {
-          svgEl = SvgElCreator.newText(arg.text, currentX, currentY + this.TEXT_LINE_HEIGHT, this.FONT_SIZE, this.TEXT_COLOR);
+          svgEl = SvgElCreator.newText(arg.text, currentX, currentY, this.FONT_SIZE, this.TEXT_COLOR);
         } else if (arg.type === ArgType.Statement) {
-          statementsX.push(currentX + this.PADDING)
+          statementsX.push(currentX + this.PADDING_VERTICAL)
         } else if (arg.type === ArgType.Field) {
 
         } else if (arg.type === ArgType.Value) {
           innerPath.push(this.makeValuePath(currentX, currentY))
-          wh = [this.MIN_VALUE_WIDTH, this.MIN_VALUE_HEIGHT + this.PADDING * 2]
+          wh = [this.MIN_VALUE_WIDTH, this.MIN_VALUE_HEIGHT]
         }
         if (svgEl) {
           el.appendChild(svgEl)
           const rect = svgEl.getBoundingClientRect()
           wh = [rect.width, rect.height]
         }
-        currentX += this.CONTENT_SPACING + wh[0]
+        currentX += wh[0] + this.CONTENT_SPACING
+        lineHeight = Math.max(lineHeight, wh[1] + this.PADDING_VERTICAL * 2)
       }
       currentY += lineHeight
-      linesWidth.push(currentX + this.PADDING)
+      linesWidth.push(currentX + this.PADDING_HORIZONTAL)
       linesHeight.push(lineHeight);
     }
 
@@ -83,6 +87,18 @@ export default class BaseRender {
     return el
   }
 
+  static makeValuePath(x: number = 0, y: number = 0, width: number = this.MIN_VALUE_WIDTH, height: number = this.MIN_VALUE_HEIGHT): string {
+    return new PathBuilder()
+      .moveTo(x + this.provider.TAB_WIDTH, y, true)
+      .horizontalTo(width - this.provider.TAB_WIDTH)
+      .verticalTo(height)
+      .horizontalTo(-width + this.provider.TAB_WIDTH)
+      .pushPath(this.makeTabLine(height, true))
+      .close()
+      .build()
+  }
+
+
   static makePuzzleLine(width: number, isTop: boolean = true, reverse: boolean = false): PLine[] {
     return new PathBuilder()
       .pushPath(
@@ -102,17 +118,6 @@ export default class BaseRender {
       .pushPath(this.provider.makeTab())
       .verticalTo(height - this.provider.TAB_HEIGHT - this.provider.TAB_TOP)
       .getPath(reverse)
-  }
-
-  static makeValuePath(x: number = 0, y: number = 0, width: number = this.MIN_VALUE_WIDTH, height: number = this.MIN_VALUE_HEIGHT): string {
-    return new PathBuilder()
-      .moveTo(x, y, true)
-      .horizontalTo(width)
-      .verticalTo(height)
-      .horizontalTo(-width)
-      .pushPath(this.makeTabLine(height, true))
-      .close()
-      .build()
   }
 
 

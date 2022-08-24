@@ -3,15 +3,15 @@ import PathBuilder, {PLine} from "../../utils/path-builder";
 
 export class ShapeProvider{
 
-  CORNER_SIZE = 4
+  CORNER_SIZE = 4 // 边角大小
 
-  PUZZLE_LEFT = 16
-  PUZZLE_WIDTH = 12
-  PUZZLE_HEIGHT = 4
+  PUZZLE_LEFT = 14 // 上下拼图距左侧距离(相对图形块)
+  PUZZLE_WIDTH = 9 // 上下拼图宽度
+  PUZZLE_HEIGHT = 4 // 上下拼图高度
 
-  TAB_TOP = 5
-  TAB_WIDTH = 6
-  TAB_HEIGHT = 12
+  TAB_TOP = 5 // 左右拼图距顶部距离(相对图形块)
+  TAB_WIDTH = 6 // 左右拼图宽度
+  TAB_HEIGHT = 12 // 左右拼图高度
 
   makeTopLeftCorner(reverse: boolean = false): PLine[]{
     return new PathBuilder()

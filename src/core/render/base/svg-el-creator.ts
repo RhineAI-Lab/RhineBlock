@@ -1,4 +1,3 @@
-
 export default class SvgElCreator {
 
   static newPath(path: string, color: string = '#888888', stroke: string = 'none'): SVGPathElement {
@@ -12,10 +11,11 @@ export default class SvgElCreator {
 
   static newText(text: string, x: number, y: number, fontSize: number = 14, color: string = '#ffffff'): SVGTextElement {
     const el = this.newSvgElement('text', {
-      x: (x+3).toString(),
+      x: x.toString(),
       y: y.toString(),
       fill: color,
       'font-size': fontSize + 'px',
+      'dominant-baseline': 'text-before-edge'
     }) as SVGTextElement;
     el.textContent = text;
     return el;
