@@ -13,6 +13,7 @@ export default class BaseRender {
   static MIN_WIDTH = 36; // 最小宽度
   static MIN_LINE_HEIGHT = 28; // 每行最小高度
   static PADDING_VERTICAL = 5; // 每行垂直边距
+  static PADDING_VERTICAL_VL = 5; // 当此行有VALUE输入时 额外增加垂直边距高度
   static PADDING_HORIZONTAL = 3; // 图形块水平边距(不含CONTENT_SPACING)
   static CONTENT_SPACING = 4; // 行内内容之间间距
 
@@ -21,6 +22,7 @@ export default class BaseRender {
   static FONT_SIZE = 14; // 字体大小
   static TEXT_LINE_HEIGHT = 16; // 文本行高
 
+  // VALUE输入图形块大小
   static MIN_VALUE_WIDTH = 36 // 最小VALUE块宽度
   static MIN_VALUE_HEIGHT = this.MIN_LINE_HEIGHT // 最小VALUE块高度
 
@@ -38,17 +40,24 @@ export default class BaseRender {
     const statementsX = []
     let currentY = this.PADDING_VERTICAL
     let startX = this.PADDING_HORIZONTAL + this.CONTENT_SPACING;
-    if(block.type === BlockType.Output){
+    if (block.type === BlockType.Output) {
       startX += this.provider.TAB_WIDTH
     }
     for (const line of block.lines) {
       let lineHeight = this.MIN_LINE_HEIGHT;
       let currentX = startX
+      let expY = 0
+      for (const arg of line) {
+        if (arg.type === ArgType.Value) {
+          expY += this.PADDING_VERTICAL_VL
+          break
+        }
+      }
       for (const arg of line) {
         let svgEl = null
         let wh = [0, 0]
         if (arg.type === ArgType.Text) {
-          svgEl = SvgElCreator.newText(arg.text, currentX, currentY, this.FONT_SIZE, this.TEXT_COLOR);
+          svgEl = SvgElCreator.newText(arg.text, currentX, currentY + expY, this.FONT_SIZE, this.TEXT_COLOR);
         } else if (arg.type === ArgType.Statement) {
           statementsX.push(currentX + this.PADDING_VERTICAL)
         } else if (arg.type === ArgType.Field) {
@@ -74,12 +83,19 @@ export default class BaseRender {
     const height = sum(linesHeight)
 
     const builder = new PathBuilder()
-    if(block.type === BlockType.Output){
+    if (block.type === BlockType.Output) {
       builder.pushPath(this.makeValuePath(0, 0, [], width, height).getPath(false))
-    }else{
+    } else {
       builder.moveTo(0, this.provider.CORNER_SIZE, true)
-      builder.pushPath(this.provider.makeTopLeftCorner())
-      builder.pushPath(this.makePuzzleLine(width))
+      if(block.type === BlockType.Hat || block.type === BlockType.HatSingle){
+        builder.horizontalTo(width)
+      }else if(block.type === BlockType.Start || block.type === BlockType.Single){
+        builder.pushPath(this.provider.makeTopLeftCorner())
+        builder.horizontalTo(width - this.provider.CORNER_SIZE)
+      }else{
+        builder.pushPath(this.provider.makeTopLeftCorner())
+        builder.pushPath(this.makePuzzleLine(width))
+      }
       builder.verticalTo(height)
       builder.pushPath(this.makePuzzleLine(width, true))
       builder.pushPath(this.provider.makeBottomLeftCorner(true))
@@ -101,7 +117,7 @@ export default class BaseRender {
   static makeValuePath(x: number = 0, y: number = 0, rightLine: PLine[] = [], width: number = this.MIN_VALUE_WIDTH, height: number = this.MIN_VALUE_HEIGHT): PathBuilder {
     return new PathBuilder()
       .moveTo(x + width, y + height, true)
-      .horizontalTo(- width + this.provider.TAB_WIDTH)
+      .horizontalTo(-width + this.provider.TAB_WIDTH)
       .pushPath(this.makeTabLine(height, true))
       .horizontalTo(width - this.provider.TAB_WIDTH)
       .pushPath(rightLine)
