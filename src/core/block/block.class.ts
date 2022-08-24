@@ -1,6 +1,8 @@
-import Arg, {IArg} from "./arg.class";
+import Arg, {ArgType, IArg} from "./arg.class";
 
 export default class Block {
+
+  view: SVGElement | null = null;
 
   constructor(
     public name: string,
@@ -30,6 +32,26 @@ export default class Block {
   hadHat(): boolean {
     return this.type == BlockType.HatSingle || this.type == BlockType.Hat
   }
+
+  mapArgs(fn: (arg: Arg, i: number, j: number) => Arg): void {
+    this.lines.forEach((line, i) => {
+      line.forEach((arg, j) => {
+        fn(arg, i, j);
+      })
+    })
+  }
+
+  mapValueArgs(fn: (arg: Arg, id: number, i: number, j: number) => Arg): void {
+    this.lines.forEach((line, i) => {
+      line.forEach((arg, j) => {
+        if (arg.type !== ArgType.Text) {
+          fn(arg, arg.id, i, j)
+        }
+      })
+    })
+  }
+
+
 }
 
 export enum BlockType {

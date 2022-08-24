@@ -3,9 +3,18 @@ export default class Arg {
   default: any;
 
   text: string = '';
-  field: FieldType = FieldType.None;
-  value: string | number | boolean = '';
-  statement: string = '';
+  fieldType: FieldType = FieldType.None;
+  valueType: string | number | boolean = '';
+  statementType: string = '';
+
+  value: any = null;
+  onValueChange = () => {};
+
+  view: SVGElement | null = null;
+  x: number = -1;
+  y: number = -1;
+  w: number = -1;
+  h: number = -1;
 
   constructor(
     public id: number,
@@ -33,13 +42,13 @@ export default class Arg {
         arg.text = data.text!;
         break;
       case ArgType.Field:
-        arg.field = data.field!;
+        arg.fieldType = data.field!;
         break;
       case ArgType.Value:
-        arg.value = data.value!;
+        arg.valueType = data.value!;
         break;
       case ArgType.Statement:
-        arg.statement = data.statement!;
+        arg.statementType = data.statement!;
         break;
     }
     if(data.content){
@@ -54,6 +63,7 @@ export default class Arg {
   static fromLineStr(id: number, line: string): Arg {
     return new Arg(id, ArgType.Text)
   }
+
 }
 
 export interface IArg {

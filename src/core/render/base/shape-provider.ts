@@ -11,7 +11,7 @@ export class ShapeProvider{
 
   TAB_TOP = 5 // 左右拼图距顶部距离(相对图形块)
   TAB_WIDTH = 6 // 左右拼图宽度
-  TAB_HEIGHT = 12 // 左右拼图高度
+  TAB_HEIGHT = 14 // 左右拼图高度
 
   HAT_WIDTH = 56 // 帽子宽度
   HAT_HEIGHT = 10 // 帽子高度

@@ -39,7 +39,7 @@ export default class BaseRender {
     const innerPath: string[] = []
     const linesWidth = [];
     const linesHeight = [];
-    const statementsX = []
+    const statementsX = [];
 
     let currentY = this.PADDING_VERTICAL
     let startX = this.PADDING_HORIZONTAL + this.CONTENT_SPACING;
@@ -126,7 +126,7 @@ export default class BaseRender {
     const backgroundDark = SvgElCreator.newPath(bodyPath, adjustColorBright(block.color, -shadowColorSpace), 'none');
     backgroundDark.style.transform = `translate(${shadowStroke}px, ${shadowStroke}px)`
     background.setAttribute('class', 'rb-block-body');
-    const backgroundLight = SvgElCreator.newPath(bodyPath, adjustColorBright(block.color, shadowColorSpace), 'none');
+    const backgroundLight = SvgElCreator.newPath(bodyPath, adjustColorBright(block.color, shadowColorSpace*1.5), 'none');
     backgroundLight.style.transform = `translate(0, ${-shadowStroke}px)`
 
     appendChildToFirst(el, background);
@@ -135,6 +135,9 @@ export default class BaseRender {
 
     return el
   }
+
+  
+
 
   static makeValuePath(x: number = 0, y: number = 0, rightLine: PLine[] = [], width: number = this.MIN_VALUE_WIDTH, height: number = this.MIN_VALUE_HEIGHT): PathBuilder {
     return new PathBuilder()
