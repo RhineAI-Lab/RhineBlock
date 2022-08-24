@@ -1,6 +1,6 @@
 import Block, {BlockType} from "../../block/block.class";
 import PathBuilder, {PLine} from "../../utils/path-builder";
-import {ArgType} from "../../block/arg.class";
+import Arg, {ArgType} from "../../block/arg.class";
 import './base-render.css'
 import {ShapeProvider} from "./shape-provider";
 import SvgElCreator from "./svg-el-creator";
@@ -27,66 +27,113 @@ export default class BaseRender {
   static MIN_VALUE_WIDTH = 36 // 最小VALUE块宽度
   static MIN_VALUE_HEIGHT = this.MIN_LINE_HEIGHT // 最小VALUE块高度
 
-  static render(block: Block, svg: SVGGElement): SVGGElement {
+  // 阴影效果
+  static SHADOW_STROKE = 1.2
+  static SHADOW_COLORS = [0, -24, 32]
+  static SHADOW_POSITIONS = [[0,0], [1, 1], [0, -1]]
 
+  static render(block: Block, parent: SVGElement): SVGElement {
     // 创建图形块根元素
     const el = SvgElCreator.newGroup({
       class: 'rb-block-holder'
     })
-    svg.appendChild(el)
+    parent.appendChild(el)
 
-    // 绘制内部元素 并记录坐标情况
-    const innerPath: string[] = []
-    const linesWidth = [];
-    const linesHeight = [];
-    const statementsX = [];
+    this.renderView(block, el)
+    this.renderPositionCalculate(block, el)
+    const bodyPath = this.renderBodyPath(block, el)
 
-    let currentY = this.PADDING_VERTICAL
-    let startX = this.PADDING_HORIZONTAL + this.CONTENT_SPACING;
-    if (block.type === BlockType.Output) {
-      startX += this.provider.TAB_WIDTH
-    } else if (block.hadHat()){
-      currentY += this.provider.HAT_HEIGHT
-    }
-    for (const line of block.lines) {
-      let lineHeight = this.MIN_LINE_HEIGHT;
-      let currentX = startX
-      let expY = 0
-      for (const arg of line) {
-        if (arg.type === ArgType.Value) {
-          expY += this.PADDING_VERTICAL_VL
-          break
-        }
+    // 添加图形块阴影
+    for (const i in this.SHADOW_COLORS) {
+      const body = SvgElCreator.newPath(bodyPath, adjustColorBright(block.color, this.SHADOW_COLORS[i]), 'none');
+      if(i==='0'){
+        body.classList.add('rb-block-body')
+      }else{
+        body.style.transform = `translate(${this.SHADOW_POSITIONS[i][0]}px, ${this.SHADOW_POSITIONS[i][1]}px)`
       }
-      for (const arg of line) {
-        let svgEl = null
-        let wh = [0, 0]
-        if (arg.type === ArgType.Text) {
-          svgEl = SvgElCreator.newText(arg.text, currentX, currentY + expY, this.FONT_SIZE, this.TEXT_COLOR);
-        } else if (arg.type === ArgType.Statement) {
-          statementsX.push(currentX + this.PADDING_VERTICAL)
-        } else if (arg.type === ArgType.Field) {
-
-        } else if (arg.type === ArgType.Value) {
-          wh = [this.MIN_VALUE_WIDTH, this.MIN_VALUE_HEIGHT]
-          innerPath.push(this.makeValuePath(currentX, currentY, [], wh[0], wh[1]).build())
-        }
-        if (svgEl) {
-          el.appendChild(svgEl)
-          const rect = svgEl.getBoundingClientRect()
-          wh = [rect.width, rect.height]
-        }
-        currentX += wh[0] + this.CONTENT_SPACING
-        lineHeight = Math.max(lineHeight, wh[1] + this.PADDING_VERTICAL * 2)
-      }
-      currentY += lineHeight
-      linesWidth.push(currentX + this.PADDING_HORIZONTAL)
-      linesHeight.push(lineHeight);
+      appendChildToFirst(el, body);
     }
 
-    // 计算图形块主体路径
-    const width = Math.max(this.MIN_WIDTH, ...linesWidth)
-    const height = sum(linesHeight)
+    return el
+  }
+
+  // 渲染出所有内部元素并记录所有元素宽高。
+  // 当有内部拼接图形块时，进行递归，计算全部宽高。
+  static renderView(block: Block, parent: SVGElement): void {
+    block.mapArgs((arg, i, j) => {
+      let el: SVGElement | null = null;
+      if (arg.type === ArgType.Text) {
+        el = SvgElCreator.newText(arg.text, 0, 0, this.FONT_SIZE, this.TEXT_COLOR);
+      }else if (arg.type === ArgType.Field) {
+
+      }else if (arg.type === ArgType.Statement) {
+        if(arg.value){
+          el = this.render(arg.value, parent)
+        }else{
+          arg.w = this.MIN_VALUE_WIDTH
+          arg.h = this.MIN_VALUE_HEIGHT
+        }
+      }else if (arg.type === ArgType.Value) {
+        if(arg.value){
+          el = this.render(arg.value, parent)
+        }else{
+          arg.w = this.MIN_VALUE_WIDTH
+          arg.h = this.MIN_VALUE_HEIGHT
+        }
+      }
+      if(el != null) {
+        parent.appendChild(el)
+        let rect = el.getBoundingClientRect()
+        arg.w = rect.width
+        arg.h = rect.height
+      }
+    })
+  }
+
+  static linesWidth: number[] = []
+  static linesHeight: number[] = []
+  static statementsX: number[] = []
+
+  // 计算所有参数对应位置
+  static renderPositionCalculate(block: Block, parent: SVGElement): void {
+    this.linesWidth = []
+    this.linesHeight = []
+    // 计算每行宽度及高度
+    for (let i = 0; i < block.lines.length; i++) {
+      let height = this.MIN_LINE_HEIGHT
+      let width = this.PADDING_HORIZONTAL*2 - this.CONTENT_SPACING
+      for (let j = 0; j < block.lines[i].length; j++) {
+        const arg = block.lines[i][j]
+        if(arg.h>height){
+          height = arg.h
+        }
+        width += arg.w + this.CONTENT_SPACING
+      }
+      this.linesWidth.push(width)
+      this.linesHeight.push(height)
+    }
+    // 计算每个元素具体位置
+    let y = 0
+    for (let i = 0; i < block.lines.length; i++) {
+      let h = this.linesHeight[i]
+      let x = this.PADDING_HORIZONTAL
+      for (let j = 0; j < block.lines[i].length; j++) {
+        const arg = block.lines[i][j]
+        arg.x = x
+        arg.y = y
+        x += arg.w + this.CONTENT_SPACING
+        if(arg.view){
+          arg.view.setAttribute('transform', `translate(${arg.x} ${arg.y})`)
+        }
+      }
+      y += h
+    }
+  }
+
+  // 计算图形块主体路径
+  static renderBodyPath(block: Block, parent: SVGElement): string {
+    const width = Math.max(this.MIN_WIDTH, ...this.linesWidth)
+    const height = sum(this.linesHeight)
 
     const builder = new PathBuilder()
     if (block.type === BlockType.Output) {
@@ -114,31 +161,11 @@ export default class BaseRender {
       builder.pushPath(this.provider.makeBottomLeftCorner(true))
       builder.close()
     }
-
-    let bodyPath = builder.build() + ' ' + innerPath.join(' ')
-    console.log(bodyPath)
-
-    // 添加图形块阴影
-    const shadowStroke = 1.3;
-    const shadowColorSpace = 30;
-    const background = SvgElCreator.newPath(bodyPath, block.color, 'none');
-    background.setAttribute('class', 'rb-block-body');
-    const backgroundDark = SvgElCreator.newPath(bodyPath, adjustColorBright(block.color, -shadowColorSpace), 'none');
-    backgroundDark.style.transform = `translate(${shadowStroke}px, ${shadowStroke}px)`
-    background.setAttribute('class', 'rb-block-body');
-    const backgroundLight = SvgElCreator.newPath(bodyPath, adjustColorBright(block.color, shadowColorSpace*1.5), 'none');
-    backgroundLight.style.transform = `translate(0, ${-shadowStroke}px)`
-
-    appendChildToFirst(el, background);
-    appendChildToFirst(el, backgroundLight)
-    appendChildToFirst(el, backgroundDark)
-
-    return el
+    return builder.build()
   }
 
-  
 
-
+  // 绘制内部拼接路径边框
   static makeValuePath(x: number = 0, y: number = 0, rightLine: PLine[] = [], width: number = this.MIN_VALUE_WIDTH, height: number = this.MIN_VALUE_HEIGHT): PathBuilder {
     return new PathBuilder()
       .moveTo(x + width, y + height, true)
@@ -149,6 +176,7 @@ export default class BaseRender {
       .close()
   }
 
+  // 绘制带上下拼图的水平线
   static makePuzzleLine(width: number, reverse: boolean = false): PLine[] {
     return new PathBuilder()
       .horizontalTo(this.provider.PUZZLE_LEFT - this.provider.CORNER_SIZE)
@@ -157,6 +185,7 @@ export default class BaseRender {
       .getPath(reverse)
   }
 
+  // 绘制带左右拼图的垂直线
   static makeTabLine(height: number, reverse: boolean = false): PLine[] {
     return new PathBuilder()
       .verticalTo(this.provider.TAB_TOP)

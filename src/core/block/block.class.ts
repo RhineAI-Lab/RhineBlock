@@ -33,7 +33,7 @@ export default class Block {
     return this.type == BlockType.HatSingle || this.type == BlockType.Hat
   }
 
-  mapArgs(fn: (arg: Arg, i: number, j: number) => Arg): void {
+  mapArgs(fn: (arg: Arg, i: number, j: number) => void): void {
     this.lines.forEach((line, i) => {
       line.forEach((arg, j) => {
         fn(arg, i, j);

@@ -9,9 +9,9 @@ export class ShapeProvider{
   PUZZLE_WIDTH = 15 // 上下拼图宽度
   PUZZLE_HEIGHT = 4 // 上下拼图高度
 
-  TAB_TOP = 5 // 左右拼图距顶部距离(相对图形块)
+  TAB_TOP = 4 // 左右拼图距顶部距离(相对图形块)
   TAB_WIDTH = 6 // 左右拼图宽度
-  TAB_HEIGHT = 14 // 左右拼图高度
+  TAB_HEIGHT = 15 // 左右拼图高度
 
   HAT_WIDTH = 56 // 帽子宽度
   HAT_HEIGHT = 10 // 帽子高度

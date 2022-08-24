@@ -11,10 +11,10 @@ export default class Arg {
   onValueChange = () => {};
 
   view: SVGElement | null = null;
-  x: number = -1;
-  y: number = -1;
-  w: number = -1;
-  h: number = -1;
+  x: number = 0;
+  y: number = 0;
+  w: number = 0;
+  h: number = 0;
 
   constructor(
     public id: number,
