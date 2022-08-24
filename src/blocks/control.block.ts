@@ -12,7 +12,7 @@ const controlBlocks: IBlock[] = [
         {value: 'boolean'},
       ],
       [
-        {text: '执行B'},
+        {text: ''},
         {statement: null},
       ],
     ],

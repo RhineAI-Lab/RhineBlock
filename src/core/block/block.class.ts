@@ -3,6 +3,8 @@ import Arg, {ArgType, IArg} from "./arg.class";
 export default class Block {
 
   view: SVGElement | null = null;
+  width: number = 0;
+  height: number = 0;
 
   constructor(
     public name: string,

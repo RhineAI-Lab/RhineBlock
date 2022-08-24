@@ -5,9 +5,10 @@ export default function renderFlyout(dom: HTMLElement, blocks: IBlock[]) {
 
   const MARGIN_LEFT = 40;
   const MARGIN_TOP = 40;
-  const HEIGHT = 140;
+  const SPACING = 60;
 
   const svg = appendSvg(dom)
+  let y = MARGIN_TOP
   for(let i in blocks) {
     if(blocks[i].toolbox === false) continue;
 
@@ -15,8 +16,9 @@ export default function renderFlyout(dom: HTMLElement, blocks: IBlock[]) {
 
     let blockEl = BaseRender.render(block, svg)
     blockEl.setAttribute("transform",
-      `translate(${MARGIN_LEFT},${HEIGHT * parseInt(i) + MARGIN_TOP})`
+      `translate(${MARGIN_LEFT},${y})`
     )
+    y += block.height + SPACING
   }
 }
 

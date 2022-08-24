@@ -25,6 +25,7 @@ export default class BaseRender {
 
   // 输入图形块大小
   static MIN_STATEMENT_WIDTH = 36 // 最小STATEMENT宽度
+  static MIN_STATEMENT_LEFT = 20 // 最小图形块左侧距离
   static MIN_VALUE_WIDTH = 36 // 最小VALUE块宽度
   static MIN_VALUE_HEIGHT = this.MIN_LINE_HEIGHT // 最小VALUE块高度
 
@@ -98,8 +99,6 @@ export default class BaseRender {
   static statementsX: number[] = []
   static topSeatLine: boolean = false
   static needBottomSeatLine: boolean[] = []
-  static width = 0
-  static height = 0
 
   // 计算所有参数对应位置
   static renderPositionCalculate(block: Block, parent: SVGElement): void {
@@ -142,16 +141,16 @@ export default class BaseRender {
       this.statementsX.push(0)
       for (let j = 0; j < block.lines[i].length; j++) {
         const arg = block.lines[i][j]
+        if(arg.type === ArgType.Statement) {
+          if(x < this.MIN_STATEMENT_LEFT) x = this.MIN_STATEMENT_LEFT
+          this.statementsX[i] = x
+          if(j+1 < block.lines[i].length) console.warn('Statement should be the last argument in a line')
+        }
         arg.x = x
         arg.y = y + (h - arg.h) / 2
         arg.updateViewPosition()
-        if(arg.type === ArgType.Statement) {
-          this.statementsX[i] = x
-          if(j+1 < block.lines[i].length) console.warn('Statement should be the last argument in a line')
-          x += arg.w + this.CONTENT_SPACING
-          break
-        }
         x += arg.w + this.CONTENT_SPACING
+        if(arg.type === ArgType.Statement) break
       }
       this.linesWidth.push(x + this.PADDING_HORIZONTAL - this.CONTENT_SPACING)
       if(this.needBottomSeatLine[i]){
@@ -159,18 +158,18 @@ export default class BaseRender {
       }
       y += h
     }
-    this.height = y
-    this.width = Math.max(this.MIN_WIDTH, ...this.linesWidth)
+    block.height = y
+    block.width = Math.max(this.MIN_WIDTH, ...this.linesWidth)
   }
 
   // 计算图形块主体路径
   static renderBodyPath(block: Block, parent: SVGElement): string {
     // 绘制图形块右侧纵向路径
     const rightBuilder = new PathBuilder()
-    const statementW = this.width - Math.max(...this.statementsX) // 共享语句块左边距
+    const statementW = block.width - Math.max(...this.statementsX) // 共享语句块左边距
     this.linesHeight.map((h, i) => {
       if(block.hadStatementInLine(i)){
-        // const statementW = this.width - this.statementsX[i]  // 独立语句块左边距
+        // const statementW = block.width - this.statementsX[i]  // 独立语句块左边距
         rightBuilder.pushPath(this.makePuzzleLine(statementW, true))
         rightBuilder.pushPath(this.provider.makeTopLeftCorner(true))
         rightBuilder.verticalTo(h - this.provider.CORNER_SIZE * 2)
@@ -186,29 +185,29 @@ export default class BaseRender {
     // 绘制图形块主体路径
     const builder = new PathBuilder()
     if (block.type === BlockType.Output) {
-      builder.pushPath(this.makeValuePath(0, 0, this.width, this.height, rightBuilder.getPath()).getPath(false))
+      builder.pushPath(this.makeValuePath(0, 0, block.width, block.height, rightBuilder.getPath()).getPath(false))
     } else {
       if (block.hadHat()) {
         builder.moveTo(0, this.provider.HAT_HEIGHT, true)
         builder.pushPath(this.provider.makeHat())
-        builder.horizontalTo(this.width - this.provider.HAT_WIDTH)
+        builder.horizontalTo(block.width - this.provider.HAT_WIDTH)
       } else if (block.type === BlockType.Start || block.type === BlockType.Single) {
         builder.moveTo(0, this.provider.CORNER_SIZE, true)
         builder.pushPath(this.provider.makeTopLeftCorner())
-        builder.horizontalTo(this.width - this.provider.CORNER_SIZE)
+        builder.horizontalTo(block.width - this.provider.CORNER_SIZE)
       } else {
         builder.moveTo(0, this.provider.CORNER_SIZE, true)
         builder.pushPath(this.provider.makeTopLeftCorner())
-        builder.pushPath(this.makePuzzleLine(this.width))
+        builder.pushPath(this.makePuzzleLine(block.width))
       }
       if(this.topSeatLine){
         builder.verticalTo(this.provider.SEAT_HEIGHT)
       }
       builder.pushPath(rightBuilder.getPath())
       if (block.type === BlockType.Finish || block.type === BlockType.Single) {
-        builder.horizontalTo(-this.width + this.provider.CORNER_SIZE)
+        builder.horizontalTo(-block.width + this.provider.CORNER_SIZE)
       } else {
-        builder.pushPath(this.makePuzzleLine(this.width, true))
+        builder.pushPath(this.makePuzzleLine(block.width, true))
       }
       builder.pushPath(this.provider.makeBottomLeftCorner(true))
       builder.close()
