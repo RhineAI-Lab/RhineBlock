@@ -8,7 +8,8 @@ export default class Block {
     public lines: Arg[][],
     public output: string | null,
     public color: string,
-  ) {}
+  ) {
+  }
 
   static fromJson(data: IBlock, theme: any): Block {
     let argI = 0;
@@ -24,6 +25,10 @@ export default class Block {
       data.output ? data.output : null,
       data.color ? data.color : '#329eff',
     )
+  }
+
+  hadHat(): boolean {
+    return this.type == BlockType.HatSingle || this.type == BlockType.Hat
   }
 }
 

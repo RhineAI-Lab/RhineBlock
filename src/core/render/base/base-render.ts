@@ -42,6 +42,8 @@ export default class BaseRender {
     let startX = this.PADDING_HORIZONTAL + this.CONTENT_SPACING;
     if (block.type === BlockType.Output) {
       startX += this.provider.TAB_WIDTH
+    } else if (block.hadHat()){
+      currentY += this.provider.HAT_HEIGHT
     }
     for (const line of block.lines) {
       let lineHeight = this.MIN_LINE_HEIGHT;
@@ -86,20 +88,26 @@ export default class BaseRender {
     if (block.type === BlockType.Output) {
       builder.pushPath(this.makeValuePath(0, 0, [], width, height).getPath(false))
     } else {
-      builder.moveTo(0, this.provider.CORNER_SIZE, true)
-      if(block.type === BlockType.Hat || block.type === BlockType.HatSingle){
-        builder.horizontalTo(width)
+      if(block.hadHat()){
+        builder.moveTo(0, this.provider.HAT_HEIGHT, true)
+        builder.pushPath(this.provider.makeHat())
+        builder.horizontalTo(width - this.provider.HAT_WIDTH)
       }else if(block.type === BlockType.Start || block.type === BlockType.Single){
+        builder.moveTo(0, this.provider.CORNER_SIZE, true)
         builder.pushPath(this.provider.makeTopLeftCorner())
         builder.horizontalTo(width - this.provider.CORNER_SIZE)
       }else{
+        builder.moveTo(0, this.provider.CORNER_SIZE, true)
         builder.pushPath(this.provider.makeTopLeftCorner())
         builder.pushPath(this.makePuzzleLine(width))
       }
       builder.verticalTo(height)
-      builder.pushPath(this.makePuzzleLine(width, true))
+      if(block.type === BlockType.Finish || block.type === BlockType.Single){
+        builder.horizontalTo(-width + this.provider.CORNER_SIZE)
+      }else{
+        builder.pushPath(this.makePuzzleLine(width, true))
+      }
       builder.pushPath(this.provider.makeBottomLeftCorner(true))
-      builder.verticalTo(-height + this.provider.CORNER_SIZE * 2)
       builder.close()
     }
 
@@ -123,7 +131,6 @@ export default class BaseRender {
       .pushPath(rightLine)
       .close()
   }
-
 
   static makePuzzleLine(width: number, reverse: boolean = false): PLine[] {
     return new PathBuilder()

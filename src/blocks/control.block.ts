@@ -47,22 +47,29 @@ const controlBlocks: IBlock[] = [
     ],
   }, {
     name: 'control_start',
-    type: BlockType.Start,
+    type: BlockType.Hat,
     lines: [
       [
         {text: '当程序开始运行'},
       ],
     ],
   }, {
-    name: 'text_text',
+    name: 'number_random_float',
     type: BlockType.Output,
     lines: [
       [
-        {text: '文本'},
-        {field: FieldType.Text},
+        {text: '随机小数'},
       ],
     ],
-  },
+  }, {
+    name: 'loop_break',
+    type: BlockType.Finish,
+    lines: [
+      [
+        {text: '跳出循环'},
+      ],
+    ],
+  }
 ]
 
 RhineBlock.registerBlocks(controlBlocks);
