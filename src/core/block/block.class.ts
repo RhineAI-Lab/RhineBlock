@@ -89,7 +89,7 @@ export default class Block {
           }
           if (arg.type === ArgType.Value && blockData.type === BlockType.Output) {
             arg.content = Block.fromJson(blockData)
-            if(content.args) arg.content.setArgs(content.args)
+            if(content.args) arg.content.setArgsFromJson(content.args)
           } else if (
             arg.type === ArgType.Statement && (
               blockData.type === BlockType.Statement ||
@@ -97,7 +97,7 @@ export default class Block {
             )
           ) {
             arg.content = Block.fromJson(blockData)
-            if(content.args) arg.content.setArgs(content.args)
+            if(content.args) arg.content.setArgsFromJson(content.args)
           } else {
             console.error('Block type is not match', arg.valueType, blockData.type)
           }
@@ -113,6 +113,7 @@ export default class Block {
           console.error('Block is not register', content.block)
         } else {
           this.next.content = Block.fromJson(blockData)
+          this.next.content.previous = this
           if(content.args) this.next.content.setArgsFromJson(content.args)
         }
       }
@@ -159,6 +160,6 @@ export interface ToolboxArgBlock {
   shadow?: boolean;
   args?: ToolboxArg[];
 
-  next: boolean; // 支付
+  next?: boolean; // 支付
 }
 

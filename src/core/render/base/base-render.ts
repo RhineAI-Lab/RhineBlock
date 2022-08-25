@@ -232,7 +232,7 @@ export default class BaseRender {
         builder.horizontalTo(block.width - this.provider.CORNER_SIZE)
       } else {
         builder.moveTo(0, this.provider.CORNER_SIZE, true)
-        builder.pushPath(this.provider.makeTopLeftCorner())
+        builder.pushPath(this.provider.makeTopLeftCorner(false, block.previous != null))
         builder.pushPath(this.makePuzzleLine(block.width))
       }
       if (this.topSeatLine) {
@@ -244,7 +244,7 @@ export default class BaseRender {
       } else {
         builder.pushPath(this.makePuzzleLine(block.width, true))
       }
-      builder.pushPath(this.provider.makeBottomLeftCorner(true))
+      builder.pushPath(this.provider.makeBottomLeftCorner(true, block.next.content != null))
       builder.close()
     }
     block.mapValueArgs((arg, id, i, j) => {

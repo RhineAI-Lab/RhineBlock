@@ -18,16 +18,30 @@ export class ShapeProvider{
   HAT_WIDTH = 56 // 帽子宽度
   HAT_HEIGHT = 10 // 帽子高度
 
-  makeTopLeftCorner(reverse: boolean = false): PLine[]{
-    return new PathBuilder()
-      .lineTo(this.CORNER_SIZE, -this.CORNER_SIZE)
-      .getPath(reverse)
+  makeTopLeftCorner(reverse: boolean = false, isRect: boolean = false): PLine[]{
+    if(isRect){
+      return new PathBuilder()
+        .verticalTo(-this.CORNER_SIZE)
+        .horizontalTo(this.CORNER_SIZE)
+        .getPath(reverse)
+    }else{
+      return new PathBuilder()
+        .lineTo(this.CORNER_SIZE, -this.CORNER_SIZE)
+        .getPath(reverse)
+    }
   }
 
-  makeBottomLeftCorner(reverse: boolean = false): PLine[]{
-    return new PathBuilder()
-      .lineTo(this.CORNER_SIZE, this.CORNER_SIZE)
-      .getPath(reverse)
+  makeBottomLeftCorner(reverse: boolean = false, isRect: boolean = false): PLine[]{
+    if(isRect){
+      return new PathBuilder()
+        .verticalTo(this.CORNER_SIZE)
+        .horizontalTo(this.CORNER_SIZE)
+        .getPath(reverse)
+    }else{
+      return new PathBuilder()
+        .lineTo(this.CORNER_SIZE, this.CORNER_SIZE)
+        .getPath(reverse)
+    }
   }
 
   makeTab(reverse: boolean = false): PLine[]{
