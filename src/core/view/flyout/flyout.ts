@@ -16,16 +16,17 @@ export default function renderFlyout(dom: HTMLElement, blocks: string[][]) {
   for (let i = 0; i < blocks.length; i++) {
     let y = MARGIN_TOP
     for (let j = 0; j < blocks[i].length; j++) {
-      const data = RhineBlock.getBlockData(blocks[i][j])
-      if(!data || data.toolbox === false) continue;
-
-      let block = Block.fromJson(data, true);
-
-      let blockEl = BaseRender.render(block, svg)
-      blockEl.setAttribute("transform",
+      const name = blocks[i][j]
+      let args = RhineBlock.getBlockToolbox(name)
+      if(!(args instanceof Array)) args = undefined
+      const block = BaseRender.render(name, svg)
+      if(!block) {
+        console.error('Block is not found', blocks[i][j])
+        continue
+      }
+      block.view?.setAttribute("transform",
         `translate(${MARGIN_LEFT+i*200},${y})`
       )
-
       y += block.height + SPACING
     }
   }

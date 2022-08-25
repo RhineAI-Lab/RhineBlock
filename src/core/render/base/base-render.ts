@@ -1,4 +1,4 @@
-import Block, {BlockType} from "../../block/block.class";
+import Block, {BlockType, ItemValue} from "../../block/block.class";
 import PathBuilder, {PLine} from "../../utils/path-builder";
 import {ArgType, FieldType} from "../../block/arg.class";
 import './base-style.css'
@@ -6,6 +6,7 @@ import {ShapeProvider} from "./shape-provider";
 import SvgElCreator from "./svg-el-creator";
 import {adjustColorBright} from "../../utils/color";
 import FieldProvider from "./field-provider";
+import {RhineBlock} from "../../RhineBlock";
 
 export default class BaseRender {
   // 细节形状提供器
@@ -32,12 +33,24 @@ export default class BaseRender {
   // 图形块拼接偏移量
   static BIAS = 1;
 
-  static render(block: Block, parent: SVGElement): SVGElement {
+  static render(name: string, parent: SVGElement, args: ItemValue[] = []): Block | null {
+
+    const data = RhineBlock.getBlockData(name)
+    if (!data || data.toolbox === false) return null
+
+    const block = Block.fromJson(data, true)
+    const blockEl = BaseRender.renderBlock(block, parent)
+
+    return block
+  }
+
+  static renderBlock(block: Block, parent: SVGElement): SVGElement {
     // 创建图形块根元素
     const el = SvgElCreator.newGroup({
       class: 'rb-block-holder'
     })
     parent.appendChild(el)
+    block.view = el
 
     this.renderView(block, el)
     this.renderPositionCalculate(block, el)
@@ -78,14 +91,14 @@ export default class BaseRender {
         }
       } else if (arg.type === ArgType.Statement) {
         if (arg.content) {
-          el = this.render(arg.content, parent)
+          el = this.renderBlock(arg.content, parent)
         } else {
           arg.w = this.MIN_STATEMENT_WIDTH
           arg.h = this.MIN_VALUE_HEIGHT
         }
       } else if (arg.type === ArgType.Value) {
         if (arg.content) {
-          el = this.render(arg.content, parent)
+          el = this.renderBlock(arg.content, parent)
         } else {
           arg.w = this.MIN_VALUE_WIDTH
           arg.h = this.MIN_VALUE_HEIGHT
@@ -105,7 +118,7 @@ export default class BaseRender {
     })
     const arg = block.next
     if (block.next.content) {
-      const el = this.render(arg.content, parent)
+      const el = this.renderBlock(arg.content, parent)
       parent.appendChild(el)
       arg.view = el
       let rect = el.getBoundingClientRect()
@@ -188,7 +201,7 @@ export default class BaseRender {
 
     // 绘制下方元素
     const arg = block.next
-    if(arg.content) {
+    if (arg.content) {
       arg.y = y
       arg.updateViewPosition([0, this.BIAS * 2])
       block.height += arg.h + this.BIAS * 2

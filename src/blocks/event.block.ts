@@ -12,6 +12,9 @@ const eventBlocks: IBlock[] = [
         {text: '当程序开始运行'},
       ],
     ],
+    // toolbox: [
+    //   {next: true, block: 'control_if'}
+    // ]
   }, {
     name: 'event_equipstate',
     type: BlockType.Hat,

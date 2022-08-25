@@ -1,6 +1,7 @@
 
 .holder{
-  display: block;
+  display: inline-block;
   width: 500px;
   height: 900px;
+  float: left;
 }
