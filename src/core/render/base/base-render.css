@@ -5,3 +5,13 @@
 .rb-block-holder *{
   position: absolute;
 }
+
+.rb-field rect{
+  stroke: #ffffff;
+  stroke-width: 0;
+}
+
+.rb-field:hover rect{
+  stroke-width: 2px;
+}
+

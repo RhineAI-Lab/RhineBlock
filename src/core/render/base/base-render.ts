@@ -1,10 +1,11 @@
 import Block, {BlockType} from "../../block/block.class";
 import PathBuilder, {PLine} from "../../utils/path-builder";
-import Arg, {ArgType} from "../../block/arg.class";
+import {ArgType, FieldType} from "../../block/arg.class";
 import './base-render.css'
 import {ShapeProvider} from "./shape-provider";
 import SvgElCreator from "./svg-el-creator";
 import {adjustColorBright} from "../../utils/color";
+import FieldProvider from "./field-provider";
 
 export default class BaseRender {
   // 细节形状提供器
@@ -34,6 +35,7 @@ export default class BaseRender {
   static SHADOW_COLORS = [0, -24, 32]
   static SHADOW_POSITIONS = [[0, 0], [1, 1], [0, -1]]
 
+
   static render(block: Block, parent: SVGElement): SVGElement {
     // 创建图形块根元素
     const el = SvgElCreator.newGroup({
@@ -60,6 +62,7 @@ export default class BaseRender {
     return el
   }
 
+
   // 渲染出所有内部元素并记录所有元素宽高。
   // 当有内部拼接图形块时，进行递归，计算全部宽高。
   static renderView(block: Block, parent: SVGElement): void {
@@ -68,17 +71,25 @@ export default class BaseRender {
       if (arg.type === ArgType.Text) {
         el = SvgElCreator.newText(arg.text, 0, 0, this.FONT_SIZE, this.TEXT_COLOR);
       } else if (arg.type === ArgType.Field) {
-
+        if(arg.fieldType === FieldType.Text){
+          if(!arg.content) arg.content = arg.default
+          el = FieldProvider.makeTextInput(
+            arg.content,
+            parent,
+            (text) => {
+            arg.content = text
+          });
+        }
       } else if (arg.type === ArgType.Statement) {
-        if (arg.value) {
-          el = this.render(arg.value, parent)
+        if (arg.content) {
+          el = this.render(arg.content, parent)
         } else {
           arg.w = this.MIN_STATEMENT_WIDTH
           arg.h = this.MIN_VALUE_HEIGHT
         }
       } else if (arg.type === ArgType.Value) {
-        if (arg.value) {
-          el = this.render(arg.value, parent)
+        if (arg.content) {
+          el = this.render(arg.content, parent)
         } else {
           arg.w = this.MIN_VALUE_WIDTH
           arg.h = this.MIN_VALUE_HEIGHT
@@ -93,6 +104,7 @@ export default class BaseRender {
       }
     })
   }
+
 
   static linesWidth: number[] = []
   static linesHeight: number[] = []
@@ -116,6 +128,7 @@ export default class BaseRender {
         }
       }
     }
+
     // 计算每行宽度及高度
     this.linesWidth = []
     this.linesHeight = []
@@ -129,6 +142,7 @@ export default class BaseRender {
       }
       this.linesHeight.push(height)
     }
+
     // 计算每个元素具体位置
     let startX = this.PADDING_HORIZONTAL
     if (block.type === BlockType.Output) startX += this.provider.TAB_WIDTH
@@ -162,6 +176,7 @@ export default class BaseRender {
     block.width = Math.max(this.MIN_WIDTH, ...this.linesWidth)
   }
 
+
   // 计算图形块主体路径
   static renderBodyPath(block: Block, parent: SVGElement): string {
     // 绘制图形块右侧纵向路径
@@ -182,6 +197,7 @@ export default class BaseRender {
         rightBuilder.verticalTo(this.provider.SEAT_HEIGHT)
       }
     });
+
     // 绘制图形块主体路径
     const builder = new PathBuilder()
     if (block.type === BlockType.Output) {
@@ -219,6 +235,7 @@ export default class BaseRender {
     })
     return builder.build()
   }
+
 
 
   // 绘制内部拼接路径边框

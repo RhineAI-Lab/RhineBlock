@@ -1,14 +1,13 @@
 export default class Arg {
-  content: any;
-  default: any;
+  content: any = null; // 当前内容值
+  default: any; // 默认值
 
-  text: string = '';
-  fieldType: FieldType = FieldType.None;
-  valueType: string | number | boolean = '';
-  statementType: string = '';
+  text: string = ''; // 仅当文本模式启用，表示文本内容
+  fieldType: FieldType = FieldType.None; // 仅当填充模式启用，表示填充类型
+  valueType: string | number | boolean = ''; // 仅当输入图形块模式启用，表示输入图形块类型
+  statementType: string = ''; // 仅当语句块输入模式启用，表示下方语句块类型
 
-  value: any = null;
-  onValueChange = () => {};
+  onValueChange: (arg: Arg)=>void = () => {}; // 当数据发生变化时
 
   view: SVGElement | null = null;
   x: number = 0;

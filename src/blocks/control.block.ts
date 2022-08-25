@@ -1,5 +1,6 @@
 import {BlockType, IBlock} from "../core/block/block.class";
 import {RhineBlock} from "../core/RhineBlock";
+import {FieldType} from "../core/block/arg.class";
 
 const controlBlocks: IBlock[] = [
   {
@@ -34,7 +35,7 @@ const controlBlocks: IBlock[] = [
     lines: [
       [
         {text: '输出'},
-        {value: 'String'},
+        {field: FieldType.Text, default: 'hello'},
       ],
     ],
   }, {
