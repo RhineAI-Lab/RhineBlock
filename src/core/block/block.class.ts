@@ -6,6 +6,7 @@ export default class Block {
   view: SVGElement | null = null;
   width: number = 0;
   height: number = 0;
+  next: Block | null = null;
 
   constructor(
     public name: string,
@@ -35,7 +36,11 @@ export default class Block {
   }
 
   hadHat(): boolean {
-    return this.type == BlockType.HatSingle || this.type == BlockType.Hat
+    return this.type === BlockType.HatSingle || this.type === BlockType.Hat
+  }
+
+  hadNext(): boolean {
+    return this.type !== BlockType.Single && this.type !== BlockType.Finish
   }
 
   hadStatementInLine(i: number): boolean {
