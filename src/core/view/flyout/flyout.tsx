@@ -4,6 +4,10 @@ import {RhineBlock} from "../../RhineBlock";
 
 import "../../../blocks/event.block";
 import "../../../blocks/equipment.block";
+import "../../../blocks/loop.block"
+import "../../../blocks/logic.block"
+import "../../../blocks/number.block"
+import "../../../blocks/text.block"
 
 export default function renderFlyout(dom: HTMLElement, blocks: string[][]) {
 
