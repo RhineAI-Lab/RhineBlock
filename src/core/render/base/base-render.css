@@ -10,6 +10,7 @@
   fill: #ffffff;
 }
 
+
 .rb-field text{
   fill: #000000;
 }
@@ -18,7 +19,6 @@
   stroke: #ffffff;
   stroke-width: 0;
 }
-
 .rb-field:hover rect{
   stroke-width: 2px;
 }

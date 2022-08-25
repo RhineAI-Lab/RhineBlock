@@ -9,9 +9,18 @@ export default function Flyout(props: FlyoutProps) {
   const ref = React.useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const flyoutBlocks = [
+      'control_if',
+      'events_do',
+      'console_print',
+      'math_add',
+      'control_start',
+      'number_random_float',
+      'loop_break',
+    ]
     if (ref.current) {
       if (!initialised) {
-        renderFlyout(ref.current, props.blocks);
+        renderFlyout(ref.current, flyoutBlocks);
         initialised = true;
       }
     }

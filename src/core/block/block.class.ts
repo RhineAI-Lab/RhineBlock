@@ -57,9 +57,9 @@ export default class Block {
     })
   }
 
-
 }
 
+// 图形块类型
 export enum BlockType {
   Statement,
   Output,
@@ -70,20 +70,23 @@ export enum BlockType {
   HatSingle,
 }
 
+// 图形块申明接口
 export interface IBlock {
   name: string;
   type?: BlockType;
   lines: IArg[][];
   output?: string | null;
   color?: string;
-  toolbox?: DefaultArg[] | boolean;
+  toolbox?: ToolboxArg[] | boolean;
 }
 
-export type DefaultArgValue = string | number | boolean | Array<DefaultArg>;
+// 工具箱内容类型
+export type ToolboxArg = string | number | boolean | ToolboxArgBlock;
 
-export interface DefaultArg {
-  id?: number;
-  name: string;
-  value?: DefaultArgValue;
+// 工具箱图形块填充
+export interface ToolboxArgBlock {
+  block: string;
+  shadow?: boolean;
+  toolbox?: ToolboxArg[];
 }
 

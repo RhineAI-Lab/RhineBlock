@@ -16,6 +16,10 @@ const controlBlocks: IBlock[] = [
         {statement: null},
       ],
     ],
+    toolbox: [
+      {block: 'number_random_float'},
+      {block: 'console_print'},
+    ]
   }, {
     name: 'events_do',
     type: BlockType.Statement,

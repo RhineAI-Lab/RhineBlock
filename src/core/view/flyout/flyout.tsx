@@ -1,7 +1,8 @@
 import Block , {IBlock} from "../../block/block.class";
 import BaseRender from "../../render/base/base-render";
+import {RhineBlock} from "../../RhineBlock";
 
-export default function renderFlyout(dom: HTMLElement, blocks: IBlock[]) {
+export default function renderFlyout(dom: HTMLElement, blocks: string[]) {
 
   const MARGIN_LEFT = 40;
   const MARGIN_TOP = 40;
@@ -10,9 +11,10 @@ export default function renderFlyout(dom: HTMLElement, blocks: IBlock[]) {
   const svg = appendSvg(dom)
   let y = MARGIN_TOP
   for(let i in blocks) {
-    if(blocks[i].toolbox === false) continue;
+    const data = RhineBlock.getBlockData(blocks[i])
+    if(!data || data.toolbox === false) continue;
 
-    let block = Block.fromJson(blocks[i], null);
+    let block = Block.fromJson(data, null);
 
     let blockEl = BaseRender.render(block, svg)
     blockEl.setAttribute("transform",
