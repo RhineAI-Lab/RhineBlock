@@ -10,13 +10,21 @@ export default function Flyout(props: FlyoutProps) {
 
   useEffect(() => {
     const flyoutBlocks = [
+      // 'event_start',
+      // 'event_equipstate',
+      // 'event_change',
+      // 'event_compare',
+      // 'equipment_state',
+      // 'equipment_control',
+      // 'equipment_getvalue',
+      // 'equipment_setvalue',
       'control_if',
-      'events_do',
-      'console_print',
-      'math_add',
-      'control_start',
-      'number_random_float',
-      'loop_break',
+      // 'events_do',
+      // 'console_print',
+      // 'math_add',
+      // 'number_random_float',
+      // 'loop_break',
+      // 'event_start',
     ]
     if (ref.current) {
       if (!initialised) {
@@ -34,5 +42,5 @@ export default function Flyout(props: FlyoutProps) {
 
 interface FlyoutProps {
   children?: React.ReactNode;
-  blocks: IBlock[];
+  blocks?: IBlock[];
 }
