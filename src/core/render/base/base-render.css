@@ -8,6 +8,11 @@
 
 .rb-block-text {
   fill: #ffffff;
+  pointer-events: none;
+}
+
+.rb-block-body{
+  cursor: grab;
 }
 
 
