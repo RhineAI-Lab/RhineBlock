@@ -12,13 +12,12 @@ const controlBlocks: IBlock[] = [
         {value: 'boolean'},
       ],
       [
-        {text: ''},
+        {text: '执行'},
         {statement: null},
       ],
     ],
     toolbox: [
-      {block: 'math_add', args: [{block: 'math_add', args: [{block: 'number_random_float' }]}]},
-      {block: 'control_if', args: [null, {block: 'console_print'}]},
+      {block:'control_if', next: true},
     ]
   }, {
     name: 'events_do',

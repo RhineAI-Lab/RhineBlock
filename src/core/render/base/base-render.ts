@@ -103,6 +103,15 @@ export default class BaseRender {
         arg.h = rect.height
       }
     })
+    const arg = block.next
+    if (block.next.content) {
+      const el = this.render(arg.content, parent)
+      parent.appendChild(el)
+      arg.view = el
+      let rect = el.getBoundingClientRect()
+      arg.w = rect.width
+      arg.h = rect.height
+    }
   }
 
 
@@ -176,6 +185,14 @@ export default class BaseRender {
     }
     block.height = y
     block.width = Math.max(this.MIN_WIDTH, ...this.linesWidth)
+
+    // 绘制下方元素
+    const arg = block.next
+    if(arg.content) {
+      arg.y = y
+      arg.updateViewPosition([0, this.BIAS * 2])
+      block.height += arg.h + this.BIAS * 2
+    }
   }
 
 

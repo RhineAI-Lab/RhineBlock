@@ -1,4 +1,4 @@
-import Block , {IBlock} from "../../block/block.class";
+import Block from "../../block/block.class";
 import BaseRender from "../../render/base/base-render";
 import {RhineBlock} from "../../RhineBlock";
 
@@ -14,10 +14,7 @@ export default function renderFlyout(dom: HTMLElement, blocks: string[]) {
     const data = RhineBlock.getBlockData(blocks[i])
     if(!data || data.toolbox === false) continue;
 
-    let block = Block.fromJson(data);
-    if(data.toolbox instanceof Array) {
-      block.setArgs(data.toolbox);
-    }
+    let block = Block.fromJson(data, true);
 
     let blockEl = BaseRender.render(block, svg)
     blockEl.setAttribute("transform",

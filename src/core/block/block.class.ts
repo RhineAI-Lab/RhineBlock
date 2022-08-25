@@ -6,7 +6,9 @@ export default class Block {
   view: SVGElement | null = null;
   width: number = 0;
   height: number = 0;
-  next: Block | null = null;
+
+  previous: Block | null = null;
+  next: Arg = Arg.fromJson(-1, {type: ArgType.Statement});
 
   constructor(
     public name: string,
@@ -17,7 +19,7 @@ export default class Block {
   ) {
   }
 
-  static fromJson(data: IBlock): Block {
+  static fromJson(data: IBlock, toolboxMode: boolean = false): Block {
     let argI = 0;
     const lines = data.lines.map(line => {
       return line.map(arg => {
@@ -26,13 +28,19 @@ export default class Block {
         return Arg.fromJson(id, arg);
       })
     })
-    return new Block(
+    const block = new Block(
       data.name,
       data.type ? data.type : BlockType.Statement,
       lines,
       data.output ? data.output : null,
       data.color ? data.color : '#329eff',
     )
+    if(toolboxMode) {
+      if(data.toolbox instanceof Array) {
+        block.setArgsFromJson(data.toolbox);
+      }
+    }
+    return block
   }
 
   hadHat(): boolean {
@@ -65,14 +73,15 @@ export default class Block {
     })
   }
 
-  setArgs(contents: ToolboxArg[]): void {
+  setArgsFromJson(contents: ToolboxArg[]): void {
     if (!contents) return
     try {
+      // 设置所有内部参数
       this.mapValueArgs((arg, id, i, j) => {
         const content = contents[id];
-        console.log(arg, content)
         if(!content) return
         if (typeof content === 'object') {
+          if(content.next) return;
           const blockData = RhineBlock.getBlockData(content.block)
           if (!blockData) {
             console.error('Block is not register', content.block)
@@ -96,6 +105,17 @@ export default class Block {
 
         }
       })
+      // 设置下方参数
+      const content = contents[contents.length - 1]
+      if(content && typeof content === 'object' && content.next) {
+        const blockData = RhineBlock.getBlockData(content.block)
+        if (!blockData) {
+          console.error('Block is not register', content.block)
+        } else {
+          this.next.content = Block.fromJson(blockData)
+          if(content.args) this.next.content.setArgsFromJson(content.args)
+        }
+      }
     } catch (e) {
       console.error('Args is invalid for this block', e)
     }
@@ -125,7 +145,9 @@ export interface IBlock {
   lines: IArg[][];
   output?: string | null;
   color?: string;
+
   toolbox?: ToolboxArg[] | boolean;
+  next?: ToolboxArgBlock;
 }
 
 // 内容类型
@@ -136,5 +158,7 @@ export interface ToolboxArgBlock {
   block: string;
   shadow?: boolean;
   args?: ToolboxArg[];
+
+  next: boolean; // 支付
 }
 
