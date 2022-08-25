@@ -14,7 +14,10 @@ export default function renderFlyout(dom: HTMLElement, blocks: string[]) {
     const data = RhineBlock.getBlockData(blocks[i])
     if(!data || data.toolbox === false) continue;
 
-    let block = Block.fromJson(data, null);
+    let block = Block.fromJson(data);
+    if(data.toolbox instanceof Array) {
+      block.setArgs(data.toolbox);
+    }
 
     let blockEl = BaseRender.render(block, svg)
     blockEl.setAttribute("transform",

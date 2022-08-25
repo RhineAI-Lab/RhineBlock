@@ -1,4 +1,5 @@
 import Arg, {ArgType, IArg} from "./arg.class";
+import {RhineBlock} from "../RhineBlock";
 
 export default class Block {
 
@@ -15,11 +16,14 @@ export default class Block {
   ) {
   }
 
-  static fromJson(data: IBlock, theme: any): Block {
+  static fromJson(data: IBlock): Block {
     let argI = 0;
     const lines = data.lines.map(line => {
       return line.map(arg => {
-        return Arg.fromJson(argI, arg);
+        if(arg.text !== undefined) arg.type = ArgType.Text;
+        const id = arg.type === ArgType.Text ? -1 : argI++;
+        console.log(id)
+        return Arg.fromJson(id, arg);
       })
     })
     return new Block(
@@ -57,6 +61,42 @@ export default class Block {
     })
   }
 
+  setArgs(contents: ToolboxArg[]): void {
+    if(!contents) return
+    try{
+      this.mapValueArgs((arg, id, i, j) => {
+        const content = contents[id];
+        console.log(arg, content)
+        if (typeof content === 'object') {
+          const blockData = RhineBlock.getBlockData(content.block)
+          if(!blockData) {
+            console.error('Block is not register', content.block)
+            return
+          }
+          if(arg.type === ArgType.Value && blockData.type === BlockType.Output){
+            arg.content = Block.fromJson(blockData)
+          }else if(
+            arg.type === ArgType.Statement && (
+              blockData.type === BlockType.Statement ||
+              blockData.type === BlockType.Finish
+            )
+          ){
+            arg.content = Block.fromJson(blockData)
+          }else{
+            console.error('Block type is not match', arg.valueType, blockData.type)
+          }
+        } else {
+
+        }
+      })
+    }catch (e) {
+      console.error('Args is invalid for this block', e)
+    }
+  }
+  getArgs(): ToolboxArg[] {
+    return []
+  }
+
 }
 
 // 图形块类型
@@ -80,13 +120,13 @@ export interface IBlock {
   toolbox?: ToolboxArg[] | boolean;
 }
 
-// 工具箱内容类型
+// 内容类型
 export type ToolboxArg = string | number | boolean | ToolboxArgBlock;
 
-// 工具箱图形块填充
+// 图形内容
 export interface ToolboxArgBlock {
   block: string;
   shadow?: boolean;
-  toolbox?: ToolboxArg[];
+  args?: ToolboxArg[];
 }
 
