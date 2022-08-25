@@ -19,11 +19,6 @@ export default class BaseRender {
   static PADDING_HORIZONTAL = 7; // 图形块水平边距
   static CONTENT_SPACING = 4; // 行内内容之间间距
 
-  // 文本参数
-  static TEXT_COLOR = '#ffffff' // 文本颜色
-  static FONT_SIZE = 14; // 字体大小
-  static TEXT_LINE_HEIGHT = 16; // 文本行高
-
   // 输入图形块大小
   static MIN_STATEMENT_WIDTH = 36 // 最小STATEMENT宽度
   static MIN_STATEMENT_LEFT = 20 // 最小图形块左侧距离
@@ -31,7 +26,6 @@ export default class BaseRender {
   static MIN_VALUE_HEIGHT = this.MIN_LINE_HEIGHT // 最小VALUE块高度
 
   // 阴影效果
-  static SHADOW_STROKE = 1.2
   static SHADOW_COLORS = [0, -24, 32]
   static SHADOW_POSITIONS = [[0, 0], [1, 1], [0, -1]]
 
@@ -69,7 +63,7 @@ export default class BaseRender {
     block.mapArgs((arg, i, j) => {
       let el: SVGElement | null = null;
       if (arg.type === ArgType.Text) {
-        el = SvgElCreator.newText(arg.text, 0, 0, this.FONT_SIZE, this.TEXT_COLOR);
+        el = SvgElCreator.newText(arg.text, 'rb-block-text');
       } else if (arg.type === ArgType.Field) {
         if(arg.fieldType === FieldType.Text){
           if(!arg.content) arg.content = arg.default

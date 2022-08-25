@@ -3,8 +3,6 @@ import SvgElCreator from "./svg-el-creator";
 export default class FieldProvider {
 
   static FIELD_RADIUS = 4;
-  static FIELD_TEXT_COLOR = '#000000' // 文本颜色
-  static FIELD_TEXT_SIZE = 14
   static FIELD_BACKGROUND = '#ffffffaa' // 背景颜色
 
   static FIELD_PADDING_HORIZONTAL = 5
@@ -20,11 +18,9 @@ export default class FieldProvider {
     })
     parent.appendChild(el)
     const textEl = SvgElCreator.newText(
-      text,
+      text,null,
       this.FIELD_PADDING_HORIZONTAL,
       this.FIELD_PADDING_VERTICAL,
-      this.FIELD_TEXT_SIZE,
-      this.FIELD_TEXT_COLOR
     );
     el.style.padding = `${this.FIELD_PADDING_VERTICAL}px ${this.FIELD_PADDING_HORIZONTAL}px`
     el.appendChild(textEl);

@@ -15,18 +15,17 @@ export default class SvgElCreator {
 
   static newText(
     text: string,
-    x: number, y: number,
-    fontSize: number = 14,
-    color: string = '#ffffff',
+    className: string | null = null,
+    x: number = 0,
+    y: number = 0,
   ): SVGTextElement {
     const el = this.newSvgElement('text', {
       x: x.toString(),
       y: y.toString(),
-      fill: color,
-      'font-size': fontSize + 'px',
       'dominant-baseline': 'text-before-edge'
     }) as SVGTextElement;
     el.textContent = text;
+    if (className != null) el.setAttribute('class', className);
     return el;
   }
 

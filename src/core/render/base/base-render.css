@@ -1,9 +1,17 @@
 .rb-block-holder{
-  position: relative;
+
 }
 
 .rb-block-holder *{
-  position: absolute;
+  font-size: 14px;
+}
+
+.rb-block-text {
+  fill: #ffffff;
+}
+
+.rb-field text{
+  fill: #000000;
 }
 
 .rb-field rect{
