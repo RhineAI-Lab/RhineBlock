@@ -73,7 +73,7 @@ export default class Block {
     })
   }
 
-  setArgsFromJson(contents: ToolboxArg[]): void {
+  setArgsFromJson(contents: ItemValue[]): void {
     if (!contents) return
     try {
       // 设置所有内部参数
@@ -122,7 +122,7 @@ export default class Block {
     }
   }
 
-  getArgs(): ToolboxArg[] {
+  getArgs(): ItemValue[] {
     return []
   }
 
@@ -147,19 +147,23 @@ export interface IBlock {
   output?: string | null;
   color?: string;
 
-  toolbox?: ToolboxArg[] | boolean;
-  next?: ToolboxArgBlock;
+  toolbox?: ItemValue[] | boolean;
 }
 
+
 // 内容类型
-export type ToolboxArg = string | number | boolean | null | ToolboxArgBlock;
+export type ItemValue = string | number | boolean | null | Item;
 
 // 图形内容
-export interface ToolboxArgBlock {
+export interface Item {
   block: string;
-  shadow?: boolean;
-  args?: ToolboxArg[];
+  args?: ItemValue[];
 
-  next?: boolean; // 支付
+  next?: boolean; // 是否为下行属性
+  shadow?: boolean; // 是否为阴影块
+  root?: boolean; // 是否为根节点
+
+  x?: number;
+  y?: number;
 }
 

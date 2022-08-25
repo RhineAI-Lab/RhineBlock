@@ -65,4 +65,12 @@ export default class SvgElCreator {
     }
     return el;
   }
+
+  static appendSvg(parent: HTMLElement) {
+    const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.style.width = "100%";
+    svg.style.height = "100%";
+    parent.appendChild(svg);
+    return svg
+  }
 }
