@@ -2,6 +2,9 @@ import Block from "../../block/block.class";
 import BaseRender from "../../render/base/base-render";
 import {RhineBlock} from "../../RhineBlock";
 
+import "../../../blocks/event.block";
+import "../../../blocks/equipment.block";
+
 export default function renderFlyout(dom: HTMLElement, blocks: string[]) {
 
   const MARGIN_LEFT = 40;
