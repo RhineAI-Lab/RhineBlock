@@ -66,6 +66,7 @@ export default class Block {
       this.mapValueArgs((arg, id, i, j) => {
         const content = contents[id];
         console.log(arg, content)
+        if(!content) return
         if (typeof content === 'object') {
           const blockData = RhineBlock.getBlockData(content.block)
           if (!blockData) {
@@ -74,6 +75,7 @@ export default class Block {
           }
           if (arg.type === ArgType.Value && blockData.type === BlockType.Output) {
             arg.content = Block.fromJson(blockData)
+            if(content.args) arg.content.setArgs(content.args)
           } else if (
             arg.type === ArgType.Statement && (
               blockData.type === BlockType.Statement ||
@@ -81,6 +83,7 @@ export default class Block {
             )
           ) {
             arg.content = Block.fromJson(blockData)
+            if(content.args) arg.content.setArgs(content.args)
           } else {
             console.error('Block type is not match', arg.valueType, blockData.type)
           }
@@ -121,7 +124,7 @@ export interface IBlock {
 }
 
 // 内容类型
-export type ToolboxArg = string | number | boolean | ToolboxArgBlock;
+export type ToolboxArg = string | number | boolean | null | ToolboxArgBlock;
 
 // 图形内容
 export interface ToolboxArgBlock {

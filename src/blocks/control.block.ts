@@ -17,8 +17,8 @@ const controlBlocks: IBlock[] = [
       ],
     ],
     toolbox: [
-      {block: 'number_random_float'},
-      {block: 'console_print'},
+      {block: 'math_add', args: [{block: 'math_add', args: [{block: 'number_random_float' }]}]},
+      {block: 'control_if', args: [null, {block: 'console_print'}]},
     ]
   }, {
     name: 'events_do',

@@ -9,6 +9,7 @@
 .rb-block-text {
   fill: #ffffff;
   pointer-events: none;
+  user-select: none;
 }
 
 .rb-block-body{
