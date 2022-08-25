@@ -20,9 +20,8 @@ export default class Block {
     let argI = 0;
     const lines = data.lines.map(line => {
       return line.map(arg => {
-        if(arg.text !== undefined) arg.type = ArgType.Text;
+        if (arg.text !== undefined) arg.type = ArgType.Text;
         const id = arg.type === ArgType.Text ? -1 : argI++;
-        console.log(id)
         return Arg.fromJson(id, arg);
       })
     })
@@ -62,37 +61,38 @@ export default class Block {
   }
 
   setArgs(contents: ToolboxArg[]): void {
-    if(!contents) return
-    try{
+    if (!contents) return
+    try {
       this.mapValueArgs((arg, id, i, j) => {
         const content = contents[id];
         console.log(arg, content)
         if (typeof content === 'object') {
           const blockData = RhineBlock.getBlockData(content.block)
-          if(!blockData) {
+          if (!blockData) {
             console.error('Block is not register', content.block)
             return
           }
-          if(arg.type === ArgType.Value && blockData.type === BlockType.Output){
+          if (arg.type === ArgType.Value && blockData.type === BlockType.Output) {
             arg.content = Block.fromJson(blockData)
-          }else if(
+          } else if (
             arg.type === ArgType.Statement && (
               blockData.type === BlockType.Statement ||
               blockData.type === BlockType.Finish
             )
-          ){
+          ) {
             arg.content = Block.fromJson(blockData)
-          }else{
+          } else {
             console.error('Block type is not match', arg.valueType, blockData.type)
           }
         } else {
 
         }
       })
-    }catch (e) {
+    } catch (e) {
       console.error('Args is invalid for this block', e)
     }
   }
+
   getArgs(): ToolboxArg[] {
     return []
   }

@@ -1,7 +1,7 @@
 import Block, {BlockType} from "../../block/block.class";
 import PathBuilder, {PLine} from "../../utils/path-builder";
 import {ArgType, FieldType} from "../../block/arg.class";
-import './base-render.css'
+import './base-style.css'
 import {ShapeProvider} from "./shape-provider";
 import SvgElCreator from "./svg-el-creator";
 import {adjustColorBright} from "../../utils/color";
@@ -26,9 +26,11 @@ export default class BaseRender {
   static MIN_VALUE_HEIGHT = this.MIN_LINE_HEIGHT // 最小VALUE块高度
 
   // 阴影效果
-  static SHADOW_COLORS = [0, -24, 32]
+  static SHADOW_COLORS = [0, -30, 40]
   static SHADOW_POSITIONS = [[0, 0], [1, 1], [0, -1]]
 
+  // 图形块拼接偏移量
+  static BIAS = 1;
 
   static render(block: Block, parent: SVGElement): SVGElement {
     // 创建图形块根元素
@@ -65,14 +67,14 @@ export default class BaseRender {
       if (arg.type === ArgType.Text) {
         el = SvgElCreator.newText(arg.text, 'rb-block-text');
       } else if (arg.type === ArgType.Field) {
-        if(arg.fieldType === FieldType.Text){
-          if(!arg.content) arg.content = arg.default
+        if (arg.fieldType === FieldType.Text) {
+          if (!arg.content) arg.content = arg.default
           el = FieldProvider.makeTextInput(
             arg.content,
             parent,
             (text) => {
-            arg.content = text
-          });
+              arg.content = text
+            });
         }
       } else if (arg.type === ArgType.Statement) {
         if (arg.content) {
@@ -93,6 +95,10 @@ export default class BaseRender {
         parent.appendChild(el)
         arg.view = el
         let rect = el.getBoundingClientRect()
+        if (arg.type === ArgType.Value) {
+          rect.width += this.BIAS
+          rect.height += this.BIAS
+        }
         arg.w = rect.width
         arg.h = rect.height
       }
@@ -113,11 +119,11 @@ export default class BaseRender {
     this.topSeatLine = false
     for (let i = 0; i < block.lines.length; i++) {
       this.needBottomSeatLine.push(false)
-      if(block.hadStatementInLine(i)){
-        if(i===0){
+      if (block.hadStatementInLine(i)) {
+        if (i === 0) {
           this.topSeatLine = true
         }
-        if(i===block.lines.length-1 || block.hadStatementInLine(i+1)){
+        if (i === block.lines.length - 1 || block.hadStatementInLine(i + 1)) {
           this.needBottomSeatLine[i] = true
         }
       }
@@ -131,7 +137,7 @@ export default class BaseRender {
       for (let j = 0; j < block.lines[i].length; j++) {
         const arg = block.lines[i][j]
         let th = arg.h
-        if(arg.type !== ArgType.Statement) th += this.PADDING_VERTICAL * 2
+        if (arg.type !== ArgType.Statement) th += this.PADDING_VERTICAL * 2
         if (th > height) height = th
       }
       this.linesHeight.push(height)
@@ -142,26 +148,28 @@ export default class BaseRender {
     if (block.type === BlockType.Output) startX += this.provider.TAB_WIDTH
     let y = 0
     if (block.type === BlockType.Hat) y += this.provider.HAT_HEIGHT
-    if(this.topSeatLine) y += this.provider.SEAT_HEIGHT
+    if (this.topSeatLine) y += this.provider.SEAT_HEIGHT
     for (let i = 0; i < block.lines.length; i++) {
       let h = this.linesHeight[i]
       let x = startX
       this.statementsX.push(0)
       for (let j = 0; j < block.lines[i].length; j++) {
         const arg = block.lines[i][j]
-        if(arg.type === ArgType.Statement) {
-          if(x < this.MIN_STATEMENT_LEFT) x = this.MIN_STATEMENT_LEFT
+        if (arg.type === ArgType.Statement) {
+          if (x < this.MIN_STATEMENT_LEFT) x = this.MIN_STATEMENT_LEFT
           this.statementsX[i] = x
-          if(j+1 < block.lines[i].length) console.warn('Statement should be the last argument in a line')
+          if (j + 1 < block.lines[i].length) console.warn('Statement should be the last argument in a line')
         }
         arg.x = x
         arg.y = y + (h - arg.h) / 2
-        arg.updateViewPosition()
+        if (arg.type === ArgType.Statement) arg.updateViewPosition([this.BIAS, this.BIAS * 2])
+        else if (arg.type === ArgType.Value) arg.updateViewPosition([this.BIAS, this.BIAS])
+        else arg.updateViewPosition()
         x += arg.w + this.CONTENT_SPACING
-        if(arg.type === ArgType.Statement) break
+        if (arg.type === ArgType.Statement) break
       }
       this.linesWidth.push(x + this.PADDING_HORIZONTAL - this.CONTENT_SPACING)
-      if(this.needBottomSeatLine[i]){
+      if (this.needBottomSeatLine[i]) {
         y += this.provider.SEAT_HEIGHT
       }
       y += h
@@ -177,17 +185,17 @@ export default class BaseRender {
     const rightBuilder = new PathBuilder()
     const statementW = block.width - Math.max(...this.statementsX) // 共享语句块左边距
     this.linesHeight.map((h, i) => {
-      if(block.hadStatementInLine(i)){
+      if (block.hadStatementInLine(i)) {
         // const statementW = block.width - this.statementsX[i]  // 独立语句块左边距
         rightBuilder.pushPath(this.makePuzzleLine(statementW, true))
         rightBuilder.pushPath(this.provider.makeTopLeftCorner(true))
         rightBuilder.verticalTo(h - this.provider.CORNER_SIZE * 2)
         rightBuilder.pushPath(this.provider.makeBottomLeftCorner())
         rightBuilder.horizontalTo(statementW - this.provider.CORNER_SIZE)
-      }else{
+      } else {
         rightBuilder.verticalTo(h)
       }
-      if(this.needBottomSeatLine[i]){
+      if (this.needBottomSeatLine[i]) {
         rightBuilder.verticalTo(this.provider.SEAT_HEIGHT)
       }
     });
@@ -210,7 +218,7 @@ export default class BaseRender {
         builder.pushPath(this.provider.makeTopLeftCorner())
         builder.pushPath(this.makePuzzleLine(block.width))
       }
-      if(this.topSeatLine){
+      if (this.topSeatLine) {
         builder.verticalTo(this.provider.SEAT_HEIGHT)
       }
       builder.pushPath(rightBuilder.getPath())
@@ -229,7 +237,6 @@ export default class BaseRender {
     })
     return builder.build()
   }
-
 
 
   // 绘制内部拼接路径边框

@@ -7,7 +7,8 @@ export default class Arg {
   valueType: string | number | boolean = ''; // 仅当输入图形块模式启用，表示输入图形块类型
   statementType: string = ''; // 仅当语句块输入模式启用，表示下方语句块类型
 
-  onValueChange: (arg: Arg)=>void = () => {}; // 当数据发生变化时
+  onValueChange: (arg: Arg) => void = () => {
+  }; // 当数据发生变化时
 
   view: SVGElement | null = null;
   x: number = 0;
@@ -21,9 +22,9 @@ export default class Arg {
   ) {
   }
 
-  updateViewPosition(): void {
+  updateViewPosition(bias: number[] = [0, 0]): void {
     if (this.view) {
-      this.view.setAttribute('transform', `translate(${this.x}, ${this.y})`);
+      this.view.setAttribute('transform', `translate(${this.x + bias[0]}, ${this.y + bias[1]})`);
     }
   }
 
@@ -31,13 +32,13 @@ export default class Arg {
     if (!data.type) {
       if (data.text !== undefined) {
         data.type = ArgType.Text
-      }else if (data.field !== undefined) {
+      } else if (data.field !== undefined) {
         data.type = ArgType.Field;
-      }else if (data.value !== undefined) {
+      } else if (data.value !== undefined) {
         data.type = ArgType.Value;
-      }else if (data.statement !== undefined) {
+      } else if (data.statement !== undefined) {
         data.type = ArgType.Statement;
-      }else {
+      } else {
         data.type = ArgType.Text
       }
     }
@@ -56,10 +57,10 @@ export default class Arg {
         arg.statementType = data.statement!;
         break;
     }
-    if(data.content){
+    if (data.content) {
       arg.content = data.content;
     }
-    if(data.default){
+    if (data.default) {
       arg.default = data.default;
     }
     return arg
