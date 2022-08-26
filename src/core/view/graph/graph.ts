@@ -1,4 +1,4 @@
-import SvgElCreator, {elTransform} from "../../utils/svg-el-creator";
+import SvgElCreator, {transformEl} from "../../utils/svg-el-creator";
 import {Item, RootItem} from "../../block/block.class";
 import BaseRender from "../../render/base/base-render";
 
@@ -27,9 +27,8 @@ export class Graph {
 
   render() {
     for (const item of this.items) {
-
       const block = BaseRender.render(item.block, this.svg, item.args)
-      elTransform(block?.view, item.x, item.y)
+      transformEl(block?.view, item.x, item.y)
     }
   }
 

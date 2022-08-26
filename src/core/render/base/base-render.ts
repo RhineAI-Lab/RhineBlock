@@ -38,7 +38,7 @@ export default class BaseRender {
     const data = RhineBlock.getBlockData(name)
     if (!data || data.toolbox === false) return null
 
-    const block = Block.fromJson(data, true)
+    const block = Block.fromJson(data, args)
     const blockEl = BaseRender.renderBlock(block, parent)
 
     return block

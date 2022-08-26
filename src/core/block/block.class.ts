@@ -19,7 +19,7 @@ export default class Block {
   ) {
   }
 
-  static fromJson(data: IBlock, toolboxMode: boolean = false): Block {
+  static fromJson(data: IBlock, args: ItemValue[] | null = null): Block {
     let argI = 0;
     const lines = data.lines.map(line => {
       return line.map(arg => {
@@ -35,10 +35,8 @@ export default class Block {
       data.output ? data.output : null,
       data.color ? data.color : '#329eff',
     )
-    if(toolboxMode) {
-      if(data.toolbox instanceof Array) {
-        block.setArgsFromJson(data.toolbox);
-      }
+    if(args) {
+      block.setArgsFromJson(args);
     }
     return block
   }
@@ -102,7 +100,7 @@ export default class Block {
             console.error('Block type is not match', arg.valueType, blockData.type)
           }
         } else {
-
+          arg.content = content
         }
       })
       // 设置下方参数
@@ -165,8 +163,6 @@ export interface Item {
 
 // 根图形块内容
 export interface RootItem extends Item {
-  root: true; // 是否为根节点
-
   x: number;
   y: number;
 }

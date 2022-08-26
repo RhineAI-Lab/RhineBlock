@@ -75,7 +75,7 @@ export default class SvgElCreator {
   }
 }
 
-export function elTransform(el: SVGElement | null | undefined, x: number, y: number): boolean {
+export function transformEl(el: SVGElement | null | undefined, x: number, y: number): boolean {
   if(el){
     el.setAttribute('transform', `translate(${x}, ${y})`);
     return true;

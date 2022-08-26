@@ -1,7 +1,7 @@
 import Block from "../../block/block.class";
 import BaseRender from "../../render/base/base-render";
 import {RhineBlock} from "../../RhineBlock";
-import SvgElCreator, {elTransform} from "../../utils/svg-el-creator";
+import SvgElCreator, {transformEl} from "../../utils/svg-el-creator";
 
 import "../../../blocks/event.block";
 import "../../../blocks/equipment.block";
@@ -24,12 +24,12 @@ export default function renderFlyout(dom: HTMLElement, blocks: string[][]) {
       const name = blocks[i][j]
       let args = RhineBlock.getBlockToolbox(name)
       if(!(args instanceof Array)) args = undefined
-      const block = BaseRender.render(name, svg)
+      const block = BaseRender.render(name, svg, args)
       if(!block) {
         console.error('Block is not found', blocks[i][j])
         continue
       }
-      elTransform(block.view, MARGIN_LEFT+i*200, y)
+      transformEl(block.view, MARGIN_LEFT+i*200, y)
       y += block.height + SPACING
     }
   }
