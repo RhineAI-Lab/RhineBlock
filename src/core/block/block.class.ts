@@ -129,7 +129,9 @@ export default class Block {
     const contents: ItemValue[] = []
     this.mapValueArgs((arg, id, i, j) => {
       if(arg.type === ArgType.Statement || arg.type === ArgType.Value) {
-        contents.push(arg.content.getArgs())
+        if(arg.content) {
+          contents.push(arg.content.getArgs())
+        }
       }else{
         contents.push(arg.content)
       }

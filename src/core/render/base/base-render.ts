@@ -7,6 +7,7 @@ import SvgElCreator from "../../utils/svg-el-creator";
 import {adjustColorBright} from "../../utils/color-adjust";
 import FieldProvider from "./field-provider";
 import {RhineBlock} from "../../RhineBlock";
+import DragManager from "../../drag/drag-manager";
 
 export default class BaseRender {
   // 细节形状提供器
@@ -56,13 +57,16 @@ export default class BaseRender {
     this.renderPositionCalculate(block, el)
     const bodyPath = this.renderBodyPath(block, el)
     // console.log(block)
-    console.log(bodyPath)
+    // console.log(bodyPath)
 
     // 添加图形块阴影
     for (const i in this.SHADOW_COLORS) {
       const body = SvgElCreator.newPath(bodyPath, adjustColorBright(block.color, this.SHADOW_COLORS[i]), 'none');
       if (i === '0') {
         body.classList.add('rb-block-body')
+        body.onmousedown = (e) => {
+          DragManager.onDragBlock(block, e)
+        }
       } else {
         body.style.transform = `translate(${this.SHADOW_POSITIONS[i][0]}px, ${this.SHADOW_POSITIONS[i][1]}px)`
       }
