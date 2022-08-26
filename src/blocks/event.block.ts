@@ -55,23 +55,6 @@ const eventBlocks: IBlock[] = [
 
 
   {
-    name: 'control_if',
-    type: BlockType.Statement,
-    lines: [
-      [
-        {text: '如果'},
-        {value: 'boolean'},
-      ],
-      [
-        {text: ''},
-        {statement: null},
-      ],
-    ],
-    toolbox: [
-      // {block: 'math_add', args: [{block: 'math_add', args: [{block: 'number_random_float'}]}]},
-      // {block: 'control_if', args: [null, {block: 'console_print'}]},
-    ]
-  }, {
     name: 'events_do',
     type: BlockType.Statement,
     lines: [
@@ -103,23 +86,7 @@ const eventBlocks: IBlock[] = [
         {value: 20},
       ],
     ],
-  }, {
-    name: 'number_random_float',
-    type: BlockType.Output,
-    lines: [
-      [
-        {text: '随机小数'},
-      ],
-    ],
-  }, {
-    name: 'loop_break',
-    type: BlockType.Finish,
-    lines: [
-      [
-        {text: '跳出循环'},
-      ],
-    ],
-  }
+  },
 ]
 
 RhineBlock.registerBlocks(eventBlocks);

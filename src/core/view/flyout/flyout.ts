@@ -1,10 +1,15 @@
 import Block from "../../block/block.class";
 import BaseRender from "../../render/base/base-render";
 import {RhineBlock} from "../../RhineBlock";
+import SvgElCreator, {elTransform} from "../../utils/svg-el-creator";
 
 import "../../../blocks/event.block";
 import "../../../blocks/equipment.block";
-import SvgElCreator from "../../render/base/svg-el-creator";
+import "../../../blocks/loop.block"
+import "../../../blocks/logic.block"
+import "../../../blocks/number.block"
+import "../../../blocks/text.block"
+import "../../../blocks/console.block"
 
 export default function renderFlyout(dom: HTMLElement, blocks: string[][]) {
 
@@ -24,9 +29,7 @@ export default function renderFlyout(dom: HTMLElement, blocks: string[][]) {
         console.error('Block is not found', blocks[i][j])
         continue
       }
-      block.view?.setAttribute("transform",
-        `translate(${MARGIN_LEFT+i*200},${y})`
-      )
+      elTransform(block.view, MARGIN_LEFT+i*200, y)
       y += block.height + SPACING
     }
   }

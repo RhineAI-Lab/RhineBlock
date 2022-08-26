@@ -19,13 +19,33 @@ export default function Flyout(props: FlyoutProps) {
         'equipment_control',
         'equipment_getvalue',
         'equipment_setvalue',
-      ],[
-        'control_if',
-        'events_do',
-        'console_print',
-        'math_add',
-        'number_random_float',
+      ], [
+        'loop_times',
+        'loop_conditions',
         'loop_break',
+        'logic_if',
+        'logic_gate',
+        'logic_not',
+        'logic_null',
+
+        // 'events_do',
+        // 'console_print',
+
+      ], [
+        'number_basiccal',
+        'number_seniorcal',
+        'number_trifunc',
+        'number_constant',
+        'number_type',
+        'number_round',
+        'number_listoperation',
+        'number_randomfloat',
+      ], [
+        'text_input',
+        'text_create',
+        'text_length',
+        'text_isempty',
+        'text_reverse',
       ]
     ]
     if (ref.current) {
