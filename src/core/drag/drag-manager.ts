@@ -12,7 +12,7 @@ export default class DragManager {
 
   onDragBlock(block: Block, e: MouseEvent) {
     const svg = this.newDragView().children[0] as SVGSVGElement
-    BaseRender.render(block.name, svg, block.getArgs().args)
+    BaseRender.render(block.clone(), svg)
     const rect = (e.target as SVGPathElement).getBoundingClientRect()
     offset = [e.clientX - rect.x, e.clientY - rect.y]
     onDragBlockMove(e)

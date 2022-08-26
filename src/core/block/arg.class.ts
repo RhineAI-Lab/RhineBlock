@@ -1,5 +1,7 @@
+import Block from "./block.class";
+
 export default class Arg {
-  content: any = null; // 当前内容值
+  content: Block | string | boolean | number | null = null; // 当前内容值
   default: any; // 默认值
 
   text: string = ''; // 仅当文本模式启用，表示文本内容

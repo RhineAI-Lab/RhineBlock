@@ -22,13 +22,19 @@ export class Graph {
     this.svg = SvgElCreator.appendSvg(dom)
   }
 
-  render(items: RootItem[] = []) {
+  render(items: RootItem[] = [], clear = true) {
+    if(clear) this.clear()
     for (const item of items) {
-      const block = BaseRender.render(item.block, this.svg, item.args)
-      if (!block) return
+      const block = Block.fromItem(item)
+      BaseRender.render(block, this.svg)
       block.setPosition(item.x, item.y)
       this.blocks.push(block)
     }
+  }
+
+  clear() {
+    this.svg.innerHTML = ''
+    this.blocks = []
   }
 
 }

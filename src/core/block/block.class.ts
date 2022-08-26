@@ -1,5 +1,6 @@
 import Arg, {ArgType, IArg} from "./arg.class";
 import {RhineBlock} from "../RhineBlock";
+import BaseRender from "../render/base/base-render";
 
 export default class Block {
 
@@ -7,8 +8,9 @@ export default class Block {
   width: number = 0;
   height: number = 0;
 
-  previous: Block | null = null;
   next: Arg = Arg.fromJson(-1, {type: ArgType.Statement});
+  parent: Block | null = null;
+  previous: Block | null = null;
 
   isRoot: boolean = false; // 是否为根元素
   x: number = 0;
@@ -24,7 +26,19 @@ export default class Block {
   ) {
   }
 
-  static fromJson(data: IBlock, args: ItemValue[] | null = null): Block {
+  static fromItem(item: Item, parent: Block | null = null, toolboxMode: boolean = false): Block {
+    let data = RhineBlock.getBlockData(item.block)
+    if (!data) {
+      console.error('Block is not register', item.block)
+      data = RhineBlock.getBlockData('unknown')!
+    }
+    if(toolboxMode) {
+      item.args = typeof data.toolbox !== "boolean" ? data.toolbox : []
+    }
+    return Block.fromDataAndArgs(data, item.args, parent)
+  }
+
+  private static fromDataAndArgs(data: IBlock, args: ItemValue[] | null = null, parent: Block | null = null): Block {
     let argI = 0;
     const lines = data.lines.map(line => {
       return line.map(arg => {
@@ -40,10 +54,16 @@ export default class Block {
       data.output ? data.output : null,
       data.color ? data.color : '#329eff',
     )
+    block.parent = parent
     if(args) {
       block.setArgsFromJson(args);
     }
     return block
+  }
+
+  clone(): Block {
+    const data = RhineBlock.getBlockData(this.name)!
+    return Block.fromDataAndArgs(data, this.getItem().args)
   }
 
   hadHat(): boolean {
@@ -76,11 +96,16 @@ export default class Block {
     })
   }
 
-  setArgsFromJson(contents: ItemValue[]): void {
+  setArgFromItem(item: Item, id: number, parent: Block | null = null): void {
+    const arg = this.getArg(id)
+    if (!arg) return
+  }
+
+  setArgsFromJson(contents: ItemValue[], parent: Block | null = null): void {
     if (!contents) return
     try {
       // 设置所有内部参数
-      this.mapValueArgs((arg, id, i, j) => {
+      this.mapValueArgs((arg, id) => {
         const content = contents[id];
         if(!content) return
         if (typeof content === 'object') {
@@ -91,7 +116,7 @@ export default class Block {
             return
           }
           if (arg.type === ArgType.Value && blockData.type === BlockType.Output) {
-            arg.content = Block.fromJson(blockData)
+            arg.content = Block.fromDataAndArgs(blockData, [], parent)
             if(content.args) arg.content.setArgsFromJson(content.args)
           } else if (
             arg.type === ArgType.Statement && (
@@ -99,7 +124,7 @@ export default class Block {
               blockData.type === BlockType.Finish
             )
           ) {
-            arg.content = Block.fromJson(blockData)
+            arg.content = Block.fromDataAndArgs(blockData, [], parent)
             if(content.args) arg.content.setArgsFromJson(content.args)
           } else {
             console.error('Block type is not match', arg.valueType, blockData.type)
@@ -115,7 +140,7 @@ export default class Block {
         if (!blockData) {
           console.error('Block is not register', content.block)
         } else {
-          this.next.content = Block.fromJson(blockData)
+          this.next.content = Block.fromDataAndArgs(blockData, [], parent)
           this.next.content.previous = this
           if(content.args) this.next.content.setArgsFromJson(content.args)
         }
@@ -125,19 +150,28 @@ export default class Block {
     }
   }
 
-  getArgs(): Item {
+  getArg(id: number): Arg | null {
+    for (const line of this.lines) {
+      for (const arg of line) {
+        if (arg.id === id) return arg
+      }
+    }
+    return null
+  }
+
+  getItem(): Item {
     const contents: ItemValue[] = []
     this.mapValueArgs((arg, id, i, j) => {
       if(arg.type === ArgType.Statement || arg.type === ArgType.Value) {
         if(arg.content) {
-          contents.push(arg.content.getArgs())
+          contents.push((arg.content as Block).getItem())
         }
       }else{
-        contents.push(arg.content)
+        contents.push((arg.content as Block).getItem())
       }
     });
     if(this.next.content) {
-      contents.push(this.next.content.getArgs())
+      contents.push((this.next.content as Block).getItem())
       // @ts-ignore
       contents[contents.length - 1].next = true
     }

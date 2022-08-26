@@ -34,18 +34,7 @@ export default class BaseRender {
   // 图形块拼接偏移量
   static BIAS = 1;
 
-  static render(name: string, parent: SVGElement, args: ItemValue[] = []): Block | null {
-
-    const data = RhineBlock.getBlockData(name)
-    if (!data || data.toolbox === false) return null
-
-    const block = Block.fromJson(data, args)
-    const blockEl = BaseRender.renderBlock(block, parent)
-
-    return block
-  }
-
-  static renderBlock(block: Block, parent: SVGElement): SVGElement {
+  static render(block: Block, parent: SVGElement): SVGElement {
     // 创建图形块根元素
     const el = SvgElCreator.newGroup({
       class: 'rb-block-holder'
@@ -89,7 +78,7 @@ export default class BaseRender {
         if (arg.fieldType === FieldType.Text) {
           if (!arg.content) arg.content = arg.default
           el = FieldProvider.makeTextInput(
-            arg.content,
+            arg.content as string,
             parent,
             (text) => {
               arg.content = text
@@ -97,14 +86,14 @@ export default class BaseRender {
         }
       } else if (arg.type === ArgType.Statement) {
         if (arg.content) {
-          el = this.renderBlock(arg.content, parent)
+          el = this.render(arg.content as Block, parent)
         } else {
           arg.w = this.MIN_STATEMENT_WIDTH
           arg.h = this.MIN_VALUE_HEIGHT
         }
       } else if (arg.type === ArgType.Value) {
         if (arg.content) {
-          el = this.renderBlock(arg.content, parent)
+          el = this.render(arg.content as Block, parent)
         } else {
           arg.w = this.MIN_VALUE_WIDTH
           arg.h = this.MIN_VALUE_HEIGHT
@@ -124,7 +113,7 @@ export default class BaseRender {
     })
     const arg = block.next
     if (block.next.content) {
-      const el = this.renderBlock(arg.content, parent)
+      const el = this.render(arg.content as Block, parent)
       parent.appendChild(el)
       arg.view = el
       let rect = el.getBoundingClientRect()

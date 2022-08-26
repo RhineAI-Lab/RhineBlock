@@ -4,6 +4,15 @@ import {FieldType} from "../core/block/arg.class";
 
 const consoleBlock: IBlock[] = [
   {
+    name: 'unknown',
+    type: BlockType.Statement,
+    color: '#666666',
+    lines: [
+      [
+        {text: '未注册图形块'},
+      ],
+    ],
+  }, {
     name: 'console_output',
     type: BlockType.Statement,
     color: '#ff8a22',
