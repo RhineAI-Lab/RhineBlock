@@ -20,7 +20,7 @@ export const testData: RootItem[] = [
         ]
       }
     ]
-  },/*{
+  },{
     x: 100,
     y: 80,
     block: 'event_equipstate',
@@ -81,6 +81,6 @@ export const testData: RootItem[] = [
         ]
       }
     ]
-  }*/
+  }
 ]
 

@@ -75,10 +75,17 @@ export default class Block {
         this.clearArg(arg)
       }
     })
+    if(this.next.content === child) {
+      this.clearArg(this.next)
+    }
+    BaseRender.rerender(this)
   }
 
   clearArg(arg: Arg): void {
     arg.content = null
+    if(arg.view) {
+      arg.view.remove()
+    }
     arg.view = null
   }
 

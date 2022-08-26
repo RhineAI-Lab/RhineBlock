@@ -1,6 +1,6 @@
 import Block, {BlockType, ItemValue} from "../../block/block.class";
 import PathBuilder, {PLine} from "../../utils/path-builder";
-import {ArgType, FieldType} from "../../block/arg.class";
+import Arg, {ArgType, FieldType} from "../../block/arg.class";
 import './base-style.css'
 import {ShapeProvider} from "./shape-provider";
 import SvgElCreator from "../../utils/svg-el-creator";
@@ -28,7 +28,7 @@ export default class BaseRender {
   static MIN_VALUE_HEIGHT = this.MIN_LINE_HEIGHT // 最小VALUE块高度
 
   // 阴影效果
-  static SHADOW_COLORS = [0, -30, 40]
+  static SHADOW_COLORS = [0, 30, -40]
   static SHADOW_POSITIONS = [[0, 0], [1, 1], [0, -1]]
   static SHADOW_BIAS = 1;
 
@@ -41,35 +41,67 @@ export default class BaseRender {
     block.view = el
 
     this.renderView(block, el)
-    this.renderPositionCalculate(block, el)
-    const bodyPath = this.renderBodyPath(block)
+    this.renderPositionCalculate(block)
+    const bodyPath = this.makeBodyPath(block)
     // console.log(block)
     // console.log(bodyPath)
-
-    // 添加图形块阴影
-    for (const i in this.SHADOW_COLORS) {
-      const body = SvgElCreator.newPath(bodyPath, adjustColorBright(block.color, this.SHADOW_COLORS[i]), 'none');
-      if (i === '0') {
-        body.classList.add('rb-block-body')
-        block.setMouseEvent(body)
-      } else {
-        body.style.transform = `translate(${this.SHADOW_POSITIONS[i][0]}px, ${this.SHADOW_POSITIONS[i][1]}px)`
-      }
-      appendChildToFirst(el, body);
-    }
+    this.renderBody(bodyPath, block, el)
 
     return el
   }
 
   static rerender(block: Block) {
+    const el = block.view!
+    block.mapValueArgs((arg: Arg) => {
+      if((arg.type === ArgType.Value || arg.type === ArgType.Statement)) {
+        if(arg.content){
+          const content = arg.content as Block
+          if(!content.view){
+            this.renderView(content, el)
+          }
+          const rect = content.view!.getBoundingClientRect()
+          arg.w = rect.width
+          arg.h = rect.height
+        }else{
+          if(arg.type === ArgType.Statement){
+            arg.w = this.MIN_STATEMENT_WIDTH
+            arg.h = this.MIN_STATEMENT_LEFT
+          }else{
+            arg.w = this.MIN_VALUE_WIDTH
+            arg.h = this.MIN_VALUE_HEIGHT
+          }
+        }
+      }
+    })
+    this.renderPositionCalculate(block)
+    const bodyPath = this.makeBodyPath(block)
+    for (let i = 0; i<el.children.length; i++) {
+      const child = el.children[i] as SVGElement
+      if (child.classList.contains('rb-block-body') || child.classList.contains('rb-block-body-shadow')) {
+        child.setAttribute('d', bodyPath)
+      }
+    }
+  }
 
+  static renderBody(path: string,block: Block, parentEl: SVGElement) {
+    for (const i in this.SHADOW_COLORS) {
+      const body = SvgElCreator.newPath(path, adjustColorBright(block.color, this.SHADOW_COLORS[i]), 'none');
+      if (i === '0') {
+        body.classList.add('rb-block-body')
+        block.setMouseEvent(body)
+      } else {
+        body.classList.add('rb-block-body-shadow')
+        body.style.transform = `translate(${this.SHADOW_POSITIONS[i][0]}px, ${this.SHADOW_POSITIONS[i][1]}px)`
+      }
+      appendChildToFirst(parentEl, body);
+    }
   }
 
 
   // 渲染出所有内部元素并记录所有元素宽高。
   // 当有内部拼接图形块时，进行递归，计算全部宽高。
   static renderView(block: Block, parentEl: SVGElement): void {
-    block.mapArgs((arg, i, j) => {
+    block.mapArgs((arg) => {
       let el: SVGElement | null = null;
       if (arg.type === ArgType.Text) {
         el = SvgElCreator.newText(arg.text, 'rb-block-text');
@@ -129,7 +161,7 @@ export default class BaseRender {
   static needBottomSeatLine: boolean[] = []
 
   // 计算所有参数对应位置
-  static renderPositionCalculate(block: Block, parent: SVGElement): void {
+  static renderPositionCalculate(block: Block): void {
     // 计算语句输入是否需要上下占位行
     this.needBottomSeatLine = []
     this.topSeatLine = false
@@ -210,7 +242,7 @@ export default class BaseRender {
 
 
   // 计算图形块主体路径
-  static renderBodyPath(block: Block): string {
+  static makeBodyPath(block: Block): string {
     // 绘制图形块右侧纵向路径
     const rightBuilder = new PathBuilder()
     const statementW = block.width - Math.max(...this.statementsX) // 共享语句块左边距
