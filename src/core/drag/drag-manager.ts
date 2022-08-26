@@ -6,11 +6,11 @@ let offset: number[] = [0, 0]
 let dragView: HTMLDivElement | null = null;
 
 export default class DragManager {
-  DRAG_VIEW_ID = 'rb-drag-view'
+  static DRAG_VIEW_ID = 'rb-drag-view'
 
-  dragBlock: Block | null = null;
+  static dragBlock: Block | null = null;
 
-  onDragBlock(block: Block, e: MouseEvent) {
+  static onDragBlock(block: Block, e: MouseEvent) {
     const svg = this.newDragView().children[0] as SVGSVGElement
     BaseRender.render(block.clone(), svg)
     const rect = (e.target as SVGPathElement).getBoundingClientRect()
@@ -21,7 +21,7 @@ export default class DragManager {
     e.stopPropagation()
   }
 
-  newDragView(): HTMLDivElement {
+  static newDragView(): HTMLDivElement {
     this.clearDragView()
     const holder = document.createElement('div')
     document.body.appendChild(holder)
@@ -32,14 +32,12 @@ export default class DragManager {
     return dragView
   }
 
-  clearDragView() {
+  static clearDragView() {
     document.getElementById(this.DRAG_VIEW_ID)?.remove()
     dragView = null
     this.dragBlock = null
   }
 }
-
-export const DragManagerInstance = new DragManager()
 
 function onDragBlockMove(e: MouseEvent) {
   if(dragView && dragView.children[0]) {
@@ -52,7 +50,7 @@ function onDragBlockMove(e: MouseEvent) {
 function onDragBlockUp(e: MouseEvent) {
   document.removeEventListener('mousemove', onDragBlockMove)
   document.removeEventListener('mouseup', onDragBlockUp)
-  DragManagerInstance.clearDragView()
+  DragManager.clearDragView()
 }
 
 

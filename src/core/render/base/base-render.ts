@@ -7,7 +7,7 @@ import SvgElCreator from "../../utils/svg-el-creator";
 import {adjustColorBright} from "../../utils/color-adjust";
 import FieldProvider from "./field-provider";
 import {RhineBlock} from "../../RhineBlock";
-import DragManager, {DragManagerInstance} from "../../drag/drag-manager";
+import DragManager from "../../drag/drag-manager";
 
 export default class BaseRender {
   // 细节形状提供器
@@ -32,17 +32,17 @@ export default class BaseRender {
   static SHADOW_POSITIONS = [[0, 0], [1, 1], [0, -1]]
   static SHADOW_BIAS = 1;
 
-  static render(block: Block, parent: SVGElement): SVGElement {
+  static render(block: Block, parentEl: SVGElement): SVGElement {
     // 创建图形块根元素
     const el = SvgElCreator.newGroup({
       class: 'rb-block-holder'
     })
-    parent.appendChild(el)
+    parentEl.appendChild(el)
     block.view = el
 
     this.renderView(block, el)
     this.renderPositionCalculate(block, el)
-    const bodyPath = this.renderBodyPath(block, el)
+    const bodyPath = this.renderBodyPath(block)
     // console.log(block)
     // console.log(bodyPath)
 
@@ -51,10 +51,7 @@ export default class BaseRender {
       const body = SvgElCreator.newPath(bodyPath, adjustColorBright(block.color, this.SHADOW_COLORS[i]), 'none');
       if (i === '0') {
         body.classList.add('rb-block-body')
-        body.onmousedown = (e) => {
-          DragManagerInstance.onDragBlock(block, e)
-          return false
-        }
+        block.setMouseEvent(body)
       } else {
         body.style.transform = `translate(${this.SHADOW_POSITIONS[i][0]}px, ${this.SHADOW_POSITIONS[i][1]}px)`
       }
@@ -64,10 +61,14 @@ export default class BaseRender {
     return el
   }
 
+  static rerender(block: Block) {
+
+  }
+
 
   // 渲染出所有内部元素并记录所有元素宽高。
   // 当有内部拼接图形块时，进行递归，计算全部宽高。
-  static renderView(block: Block, parent: SVGElement): void {
+  static renderView(block: Block, parentEl: SVGElement): void {
     block.mapArgs((arg, i, j) => {
       let el: SVGElement | null = null;
       if (arg.type === ArgType.Text) {
@@ -77,28 +78,28 @@ export default class BaseRender {
           if (!arg.content) arg.content = arg.default
           el = FieldProvider.makeTextInput(
             arg.content as string,
-            parent,
+            parentEl,
             (text) => {
               arg.content = text
             });
         }
       } else if (arg.type === ArgType.Statement) {
         if (arg.content) {
-          el = this.render(arg.content as Block, parent)
+          el = this.render(arg.content as Block, parentEl)
         } else {
           arg.w = this.MIN_STATEMENT_WIDTH
           arg.h = this.MIN_VALUE_HEIGHT
         }
       } else if (arg.type === ArgType.Value) {
         if (arg.content) {
-          el = this.render(arg.content as Block, parent)
+          el = this.render(arg.content as Block, parentEl)
         } else {
           arg.w = this.MIN_VALUE_WIDTH
           arg.h = this.MIN_VALUE_HEIGHT
         }
       }
       if (el != null) {
-        parent.appendChild(el)
+        parentEl.appendChild(el)
         arg.view = el
         let rect = el.getBoundingClientRect()
         if (arg.type === ArgType.Value) {
@@ -111,8 +112,8 @@ export default class BaseRender {
     })
     const arg = block.next
     if (block.next.content) {
-      const el = this.render(arg.content as Block, parent)
-      parent.appendChild(el)
+      const el = this.render(arg.content as Block, parentEl)
+      parentEl.appendChild(el)
       arg.view = el
       let rect = el.getBoundingClientRect()
       arg.w = rect.width
@@ -209,7 +210,7 @@ export default class BaseRender {
 
 
   // 计算图形块主体路径
-  static renderBodyPath(block: Block, parent: SVGElement): string {
+  static renderBodyPath(block: Block): string {
     // 绘制图形块右侧纵向路径
     const rightBuilder = new PathBuilder()
     const statementW = block.width - Math.max(...this.statementsX) // 共享语句块左边距

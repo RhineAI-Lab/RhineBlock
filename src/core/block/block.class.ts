@@ -1,6 +1,7 @@
 import Arg, {ArgType, IArg} from "./arg.class";
 import {RhineBlock} from "../RhineBlock";
 import BaseRender from "../render/base/base-render";
+import DragManager from "../drag/drag-manager";
 
 export default class Block {
 
@@ -9,8 +10,8 @@ export default class Block {
   height: number = 0;
 
   next: Arg = Arg.fromJson(-1, {type: ArgType.Statement});
-  parent: Block | null = null;
   previous: Block | null = null;
+  parent: Block | null = null;
 
   isRoot: boolean = false; // 是否为根元素
   x: number = 0;
@@ -56,14 +57,34 @@ export default class Block {
     )
     block.parent = parent
     if(args) {
-      block.setArgsFromItems(args);
+      block.setArgsFromItems(args)
     }
     return block
   }
 
+  setMouseEvent(body: SVGPathElement): void {
+    body.onmousedown = (e) => {
+      DragManager.onDragBlock(this, e)
+      this.parent?.removeChild(this)
+      return false
+    }
+  }
+  removeChild(child: Block): void {
+    this.mapValueArgs(arg => {
+      if (arg.content === child) {
+        this.clearArg(arg)
+      }
+    })
+  }
+
+  clearArg(arg: Arg): void {
+    arg.content = null
+    arg.view = null
+  }
+
   clone(): Block {
     const data = RhineBlock.getBlockData(this.name)!
-    return Block.fromDataAndArgs(data, this.getItem().args)
+    return Block.fromDataAndArgs(data, this.getItem().args, this.parent)
   }
 
   hadHat(): boolean {
@@ -95,52 +116,48 @@ export default class Block {
     })
   }
 
-  setArgFromItem(item: ItemValue, arg: Arg, parent: Block | null = null): void {
+  setArgFromItem(item: ItemValue, arg: Arg): void {
     if(item === null) {
       arg.content = null
     }else if (typeof item === 'object') {
-      if(item.next) return;
       const blockData = RhineBlock.getBlockData(item.block)
       if (!blockData) {
         console.error('Block is not register', item.block)
         return
       }
       if (arg.type === ArgType.Value && blockData.type === BlockType.Output) {
-        arg.content = Block.fromDataAndArgs(blockData, item.args, parent)
+        arg.content = Block.fromDataAndArgs(blockData, item.args, this)
       } else if (
         arg.type === ArgType.Statement && (
           blockData.type === BlockType.Statement ||
           blockData.type === BlockType.Finish
         )
       ) {
-        arg.content = Block.fromDataAndArgs(blockData, item.args, parent)
+        arg.content = Block.fromDataAndArgs(blockData, item.args, this)
+        if(item.next){
+          if(item.args) arg.content.setArgsFromItems(item.args)
+          arg.content.previous = this
+        }
       } else {
-        console.error('Block type is not match', arg.valueType, blockData.type)
+        return;
       }
     } else {
       arg.content = item
     }
   }
-  setArgsFromItems(contents: ItemValue[], parent: Block | null = null): void {
+  setArgsFromItems(contents: ItemValue[]): void {
     if (!contents) return
     try {
       // 设置所有内部参数
       this.mapValueArgs((arg, id) => {
         const content = contents[id];
         if(!content) return
-        this.setArgFromItem(content, arg, parent)
+        this.setArgFromItem(content, arg)
       })
       // 设置下方参数
       const content = contents[contents.length - 1]
       if(content && typeof content === 'object' && content.next) {
-        const blockData = RhineBlock.getBlockData(content.block)
-        if (!blockData) {
-          console.error('Block is not register', content.block)
-        } else {
-          this.next.content = Block.fromDataAndArgs(blockData, [], parent)
-          this.next.content.previous = this
-          if(content.args) this.next.content.setArgsFromItems(content.args)
-        }
+        this.setArgFromItem(content, this.next)
       }
     } catch (e) {
       console.error('Args is invalid for this block', e)
@@ -162,6 +179,8 @@ export default class Block {
       if(arg.type === ArgType.Statement || arg.type === ArgType.Value) {
         if(arg.content) {
           contents.push(this.getArgBlockItem(arg))
+        }else{
+          contents.push(null)
         }
       }else if(typeof arg.content !== 'object') {
         contents.push(arg.content)
