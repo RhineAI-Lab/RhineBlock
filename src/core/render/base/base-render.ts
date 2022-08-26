@@ -55,7 +55,7 @@ export default class BaseRender {
     this.renderView(block, el)
     this.renderPositionCalculate(block, el)
     const bodyPath = this.renderBodyPath(block, el)
-    console.log(block)
+    // console.log(block)
     console.log(bodyPath)
 
     // 添加图形块阴影

@@ -23,10 +23,5 @@ export class RhineBlock {
   }
 
 
-  static dragBlock: Block | null = null;
-  static onDragBlock(block: Block) {
-
-  }
-
 
 }

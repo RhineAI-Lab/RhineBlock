@@ -29,7 +29,7 @@ export default function renderFlyout(dom: HTMLElement, blocks: string[][]) {
         console.error('Block is not found', blocks[i][j])
         continue
       }
-      transformEl(block.view, MARGIN_LEFT+i*200, y)
+      block.setPosition(MARGIN_LEFT+i*200, y)
       y += block.height + SPACING
     }
   }

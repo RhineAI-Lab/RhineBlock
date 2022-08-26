@@ -10,6 +10,11 @@ export default class Block {
   previous: Block | null = null;
   next: Arg = Arg.fromJson(-1, {type: ArgType.Statement});
 
+  isRoot: boolean = false; // 是否为根元素
+  x: number = 0;
+  y: number = 0;
+  isShadow: boolean = false;
+
   constructor(
     public name: string,
     public type: BlockType,
@@ -120,8 +125,31 @@ export default class Block {
     }
   }
 
-  getArgs(): ItemValue[] {
-    return []
+  getArgs(): Item {
+    const contents: ItemValue[] = []
+    this.mapValueArgs((arg, id, i, j) => {
+      if(arg.type === ArgType.Statement || arg.type === ArgType.Value) {
+        contents.push(arg.content.getArgs())
+      }else{
+        contents.push(arg.content)
+      }
+    });
+    if(this.next.content) {
+      contents.push(this.next.content.getArgs())
+      // @ts-ignore
+      contents[contents.length - 1].next = true
+    }
+    const item: Item = {
+      block: this.name,
+      args: contents,
+    }
+    if(this.isShadow) item.shadow = true
+    return item
+  }
+  setPosition(x: number, y: number): void {
+    this.x = x
+    this.y = y
+    this.view?.setAttribute('transform', `translate(${x}, ${y})`)
   }
 
 }
