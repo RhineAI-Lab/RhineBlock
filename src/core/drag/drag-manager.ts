@@ -2,30 +2,50 @@ import Block from "../block/block.class";
 import SvgElCreator, {transformEl} from "../utils/svg-el-creator";
 import BaseRender from "../render/base/base-render";
 
+let offset: number[] = [0, 0]
+let dragView: SVGSVGElement | null = null;
+
 export default class DragManager {
-  static DRAG_VIEW_ID = 'rb-drag-view'
+  DRAG_VIEW_ID = 'rb-drag-view'
 
-  static dragBlock: Block | null = null;
-  static offset: number[] = [0, 0]
+  dragBlock: Block | null = null;
 
-  static onDragBlock(block: Block, e: MouseEvent) {
+  onDragBlock(block: Block, e: MouseEvent) {
     const svg = this.newDragView()
     BaseRender.render(block.name, svg, block.getArgs().args)
     this.dragBlock = block
-    this.offset = [e.pageX, e.pageY]
-    transformEl(svg, e.pageX - this.offset[0], e.pageY - this.offset[1])
+    offset = [e.offsetX - block.x, e.offsetY - block.y]
+    transformEl(dragView, e.pageX - offset[0], e.pageY - offset[1])
+    document.addEventListener('mousemove', onDragBlockMove)
+    document.addEventListener('mouseup', onDragBlockUp)
+    e.stopPropagation()
   }
 
-  static newDragView(): SVGSVGElement{
+  newDragView(): SVGSVGElement {
     this.clearDragView()
-    const dragView = SvgElCreator.appendSvg(document.body)
+    dragView = SvgElCreator.appendSvg(document.body)
     dragView.id = this.DRAG_VIEW_ID
     dragView.classList.add('rb-drag-view')
     return dragView
   }
-  static clearDragView(){
+
+  clearDragView() {
     document.getElementById(this.DRAG_VIEW_ID)?.remove()
+    dragView = null
+    this.dragBlock = null
   }
+}
+
+export const DragManagerInstance = new DragManager()
+
+function onDragBlockMove(e: MouseEvent) {
+  transformEl(dragView, e.pageX - offset[0], e.pageY - offset[1])
+}
+
+function onDragBlockUp(e: MouseEvent) {
+  document.removeEventListener('mousemove', onDragBlockMove)
+  document.removeEventListener('mouseup', onDragBlockUp)
+  DragManagerInstance.clearDragView()
 }
 
 

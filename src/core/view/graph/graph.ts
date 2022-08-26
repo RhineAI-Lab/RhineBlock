@@ -28,7 +28,6 @@ export class Graph {
       if (!block) return
       block.setPosition(item.x, item.y)
       this.blocks.push(block)
-      console.log(block.getArgs())
     }
   }
 

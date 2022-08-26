@@ -7,7 +7,7 @@ import SvgElCreator from "../../utils/svg-el-creator";
 import {adjustColorBright} from "../../utils/color-adjust";
 import FieldProvider from "./field-provider";
 import {RhineBlock} from "../../RhineBlock";
-import DragManager from "../../drag/drag-manager";
+import DragManager, {DragManagerInstance} from "../../drag/drag-manager";
 
 export default class BaseRender {
   // 细节形状提供器
@@ -65,7 +65,8 @@ export default class BaseRender {
       if (i === '0') {
         body.classList.add('rb-block-body')
         body.onmousedown = (e) => {
-          DragManager.onDragBlock(block, e)
+          DragManagerInstance.onDragBlock(block, e)
+          return false
         }
       } else {
         body.style.transform = `translate(${this.SHADOW_POSITIONS[i][0]}px, ${this.SHADOW_POSITIONS[i][1]}px)`
