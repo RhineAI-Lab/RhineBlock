@@ -28,11 +28,12 @@ export default class BaseRender {
   static MIN_VALUE_HEIGHT = this.MIN_LINE_HEIGHT // 最小VALUE块高度
 
   // 阴影效果
-  static SHADOW_COLORS = [0, 30, -40]
+  static SHADOW_COLORS = [0, -40, 30]
   static SHADOW_POSITIONS = [[0, 0], [1, 1], [0, -1]]
   static SHADOW_BIAS = 1;
 
   static render(block: Block, parentEl: SVGElement): SVGElement {
+    if(block.view) block.view.remove()
     // 创建图形块根元素
     const el = SvgElCreator.newGroup({
       class: 'rb-block-holder'

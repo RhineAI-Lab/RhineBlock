@@ -16,25 +16,6 @@ export const testData: RootItem[] = [
           },{
             block: 'equipment_control',
             args: ['开启', 'C']
-          },
-        ]
-      }
-    ]
-  },{
-    x: 100,
-    y: 80,
-    block: 'event_equipstate',
-    args: [
-      {
-        next: true,
-        block: 'logic_if',
-        args: [
-          {
-            block: 'equipment_state',
-            args: ['C','关']
-          },{
-            block: 'equipment_control',
-            args: ['开启', 'C']
           },{
             next: true,
             block: 'loop_times',
