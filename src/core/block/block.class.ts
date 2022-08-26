@@ -56,7 +56,7 @@ export default class Block {
     )
     block.parent = parent
     if(args) {
-      block.setArgsFromJson(args);
+      block.setArgsFromItems(args);
     }
     return block
   }
@@ -85,7 +85,6 @@ export default class Block {
       })
     })
   }
-
   mapValueArgs(fn: (arg: Arg, id: number, i: number, j: number) => void): void {
     this.lines.forEach((line, i) => {
       line.forEach((arg, j) => {
@@ -96,42 +95,40 @@ export default class Block {
     })
   }
 
-  setArgFromItem(item: Item, id: number, parent: Block | null = null): void {
-    const arg = this.getArg(id)
-    if (!arg) return
+  setArgFromItem(item: ItemValue, arg: Arg, parent: Block | null = null): void {
+    if(item === null) {
+      arg.content = null
+    }else if (typeof item === 'object') {
+      if(item.next) return;
+      const blockData = RhineBlock.getBlockData(item.block)
+      if (!blockData) {
+        console.error('Block is not register', item.block)
+        return
+      }
+      if (arg.type === ArgType.Value && blockData.type === BlockType.Output) {
+        arg.content = Block.fromDataAndArgs(blockData, item.args, parent)
+      } else if (
+        arg.type === ArgType.Statement && (
+          blockData.type === BlockType.Statement ||
+          blockData.type === BlockType.Finish
+        )
+      ) {
+        arg.content = Block.fromDataAndArgs(blockData, item.args, parent)
+      } else {
+        console.error('Block type is not match', arg.valueType, blockData.type)
+      }
+    } else {
+      arg.content = item
+    }
   }
-
-  setArgsFromJson(contents: ItemValue[], parent: Block | null = null): void {
+  setArgsFromItems(contents: ItemValue[], parent: Block | null = null): void {
     if (!contents) return
     try {
       // 设置所有内部参数
       this.mapValueArgs((arg, id) => {
         const content = contents[id];
         if(!content) return
-        if (typeof content === 'object') {
-          if(content.next) return;
-          const blockData = RhineBlock.getBlockData(content.block)
-          if (!blockData) {
-            console.error('Block is not register', content.block)
-            return
-          }
-          if (arg.type === ArgType.Value && blockData.type === BlockType.Output) {
-            arg.content = Block.fromDataAndArgs(blockData, [], parent)
-            if(content.args) arg.content.setArgsFromJson(content.args)
-          } else if (
-            arg.type === ArgType.Statement && (
-              blockData.type === BlockType.Statement ||
-              blockData.type === BlockType.Finish
-            )
-          ) {
-            arg.content = Block.fromDataAndArgs(blockData, [], parent)
-            if(content.args) arg.content.setArgsFromJson(content.args)
-          } else {
-            console.error('Block type is not match', arg.valueType, blockData.type)
-          }
-        } else {
-          arg.content = content
-        }
+        this.setArgFromItem(content, arg, parent)
       })
       // 设置下方参数
       const content = contents[contents.length - 1]
@@ -142,7 +139,7 @@ export default class Block {
         } else {
           this.next.content = Block.fromDataAndArgs(blockData, [], parent)
           this.next.content.previous = this
-          if(content.args) this.next.content.setArgsFromJson(content.args)
+          if(content.args) this.next.content.setArgsFromItems(content.args)
         }
       }
     } catch (e) {
@@ -161,7 +158,7 @@ export default class Block {
 
   getItem(): Item {
     const contents: ItemValue[] = []
-    this.mapValueArgs((arg, id, i, j) => {
+    this.mapValueArgs((arg, id) => {
       if(arg.type === ArgType.Statement || arg.type === ArgType.Value) {
         if(arg.content) {
           contents.push(this.getArgBlockItem(arg))

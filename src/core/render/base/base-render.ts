@@ -30,9 +30,7 @@ export default class BaseRender {
   // 阴影效果
   static SHADOW_COLORS = [0, -30, 40]
   static SHADOW_POSITIONS = [[0, 0], [1, 1], [0, -1]]
-
-  // 图形块拼接偏移量
-  static BIAS = 1;
+  static SHADOW_BIAS = 1;
 
   static render(block: Block, parent: SVGElement): SVGElement {
     // 创建图形块根元素
@@ -104,8 +102,8 @@ export default class BaseRender {
         arg.view = el
         let rect = el.getBoundingClientRect()
         if (arg.type === ArgType.Value) {
-          rect.width += this.BIAS
-          rect.height += this.BIAS
+          rect.width += this.SHADOW_BIAS
+          rect.height += this.SHADOW_BIAS
         }
         arg.w = rect.width
         arg.h = rect.height
@@ -154,7 +152,11 @@ export default class BaseRender {
       for (let j = 0; j < block.lines[i].length; j++) {
         const arg = block.lines[i][j]
         let th = arg.h
-        if (arg.type !== ArgType.Statement) th += this.PADDING_VERTICAL * 2
+        if (arg.type !== ArgType.Statement) {
+          th += this.PADDING_VERTICAL * 2
+        }else{
+          th -= this.provider.PUZZLE_HEIGHT - this.SHADOW_BIAS
+        }
         if (th > height) height = th
       }
       this.linesHeight.push(height)
@@ -179,9 +181,9 @@ export default class BaseRender {
         }
 
         arg.x = x
-        arg.y = y + (h - arg.h) / 2
-        if (arg.type === ArgType.Statement) arg.updateViewPosition([this.BIAS, this.BIAS * 2])
-        else if (arg.type === ArgType.Value) arg.updateViewPosition([this.BIAS, this.BIAS])
+        arg.y = y + (h - arg.h) / 2 + this.SHADOW_BIAS
+        if (arg.type === ArgType.Statement) arg.updateViewPosition([this.SHADOW_BIAS, this.SHADOW_BIAS * 2])
+        else if (arg.type === ArgType.Value) arg.updateViewPosition([this.SHADOW_BIAS, this.SHADOW_BIAS])
         else arg.updateViewPosition()
 
         if (arg.type === ArgType.Statement) break
@@ -200,8 +202,8 @@ export default class BaseRender {
     const arg = block.next
     if (arg.content) {
       arg.y = y
-      arg.updateViewPosition([0, this.BIAS * 2])
-      block.height += arg.h + this.BIAS * 2
+      arg.updateViewPosition([0, this.SHADOW_BIAS * 2])
+      block.height += arg.h + this.SHADOW_BIAS * 2
     }
   }
 
