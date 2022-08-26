@@ -4,4 +4,6 @@
   width: 500px;
   height: 900px;
   float: left;
+
+  border-left: 4px solid #dddddd;
 }

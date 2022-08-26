@@ -182,13 +182,15 @@ export default class BaseRender {
           this.statementsX[i] = x
           if (j + 1 < block.lines[i].length) console.warn('Statement should be the last argument in a line')
         }
+
         arg.x = x
         arg.y = y + (h - arg.h) / 2
         if (arg.type === ArgType.Statement) arg.updateViewPosition([this.BIAS, this.BIAS * 2])
         else if (arg.type === ArgType.Value) arg.updateViewPosition([this.BIAS, this.BIAS])
         else arg.updateViewPosition()
-        x += arg.w + this.CONTENT_SPACING
+
         if (arg.type === ArgType.Statement) break
+        x += arg.w + this.CONTENT_SPACING
       }
       this.linesWidth.push(x + this.PADDING_HORIZONTAL - this.CONTENT_SPACING)
       if (this.needBottomSeatLine[i]) {

@@ -2,8 +2,8 @@ import {Item, RootItem} from "../../../core/block/block.class";
 
 export const testData: RootItem[] = [
   {
-    x: 60,
-    y: 60,
+    x: 100,
+    y: 80,
     block: 'event_equipstate',
     args: [
       {
@@ -12,9 +12,10 @@ export const testData: RootItem[] = [
         args: [
           {
             block: 'equipment_state',
-            args: ['B','关']
+            args: ['C','关']
           },{
             block: 'equipment_control',
+            args: ['开启', 'C']
           },{
             next: true,
             block: 'loop_times',
@@ -34,12 +35,12 @@ export const testData: RootItem[] = [
               }
             ]
           }
-        ],
-      },
+        ]
+      }
     ]
   },{
-    x: 60,
-    y: 400,
+    x: 100,
+    y: 420,
     block: 'event_change',
     args: [
       {
