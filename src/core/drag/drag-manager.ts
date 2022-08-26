@@ -3,7 +3,7 @@ import SvgElCreator, {transformEl} from "../utils/svg-el-creator";
 import BaseRender from "../render/base/base-render";
 
 let offset: number[] = [0, 0]
-let dragView: SVGSVGElement | null = null;
+let dragView: HTMLDivElement | null = null;
 
 export default class DragManager {
   DRAG_VIEW_ID = 'rb-drag-view'
@@ -11,21 +11,24 @@ export default class DragManager {
   dragBlock: Block | null = null;
 
   onDragBlock(block: Block, e: MouseEvent) {
-    const svg = this.newDragView()
+    const svg = this.newDragView().children[0] as SVGSVGElement
     BaseRender.render(block.name, svg, block.getArgs().args)
     const rect = (e.target as SVGPathElement).getBoundingClientRect()
     offset = [e.clientX - rect.x, e.clientY - rect.y]
-    transformEl(dragView, e.pageX - offset[0], e.pageY - offset[1])
+    onDragBlockMove(e)
     document.addEventListener('mousemove', onDragBlockMove)
     document.addEventListener('mouseup', onDragBlockUp)
     e.stopPropagation()
   }
 
-  newDragView(): SVGSVGElement {
+  newDragView(): HTMLDivElement {
     this.clearDragView()
-    dragView = SvgElCreator.appendSvg(document.body)
-    dragView.id = this.DRAG_VIEW_ID
-    dragView.classList.add('rb-drag-view')
+    const holder = document.createElement('div')
+    document.body.appendChild(holder)
+    holder.id = this.DRAG_VIEW_ID
+    holder.classList.add('rb-drag-view')
+    SvgElCreator.appendSvg(holder, true)
+    dragView = holder
     return dragView
   }
 
@@ -39,7 +42,11 @@ export default class DragManager {
 export const DragManagerInstance = new DragManager()
 
 function onDragBlockMove(e: MouseEvent) {
-  transformEl(dragView, e.pageX - offset[0], e.pageY - offset[1])
+  if(dragView && dragView.children[0]) {
+    const svg = dragView.children[0] as SVGSVGElement
+    svg.style.top = `${e.clientY - offset[1]}px`
+    svg.style.left = `${e.clientX - offset[0]}px`
+  }
 }
 
 function onDragBlockUp(e: MouseEvent) {
