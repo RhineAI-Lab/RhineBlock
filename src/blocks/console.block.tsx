@@ -2,71 +2,41 @@ import {BlockType, IBlock} from "../core/block/block.class";
 import {RhineBlock} from "../core/RhineBlock";
 import {FieldType} from "../core/block/arg.class";
 
-const logicBlocks: IBlock[] = [
+const consoleBlock: IBlock[] = [
   {
-    name: 'logic_if',
+    name: 'console_output',
     type: BlockType.Statement,
-    color: '#59c75b',
+    color: '#ff8a22',
     lines: [
       [
-        {text: '如果'},
-        {value: 'boolean'},
-      ],
-      [
-        {text: '执行'},
-        {statement: null},
+        {text: '输出'},
+        {value: 'Hello World'},
       ],
     ],
-    toolbox: [
-      // {block: 'math_add', args: [{block: 'math_add', args: [{block: 'number_random_float'}]}]},
-      // {block: 'control_if', args: [null, {block: 'console_print'}]},
-    ]
   }, {
-    name: 'logic_xorgate',
+    name: 'console_input',
     type: BlockType.Output,
-    color: '#59c75b',
+    output: 'Text',
+    color: '#ff8a22',
     lines: [
       [
-        {field: FieldType.Text, default: 'A'},
-        {field: FieldType.Text, default: '>'},
-        {field: FieldType.Text, default: 'B'},
-      ]
-    ]
-  }, {
-    name: 'logic_gate',
-    type: BlockType.Output,
-    color: '#59c75b',
-    lines: [
-      [
-        {value: 'boolean'},
-        {field: FieldType.Text, default: '并且'},
-        {value: 'boolean'},
-      ]
+        {text: '获取控制台输入'},
+      ],
     ],
-    toolbox:[]
-  },{
-    name: 'logic_not',
-    type: BlockType.Output,
-    color: '#59c75b',
+  }, {
+    name: 'console_sleep',
+    type: BlockType.Statement,
+    color: '#ff8a22',
     lines: [
       [
-        {text: "非"},
-        {value: 'boolean'},
-      ]
-    ]
+        {text: '等待'},
+        {field: FieldType.Text, default: '1'},
+        {text: '秒'},
+      ],
+    ],
   },
-  // {
-  //   name: 'logic_null',
-  //   type: BlockType.Output,
-  //   color: '#59c75b',
-  //   lines: [
-  //     [
-  //       {text: "空"},
-  //     ]
-  //   ]
-  // }
 ]
 
-RhineBlock.registerBlocks(logicBlocks);
+RhineBlock.registerBlocks(consoleBlock);
 
-export default logicBlocks
+export default consoleBlock

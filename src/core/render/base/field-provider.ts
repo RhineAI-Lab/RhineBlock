@@ -1,4 +1,4 @@
-import SvgElCreator from "./svg-el-creator";
+import SvgElCreator from "../../utils/svg-el-creator";
 
 export default class FieldProvider {
 

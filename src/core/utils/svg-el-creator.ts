@@ -74,3 +74,11 @@ export default class SvgElCreator {
     return svg
   }
 }
+
+export function elTransform(el: SVGElement | null | undefined, x: number, y: number): boolean {
+  if(el){
+    el.setAttribute('transform', `translate(${x}, ${y})`);
+    return true;
+  }
+  return false;
+}

@@ -15,23 +15,20 @@ export default function Flyout(props: FlyoutProps) {
         'event_equipstate',
         'event_change',
         'event_compare',
+
         'equipment_state',
         'equipment_control',
         'equipment_getvalue',
         'equipment_setvalue',
-      ], [
+
         'loop_times',
         'loop_conditions',
         'loop_break',
+      ], [
         'logic_if',
         'logic_gate',
         'logic_not',
-        'logic_null',
 
-        // 'events_do',
-        // 'console_print',
-
-      ], [
         'number_basiccal',
         'number_seniorcal',
         'number_trifunc',
@@ -40,12 +37,22 @@ export default function Flyout(props: FlyoutProps) {
         'number_round',
         'number_listoperation',
         'number_randomfloat',
+
+        // 'events_do',
+        // 'console_print',
       ], [
         'text_input',
-        'text_create',
         'text_length',
         'text_isempty',
         'text_reverse',
+        'text_to_number',
+        'text_to_string',
+        'text_contain',
+        'text_case',
+
+        'console_output',
+        'console_input',
+        'console_sleep',
       ]
     ]
     if (ref.current) {

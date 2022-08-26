@@ -3,7 +3,7 @@ import PathBuilder, {PLine} from "../../utils/path-builder";
 import {ArgType, FieldType} from "../../block/arg.class";
 import './base-style.css'
 import {ShapeProvider} from "./shape-provider";
-import SvgElCreator from "./svg-el-creator";
+import SvgElCreator from "../../utils/svg-el-creator";
 import {adjustColorBright} from "../../utils/color";
 import FieldProvider from "./field-provider";
 import {RhineBlock} from "../../RhineBlock";

@@ -1,5 +1,6 @@
-import SvgElCreator from "../../render/base/svg-el-creator";
-import Block, {Item} from "../../block/block.class";
+import SvgElCreator, {elTransform} from "../../utils/svg-el-creator";
+import {Item, RootItem} from "../../block/block.class";
+import BaseRender from "../../render/base/base-render";
 
 
 export default function renderGraph(dom: HTMLElement, items: Item[]): Graph {
@@ -13,7 +14,7 @@ export default function renderGraph(dom: HTMLElement, items: Item[]): Graph {
 }
 
 export class Graph {
-  items: Item[] = []
+  items: RootItem[] = []
   svg: SVGSVGElement
 
   constructor(dom: HTMLElement) {
@@ -25,7 +26,11 @@ export class Graph {
   }
 
   render() {
+    for (const item of this.items) {
 
+      const block = BaseRender.render(item.block, this.svg, item.args)
+      elTransform(block?.view, item.x, item.y)
+    }
   }
 
 }

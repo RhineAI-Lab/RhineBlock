@@ -1,8 +1,8 @@
-import {Item} from "../../../core/block/block.class";
+import {Item, RootItem} from "../../../core/block/block.class";
 
-export const testData: Item[] = [
+export const testData: RootItem[] = [
   {
-    block: 'equipment_control',
+    block: 'event_equipstate',
     x: 60,
     y: 60,
     root: true,

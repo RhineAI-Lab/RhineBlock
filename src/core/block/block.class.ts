@@ -161,9 +161,13 @@ export interface Item {
 
   next?: boolean; // 是否为下行属性
   shadow?: boolean; // 是否为阴影块
-  root?: boolean; // 是否为根节点
+}
 
-  x?: number;
-  y?: number;
+// 根图形块内容
+export interface RootItem extends Item {
+  root: true; // 是否为根节点
+
+  x: number;
+  y: number;
 }
 
