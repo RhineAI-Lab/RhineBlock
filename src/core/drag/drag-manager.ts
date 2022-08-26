@@ -13,8 +13,8 @@ export default class DragManager {
   onDragBlock(block: Block, e: MouseEvent) {
     const svg = this.newDragView()
     BaseRender.render(block.name, svg, block.getArgs().args)
-    this.dragBlock = block
-    offset = [e.offsetX - block.x, e.offsetY - block.y]
+    const rect = (e.target as SVGPathElement).getBoundingClientRect()
+    offset = [e.clientX - rect.x, e.clientY - rect.y]
     transformEl(dragView, e.pageX - offset[0], e.pageY - offset[1])
     document.addEventListener('mousemove', onDragBlockMove)
     document.addEventListener('mouseup', onDragBlockUp)
