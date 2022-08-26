@@ -164,16 +164,17 @@ export default class Block {
     this.mapValueArgs((arg, id, i, j) => {
       if(arg.type === ArgType.Statement || arg.type === ArgType.Value) {
         if(arg.content) {
-          contents.push((arg.content as Block).getItem())
+          contents.push(this.getArgBlockItem(arg))
         }
+      }else if(typeof arg.content !== 'object') {
+        contents.push(arg.content)
       }else{
-        contents.push((arg.content as Block).getItem())
+        contents.push(null)
       }
     });
     if(this.next.content) {
-      contents.push((this.next.content as Block).getItem())
-      // @ts-ignore
-      contents[contents.length - 1].next = true
+      contents.push(this.getArgBlockItem(this.next));
+      (contents[contents.length - 1]! as Item).next = true
     }
     const item: Item = {
       block: this.name,
@@ -182,6 +183,11 @@ export default class Block {
     if(this.isShadow) item.shadow = true
     return item
   }
+
+  getArgBlockItem(arg: Arg): Item {
+    return (arg.content as Block).getItem()
+  }
+
   setPosition(x: number, y: number): void {
     this.x = x
     this.y = y

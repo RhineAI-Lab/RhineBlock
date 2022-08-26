@@ -16,6 +16,7 @@ export default function renderFlyout(dom: HTMLElement, blocks: string[][]) {
   const MARGIN_LEFT = 40;
   const MARGIN_TOP = 40;
   const SPACING = 40;
+  const COLUMN_WIDTH = 200;
 
   const svg = SvgElCreator.appendSvg(dom);
   for (let i = 0; i < blocks.length; i++) {
@@ -26,7 +27,7 @@ export default function renderFlyout(dom: HTMLElement, blocks: string[][]) {
       }
       const block = Block.fromItem(item, null, true)
       BaseRender.render(block, svg)
-      block.setPosition(MARGIN_LEFT + j * SPACING, y)
+      block.setPosition(MARGIN_LEFT + i * COLUMN_WIDTH, y)
       y += block.height + SPACING
     }
   }
