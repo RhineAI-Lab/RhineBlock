@@ -1,7 +1,13 @@
 
 # RhineBlock
 
-图形块代码生成，类似谷歌的Blockly。
+图形块可视化代码。
+
+采用TS+原生，重构了谷歌的Blockly项目。增强扩展性和各框架的兼容。
+
+<div align="center">
+  <img width="850" src="https://raw.githubusercontent.com/Rhine-AI-Lab/RhineBlock/master/public/show/img.png">
+</div>
 
 ### TODOLIST
 
