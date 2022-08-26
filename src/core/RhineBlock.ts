@@ -1,18 +1,32 @@
-import {IBlock, Item, ItemValue} from "./block/block.class";
+import Block, {IBlock, Item, ItemValue} from "./block/block.class";
+import {Graph} from "./view/graph/graph";
 
 export class RhineBlock {
-  static blocks: IBlock[] = [];
+  static blocksData: IBlock[] = [];
 
-  static registerBlocks(blocks: IBlock[]) {
-    this.blocks = this.blocks.concat(blocks);
+  static registerBlocksData(blocks: IBlock[]) {
+    this.blocksData = this.blocksData.concat(blocks);
   }
 
   static getBlockData(name: string): IBlock | null {
-    return this.blocks.find(block => block.name === name) || null;
+    return this.blocksData.find(block => block.name === name) || null;
   }
 
   static getBlockToolbox(name: string): ItemValue[] | boolean | undefined {
     return this.getBlockData(name)?.toolbox
   }
+
+  static graphs: Graph[] = [];
+
+  static registerGraph(graph: Graph) {
+    this.graphs.push(graph);
+  }
+
+
+  static dragBlock: Block | null = null;
+  static onDragBlock(block: Block) {
+
+  }
+
 
 }

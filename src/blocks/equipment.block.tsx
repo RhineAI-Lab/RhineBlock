@@ -52,6 +52,6 @@ const equipmentBlocks: IBlock[] = [
 
 ]
 
-RhineBlock.registerBlocks(equipmentBlocks);
+RhineBlock.registerBlocksData(equipmentBlocks);
 
 export default equipmentBlocks

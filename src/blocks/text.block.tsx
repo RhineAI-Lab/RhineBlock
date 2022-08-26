@@ -89,6 +89,6 @@ const textBlocks: IBlock[] = [
   },
 ]
 
-RhineBlock.registerBlocks(textBlocks);
+RhineBlock.registerBlocksData(textBlocks);
 
 export default textBlocks

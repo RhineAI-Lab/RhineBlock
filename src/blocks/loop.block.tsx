@@ -53,6 +53,6 @@ const loopBlocks: IBlock[] = [
   }
 ]
 
-RhineBlock.registerBlocks(loopBlocks);
+RhineBlock.registerBlocksData(loopBlocks);
 
 export default loopBlocks

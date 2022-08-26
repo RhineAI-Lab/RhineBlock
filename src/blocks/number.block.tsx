@@ -102,6 +102,6 @@ const numberBlocks: IBlock[] = [
   },
 ]
 
-RhineBlock.registerBlocks(numberBlocks);
+RhineBlock.registerBlocksData(numberBlocks);
 
 export default numberBlocks

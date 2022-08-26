@@ -89,6 +89,6 @@ const eventBlocks: IBlock[] = [
   },
 ]
 
-RhineBlock.registerBlocks(eventBlocks);
+RhineBlock.registerBlocksData(eventBlocks);
 
 export default eventBlocks

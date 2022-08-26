@@ -6,7 +6,7 @@
 采用TS+原生，重构了谷歌的Blockly项目。增强扩展性和各框架的兼容。
 
 <div align="center">
-  <img width="850" src="https://raw.githubusercontent.com/Rhine-AI-Lab/RhineBlock/master/public/show/img.png">
+  <img width="800" src="https://raw.githubusercontent.com/Rhine-AI-Lab/RhineBlock/master/public/show/img.png">
 </div>
 
 ### TODOLIST

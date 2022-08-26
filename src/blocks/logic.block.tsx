@@ -67,6 +67,6 @@ const logicBlocks: IBlock[] = [
   // }
 ]
 
-RhineBlock.registerBlocks(logicBlocks);
+RhineBlock.registerBlocksData(logicBlocks);
 
 export default logicBlocks

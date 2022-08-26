@@ -4,7 +4,7 @@ import {ArgType, FieldType} from "../../block/arg.class";
 import './base-style.css'
 import {ShapeProvider} from "./shape-provider";
 import SvgElCreator from "../../utils/svg-el-creator";
-import {adjustColorBright} from "../../utils/color";
+import {adjustColorBright} from "../../utils/color-adjust";
 import FieldProvider from "./field-provider";
 import {RhineBlock} from "../../RhineBlock";
 

@@ -37,6 +37,6 @@ const consoleBlock: IBlock[] = [
   },
 ]
 
-RhineBlock.registerBlocks(consoleBlock);
+RhineBlock.registerBlocksData(consoleBlock);
 
 export default consoleBlock
