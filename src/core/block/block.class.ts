@@ -2,6 +2,7 @@ import Arg, {ArgType, IArg} from "./arg.class";
 import {RhineBlock} from "../RhineBlock";
 import BaseRender from "../render/base/base-render";
 import DragManager from "../drag/drag-manager";
+import {Graph} from "../view/graph/graph";
 
 export default class Block {
 
@@ -10,13 +11,14 @@ export default class Block {
   height: number = 0;
 
   next: Arg = Arg.fromJson(-1, {type: ArgType.Statement});
-  previous: Block | null = null;
-  parent: Block | null = null;
+  previous?: Block
+  parent?: Block
 
   isRoot: boolean = false; // 是否为根元素
   x: number = 0;
   y: number = 0;
   isShadow: boolean = false;
+  graph?: Graph
 
   constructor(
     public name: string,
@@ -27,7 +29,7 @@ export default class Block {
   ) {
   }
 
-  static fromItem(item: Item, parent: Block | null = null, toolboxMode: boolean = false): Block {
+  static fromItem(item: Item, toolboxMode: boolean = false, parent?: Block): Block {
     let data = RhineBlock.getBlockData(item.block)
     if (!data) {
       console.error('Block is not register', item.block)
@@ -39,7 +41,7 @@ export default class Block {
     return Block.fromDataAndArgs(data, item.args, parent)
   }
 
-  private static fromDataAndArgs(data: IBlock, args: ItemValue[] | null = null, parent: Block | null = null): Block {
+  private static fromDataAndArgs(data: IBlock, args: ItemValue[] | null = null, parent?: Block): Block {
     let argI = 0;
     const lines = data.lines.map(line => {
       return line.map(arg => {
@@ -77,7 +79,7 @@ export default class Block {
         }else{
           this.clearArg(arg)
         }
-        BaseRender.rerenderFull(this)
+        BaseRender.rerender(this)
       }
     })
   }
@@ -94,7 +96,6 @@ export default class Block {
         fn(arg)
       }
     })
-    fn(this.next)
   }
   clearArg(arg: Arg): void {
     arg.content = null
@@ -121,14 +122,17 @@ export default class Block {
     return this.lines[i].some(arg => arg.type === ArgType.Statement)
   }
 
-  mapArgs(fn: (arg: Arg, i: number, j: number) => void): void {
+  mapArgs(fn: (arg: Arg, i: number, j: number) => void, next = true): void {
     this.lines.forEach((line, i) => {
       line.forEach((arg, j) => {
         fn(arg, i, j);
       })
     })
+    if(this.next && next) {
+      fn(this.next, this.lines.length, 0)
+    }
   }
-  mapValueArgs(fn: (arg: Arg, id: number, i: number, j: number) => void): void {
+  mapValueArgs(fn: (arg: Arg, id: number, i: number, j: number) => void, next = true): void {
     this.lines.forEach((line, i) => {
       line.forEach((arg, j) => {
         if (arg.type !== ArgType.Text) {
@@ -136,6 +140,9 @@ export default class Block {
         }
       })
     })
+    if(this.next && next) {
+      fn(this.next, this.next.id, this.lines.length, 0)
+    }
   }
 
   setArgFromItem(item: ItemValue, arg: Arg): void {
@@ -175,7 +182,7 @@ export default class Block {
         const content = contents[id];
         if(!content) return
         this.setArgFromItem(content, arg)
-      })
+      }, false)
       // 设置下方参数
       const content = contents[contents.length - 1]
       if(content && typeof content === 'object' && content.next) {
@@ -209,7 +216,7 @@ export default class Block {
       }else{
         contents.push(null)
       }
-    });
+    }, false);
     if(this.next.content) {
       contents.push(this.getArgBlockItem(this.next));
       (contents[contents.length - 1]! as Item).next = true

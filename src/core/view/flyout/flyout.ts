@@ -25,7 +25,7 @@ export default function renderFlyout(dom: HTMLElement, blocks: string[][]) {
       const item: Item = {
         block: blocks[i][j],
       }
-      const block = Block.fromItem(item, null, true)
+      const block = Block.fromItem(item, true)
       BaseRender.render(block, svg)
       block.setPosition(MARGIN_LEFT + i * COLUMN_WIDTH, y)
       y += block.height + SPACING

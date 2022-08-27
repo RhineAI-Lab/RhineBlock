@@ -52,34 +52,22 @@ export default class BaseRender {
     return el
   }
 
-  static rerenderFull(block: Block) {
+  static rerender(block: Block) {
     while(block.parent) {
       block = block.parent
     }
-    this.rerender(block)
+    this.rerenderBlock(block)
   }
-
-  static rerender(block: Block) {
-    const el = block.view!
+  static rerenderBlock(block: Block) {
+    if(!block.view) block.view = SvgElCreator.newGroup({
+      class: 'rb-block-holder'
+    })
+    const el = block.view
     block.mapValueArgs((arg: Arg) => {
       if((arg.type === ArgType.Value || arg.type === ArgType.Statement)) {
         if(arg.content){
           const content = arg.content as Block
-          if(!content.view){
-            this.renderView(content, el)
-          }
-          const rect = content.view!.getBoundingClientRect()
-          arg.w = rect.width
-          arg.h = rect.height
-          this.rerender(content)
-        }else{
-          if(arg.type === ArgType.Statement){
-            arg.w = this.MIN_STATEMENT_WIDTH
-            arg.h = this.MIN_STATEMENT_LEFT
-          }else{
-            arg.w = this.MIN_VALUE_WIDTH
-            arg.h = this.MIN_VALUE_HEIGHT
-          }
+          this.rerenderBlock(content)
         }
       }
     })
@@ -140,16 +128,10 @@ export default class BaseRender {
         arg.view = el
       }
     })
-    const arg = block.next
-    if (block.next.content) {
-      const el = this.render(arg.content as Block, parentEl)
-      parentEl.appendChild(el)
-      arg.view = el
-    }
   }
 
-  static freshViewSize(block: Block) {
-    const fresh = (arg: Arg) => {
+  static freshViewSize(block: Block, inner: boolean = false) {
+    block.mapArgs((arg: Arg) => {
       if (arg.view) {
         let rect = arg.view.getBoundingClientRect()
         if (arg.type === ArgType.Value) {
@@ -166,11 +148,11 @@ export default class BaseRender {
         arg.h = this.MIN_VALUE_HEIGHT
       }
       if (arg.content && arg.content instanceof Block && arg.isBlockType()) {
-        this.freshViewSize(arg.content as Block)
+        if(inner){
+          this.freshViewSize(arg.content as Block)
+        }
       }
-    }
-    block.mapArgs(fresh)
-    fresh(block.next)
+    })
   }
 
 
