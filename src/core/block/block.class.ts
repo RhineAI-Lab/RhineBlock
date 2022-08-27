@@ -65,22 +65,37 @@ export default class Block {
   setMouseEvent(body: SVGPathElement): void {
     body.onmousedown = (e) => {
       DragManager.onDragBlock(this, e)
-      this.parent?.removeChild(this)
+      this.parent?.setArgFromContent(this, null)
       return false
     }
   }
-  removeChild(child: Block): void {
-    this.mapValueArgs(arg => {
-      if (arg.content === child) {
-        this.clearArg(arg)
+  setArgFromContent(content: Block, item: Item | null = null): void {
+    this.mapBlockArgs(arg => {
+      if (arg.content === content) {
+        if(item) {
+          this.setArgFromItem(item, arg)
+        }else{
+          this.clearArg(arg)
+        }
+        BaseRender.rerenderFull(this)
       }
     })
-    if(this.next.content === child) {
-      this.clearArg(this.next)
-    }
-    BaseRender.rerender(this)
   }
-
+  getArgByContent(content: Block): Arg | void {
+    this.mapBlockArgs(arg => {
+      if (arg.content === content) {
+        return arg
+      }
+    })
+  }
+  mapBlockArgs(fn: (arg: Arg) => void): void {
+    this.mapValueArgs(arg => {
+      if (arg.type === ArgType.Value || arg.type === ArgType.Statement) {
+        fn(arg)
+      }
+    })
+    fn(this.next)
+  }
   clearArg(arg: Arg): void {
     arg.content = null
     if(arg.view) {

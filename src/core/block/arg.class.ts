@@ -30,6 +30,10 @@ export default class Arg {
     }
   }
 
+  isBlockType(): boolean {
+    return this.type === ArgType.Statement || this.type === ArgType.Value;
+  }
+
   static fromJson(id: number, data: IArg): Arg {
     if (!data.type) {
       if (data.text !== undefined) {

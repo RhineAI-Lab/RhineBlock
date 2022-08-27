@@ -42,6 +42,7 @@ export default class BaseRender {
     block.view = el
 
     this.renderView(block, el)
+    this.freshViewSize(block)
     this.renderPositionCalculate(block)
     const bodyPath = this.makeBodyPath(block)
     // console.log(block)
@@ -49,6 +50,13 @@ export default class BaseRender {
     this.renderBody(bodyPath, block, el)
 
     return el
+  }
+
+  static rerenderFull(block: Block) {
+    while(block.parent) {
+      block = block.parent
+    }
+    this.rerender(block)
   }
 
   static rerender(block: Block) {
@@ -63,6 +71,7 @@ export default class BaseRender {
           const rect = content.view!.getBoundingClientRect()
           arg.w = rect.width
           arg.h = rect.height
+          this.rerender(content)
         }else{
           if(arg.type === ArgType.Statement){
             arg.w = this.MIN_STATEMENT_WIDTH
@@ -74,6 +83,7 @@ export default class BaseRender {
         }
       }
     })
+    this.freshViewSize(block)
     this.renderPositionCalculate(block)
     const bodyPath = this.makeBodyPath(block)
     for (let i = 0; i<el.children.length; i++) {
@@ -119,28 +129,15 @@ export default class BaseRender {
       } else if (arg.type === ArgType.Statement) {
         if (arg.content) {
           el = this.render(arg.content as Block, parentEl)
-        } else {
-          arg.w = this.MIN_STATEMENT_WIDTH
-          arg.h = this.MIN_VALUE_HEIGHT
         }
       } else if (arg.type === ArgType.Value) {
         if (arg.content) {
           el = this.render(arg.content as Block, parentEl)
-        } else {
-          arg.w = this.MIN_VALUE_WIDTH
-          arg.h = this.MIN_VALUE_HEIGHT
         }
       }
       if (el != null) {
         parentEl.appendChild(el)
         arg.view = el
-        let rect = el.getBoundingClientRect()
-        if (arg.type === ArgType.Value) {
-          rect.width += this.SHADOW_BIAS
-          rect.height += this.SHADOW_BIAS
-        }
-        arg.w = rect.width
-        arg.h = rect.height
       }
     })
     const arg = block.next
@@ -148,10 +145,32 @@ export default class BaseRender {
       const el = this.render(arg.content as Block, parentEl)
       parentEl.appendChild(el)
       arg.view = el
-      let rect = el.getBoundingClientRect()
-      arg.w = rect.width
-      arg.h = rect.height
     }
+  }
+
+  static freshViewSize(block: Block) {
+    const fresh = (arg: Arg) => {
+      if (arg.view) {
+        let rect = arg.view.getBoundingClientRect()
+        if (arg.type === ArgType.Value) {
+          rect.width += this.SHADOW_BIAS
+          rect.height += this.SHADOW_BIAS
+        }
+        arg.w = rect.width
+        arg.h = rect.height
+      } else if (arg.type === ArgType.Statement) {
+        arg.w = this.MIN_STATEMENT_WIDTH
+        arg.h = this.MIN_STATEMENT_LEFT
+      } else if (arg.type === ArgType.Value) {
+        arg.w = this.MIN_VALUE_WIDTH
+        arg.h = this.MIN_VALUE_HEIGHT
+      }
+      if (arg.content && arg.content instanceof Block && arg.isBlockType()) {
+        this.freshViewSize(arg.content as Block)
+      }
+    }
+    block.mapArgs(fresh)
+    fresh(block.next)
   }
 
 

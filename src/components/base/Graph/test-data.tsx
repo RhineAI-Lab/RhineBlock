@@ -15,7 +15,14 @@ export const testData: RootItem[] = [
             args: ['C','关']
           },{
             block: 'equipment_control',
-            args: ['开启', 'C']
+            args: ['开启', 'C', {
+              next: true,
+              block: 'console_output',
+              args: [{
+                next: true,
+                block: 'console_sleep',
+              }]
+            }],
           },{
             next: true,
             block: 'loop_times',
