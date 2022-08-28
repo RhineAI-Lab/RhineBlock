@@ -7,6 +7,7 @@ import {RhineBlock} from "../RhineBlock";
 
 export default class DragManager {
   static DRAG_VIEW_ID = 'rb-drag-view'
+  static NEAR_DIS = 6
 
   static dragBlock: Block | null = null;
   static inputs: InputPuzzle[] = []
@@ -20,24 +21,29 @@ export default class DragManager {
     const rect = (e.target as SVGPathElement).getBoundingClientRect()
     this.offset = [e.clientX - rect.x, e.clientY - rect.y]
 
+    block.parent?.setArgFromContent(block, null)
+
     for (const graph of RhineBlock.graphs) {
       graph.mapAllBlocks(tb => {
-        if(tb == block) return
+        if (tb == block) return
         tb.mapBlockArgs(arg => {
-          if(
+          if (!tb.view) return
+          if (
             (block.hadOutput() && arg.type === ArgType.Value) ||
             (block.hadPrevious() && arg.type === ArgType.Statement)
           ) {
+            const rect = tb.view.getBoundingClientRect()
+            // console.log(tb.name, rect.y, arg.y)
             this.inputs.push({
               block: tb,
               arg: arg,
-              position: [arg.x, arg.y]
+              position: [rect.x+arg.x, rect.y+arg.y]
             })
           }
         })
       })
     }
-    // console.log(this.inputs)
+    console.log(this.inputs)
 
     const onDragBlockMove = (e: MouseEvent) => this.onDragBlockMove(e)
     const onDragBlockUp = (e: MouseEvent) => {
@@ -52,10 +58,24 @@ export default class DragManager {
   }
 
   static onDragBlockMove(e: MouseEvent) {
-    if(!this.dragView) return
+    if (!this.dragView) return
     this.setDragViewPosition(this.getEventBlockPosition(e))
 
+    const position = this.getEventBlockPosition(e)
+    let nearInput: InputPuzzle | null = null
+    let currentDis = this.NEAR_DIS
+    for (const input of this.inputs) {
+      const dis = this.getDis(position, input.position)
+      if (dis <= currentDis) {
+        nearInput = input
+        currentDis = dis
+      }
+    }
+    if (nearInput) {
+      // console.log(nearInput.block.name)
+    }
   }
+
   static onDragBlockUp(e: MouseEvent) {
     DragManager.clearDragView()
     this.dragBlock = null
@@ -79,9 +99,14 @@ export default class DragManager {
     return [e.clientX - this.offset[0], e.clientY - this.offset[1]]
   }
 
+  // 计算两点之间距离
+  static getDis(p1: number[], p2: number[]): number {
+    return Math.sqrt(Math.pow(p1[0] - p2[0], 2) + Math.pow(p1[1] - p2[1], 2))
+  }
+
   // 设置拖拽块位置
   static setDragViewPosition(position: number[]): void {
-    if(!this.dragView) return
+    if (!this.dragView) return
     this.dragView.style.left = `${position[0]}px`
     this.dragView.style.top = `${position[1]}px`
   }

@@ -6,8 +6,6 @@ import {ShapeProvider} from "./shape-provider";
 import SvgElCreator from "../../utils/svg-el-creator";
 import {adjustColorBright} from "../../utils/color-adjust";
 import FieldProvider from "./field-provider";
-import {RhineBlock} from "../../RhineBlock";
-import DragManager from "../../drag/drag-manager";
 
 export default class BaseRender {
   // 细节形状提供器
@@ -234,8 +232,8 @@ export default class BaseRender {
 
     // 绘制下方元素
     const arg = block.next
+    arg.y = y
     if (arg.content) {
-      arg.y = y
       arg.updateViewPosition([0, this.SHADOW_BIAS * 2])
       block.height += arg.h + this.SHADOW_BIAS * 2
     }

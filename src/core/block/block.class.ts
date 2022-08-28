@@ -67,7 +67,6 @@ export default class Block {
   setMouseEvent(body: SVGPathElement): void {
     body.onmousedown = (e) => {
       DragManager.onDragBlockDown(this, e)
-      this.parent?.setArgFromContent(this, null)
       return false
     }
   }
