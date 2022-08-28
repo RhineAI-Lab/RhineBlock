@@ -33,6 +33,13 @@ export class Graph {
     }
   }
 
+  // 递归遍历所有图形块
+  mapAllBlocks(fn: (block: Block) => void){
+    for (const tb of this.blocks) {
+      tb.recurMapBlock(fn)
+    }
+  }
+
   clear() {
     this.svg.innerHTML = ''
     this.blocks = []

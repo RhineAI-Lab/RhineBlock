@@ -45,7 +45,8 @@ export const testData: RootItem[] = [
         ]
       }
     ]
-  },{
+  },
+  {
     x: 100,
     y: 420,
     block: 'event_change',

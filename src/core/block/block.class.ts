@@ -71,6 +71,7 @@ export default class Block {
       return false
     }
   }
+
   setArgFromContent(content: Block, item: Item | null = null): void {
     this.mapBlockArgs(arg => {
       if (arg.content === content) {
@@ -83,6 +84,7 @@ export default class Block {
       }
     })
   }
+
   getArgByContent(content: Block): Arg | void {
     this.mapBlockArgs(arg => {
       if (arg.content === content) {
@@ -90,13 +92,24 @@ export default class Block {
       }
     })
   }
-  mapBlockArgs(fn: (arg: Arg) => void): void {
+
+  mapBlockArgs(fn: (arg: Arg) => void) {
     this.mapValueArgs(arg => {
-      if (arg.type === ArgType.Value || arg.type === ArgType.Statement) {
+      if (arg.isBlockType()) {
         fn(arg)
       }
     })
   }
+
+  recurMapBlock(fn: (block: Block) => void) {
+    fn(this)
+    this.mapBlockArgs(arg => {
+      if(arg.content) {
+        (arg.content as Block).recurMapBlock(fn)
+      }
+    })
+  }
+
   clearArg(arg: Arg): void {
     arg.content = null
     if(arg.view) {
@@ -113,9 +126,14 @@ export default class Block {
   hadHat(): boolean {
     return this.type === BlockType.HatSingle || this.type === BlockType.Hat
   }
-
   hadNext(): boolean {
-    return this.type !== BlockType.Single && this.type !== BlockType.Finish
+    return [BlockType.Hat, BlockType.Statement, BlockType.Start].indexOf(this.type) > -1
+  }
+  hadPrevious(): boolean {
+    return this.type === BlockType.Statement || this.type === BlockType.Finish
+  }
+  hadOutput(): boolean {
+    return this.type === BlockType.Output
   }
 
   hadStatementInLine(i: number): boolean {
@@ -242,14 +260,14 @@ export default class Block {
 }
 
 // 图形块类型
-export enum BlockType {
-  Statement,
-  Output,
-  Hat,
-  Single,
-  Start,
-  Finish,
-  HatSingle,
+export enum BlockType {  // Next  Previous  Hat  Output
+  Statement,        //   √       √
+  Output,           //                         √
+  Hat,              //   √              √
+  Single,           //
+  Start,            //   √
+  Finish,           //           √
+  HatSingle,        //                  √
 }
 
 // 图形块申明接口
