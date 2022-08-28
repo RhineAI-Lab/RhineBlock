@@ -22,13 +22,12 @@ export default class DragManager {
 
     for (const graph of RhineBlock.graphs) {
       graph.mapAllBlocks(tb => {
-        console.log(tb)
+        if(tb == block) return
         tb.mapBlockArgs(arg => {
           if(
             (block.hadOutput() && arg.type === ArgType.Value) ||
             (block.hadPrevious() && arg.type === ArgType.Statement)
           ) {
-            console.log(arg)
             this.inputs.push({
               block: tb,
               arg: arg,
@@ -38,7 +37,7 @@ export default class DragManager {
         })
       })
     }
-    console.log(this.inputs)
+    // console.log(this.inputs)
 
     const onDragBlockMove = (e: MouseEvent) => this.onDragBlockMove(e)
     const onDragBlockUp = (e: MouseEvent) => {
