@@ -1,56 +1,69 @@
 import Block from "../block/block.class";
 import SvgElCreator, {transformEl} from "../utils/svg-el-creator";
 import BaseRender from "../render/base/base-render";
+import Arg from "../block/arg.class";
 
-let offset: number[] = [0, 0]
-let dragView: HTMLDivElement | null = null;
 
 export default class DragManager {
   static DRAG_VIEW_ID = 'rb-drag-view'
 
   static dragBlock: Block | null = null;
+  static inputs: InputPuzzle[] = []
 
-  static onDragBlock(block: Block, e: MouseEvent) {
-    const svg = this.newDragView().children[0] as SVGSVGElement
+  static offset: number[] = [0, 0]
+  static dragView: SVGElement | null = null;
+
+  static onDragBlockDown(block: Block, e: MouseEvent) {
+    const svg = this.newDragView()
     BaseRender.render(block.clone(), svg)
     const rect = (e.target as SVGPathElement).getBoundingClientRect()
-    offset = [e.clientX - rect.x, e.clientY - rect.y]
+    this.offset = [e.clientX - rect.x, e.clientY - rect.y]
+
+    const onDragBlockMove = (e: MouseEvent) => this.onDragBlockMove(e)
+    const onDragBlockUp = (e: MouseEvent) => {
+      document.removeEventListener('mousemove', onDragBlockMove)
+      document.removeEventListener('mouseup', onDragBlockUp)
+      this.onDragBlockUp(e)
+    }
     onDragBlockMove(e)
     document.addEventListener('mousemove', onDragBlockMove)
     document.addEventListener('mouseup', onDragBlockUp)
     e.stopPropagation()
   }
 
-  static newDragView(): HTMLDivElement {
+  static onDragBlockMove(e: MouseEvent) {
+    if(!this.dragView) return
+
+    const svg = this.dragView
+    svg.style.top = `${e.clientY - this.offset[1]}px`
+    svg.style.left = `${e.clientX - this.offset[0]}px`
+  }
+  static onDragBlockUp(e: MouseEvent) {
+    DragManager.clearDragView()
+  }
+
+  static newDragView(): SVGElement {
     this.clearDragView()
     const holder = document.createElement('div')
     document.body.appendChild(holder)
     holder.id = this.DRAG_VIEW_ID
     holder.classList.add('rb-drag-view')
     SvgElCreator.appendSvg(holder, true)
-    dragView = holder
-    return dragView
+    this.dragView = holder.children[0] as SVGElement
+    return this.dragView
   }
 
   static clearDragView() {
     document.getElementById(this.DRAG_VIEW_ID)?.remove()
-    dragView = null
+    this.dragView = null
     this.dragBlock = null
   }
 }
 
-function onDragBlockMove(e: MouseEvent) {
-  if(dragView && dragView.children[0]) {
-    const svg = dragView.children[0] as SVGSVGElement
-    svg.style.top = `${e.clientY - offset[1]}px`
-    svg.style.left = `${e.clientX - offset[0]}px`
-  }
-}
+interface InputPuzzle {
+  block: Block,
+  arg: Arg,
 
-function onDragBlockUp(e: MouseEvent) {
-  document.removeEventListener('mousemove', onDragBlockMove)
-  document.removeEventListener('mouseup', onDragBlockUp)
-  DragManager.clearDragView()
 }
 
 

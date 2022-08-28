@@ -45,8 +45,7 @@ export default class BaseRender {
     this.freshViewSize(block)
     this.renderPositionCalculate(block)
     const bodyPath = this.makeBodyPath(block)
-    // console.log(block)
-    // console.log(bodyPath)
+
     this.renderBody(bodyPath, block, el)
 
     return el

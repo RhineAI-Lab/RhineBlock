@@ -66,7 +66,7 @@ export default class Block {
 
   setMouseEvent(body: SVGPathElement): void {
     body.onmousedown = (e) => {
-      DragManager.onDragBlock(this, e)
+      DragManager.onDragBlockDown(this, e)
       this.parent?.setArgFromContent(this, null)
       return false
     }
@@ -140,7 +140,7 @@ export default class Block {
         }
       })
     })
-    if(this.next && next) {
+    if(this.hadNext() && next) {
       fn(this.next, this.next.id, this.lines.length, 0)
     }
   }

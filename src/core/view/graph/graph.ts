@@ -17,6 +17,7 @@ export default function renderGraph(dom: HTMLElement, items: RootItem[]): Graph 
 export class Graph {
   blocks: Block[] = [];
   svg: SVGSVGElement
+  isFlyout: boolean = false;
 
   constructor(dom: HTMLElement) {
     this.svg = SvgElCreator.appendSvg(dom)
