@@ -161,6 +161,7 @@ export default class Block {
     if (!item) {
       arg.clear()
     } else if (typeof item === 'object') {
+      arg.clear()
       const blockData = RhineBlock.getBlockData(item.block)
       if (!blockData) {
         console.error('Block is not register', item.block)
@@ -184,6 +185,21 @@ export default class Block {
       }
     } else {
       arg.content = item
+    }
+    if (rerender) {
+      // console.log('ReRender', this)
+      BaseRender.rerender(this)
+    }
+  }
+
+  setArgByBlock(arg: Arg, block: Block | null, rerender: boolean = false): void {
+    if(!block) {
+      arg.clear()
+    }else{
+      if(arg.isBlockType()) {
+        arg.clear()
+        arg.content = block
+      }
     }
     if (rerender) {
       BaseRender.rerender(this)

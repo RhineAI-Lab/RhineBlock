@@ -3,17 +3,18 @@ import SvgElCreator from "../utils/svg-el-creator";
 import BaseRender from "../render/base/base-render";
 import Arg, {ArgType} from "../block/arg.class";
 import {RhineBlock} from "../RhineBlock";
+import {deepCopy} from "../utils/normal";
 
 
 export default class DragManager {
   static DRAG_VIEW_ID = 'rb-drag-view'
-  static NEAR_DIS = 6
+  static NEAR_DIS = 16
 
-  static dragItem: Item | null = null;
-  static inputs: InputPuzzle[] = []
+  static dragItem: Item | null = null; // 当前拖拽内容信息
+  static inputs: InputPuzzle[] = [] // 当前可拼接接口
 
-  static offset: number[] = [0, 0]
-  static dragView: SVGElement | null = null;
+  static offset: number[] = [0, 0] // 当前鼠标相对拖拽块左上角的偏移量
+  static dragView: SVGElement | null = null; // 当前鼠标拖拽布局
 
   static onDragBlockDown(block: Block, e: MouseEvent) {
     this.dragItem = block.getItem()
@@ -27,7 +28,7 @@ export default class DragManager {
 
     for (const graph of RhineBlock.graphs) {
       graph.mapAllBlocks(tb => {
-        if (tb == block) return
+        if (tb === block) return
         tb.mapBlockArgs(arg => {
           if (!tb.view) return
           if (
@@ -35,18 +36,18 @@ export default class DragManager {
             (block.hadPrevious() && arg.type === ArgType.Statement)
           ) {
             const rect = tb.view.getBoundingClientRect()
-            // console.log(tb.name, rect.y, arg.y)
+            // this.log(tb.name, rect.y, arg.y)
             this.inputs.push({
               block: tb,
               arg: arg,
               position: [rect.x + arg.x, rect.y + arg.y],
-              temp: null,
+              temp: undefined,
             })
           }
         })
       })
     }
-    console.log(this.inputs)
+    this.log(this.inputs)
 
     const onDragBlockMove = (e: MouseEvent) => this.onDragBlockMove(e)
     const onDragBlockUp = (e: MouseEvent) => {
@@ -75,8 +76,42 @@ export default class DragManager {
       }
     }
     if (near) {
-      near.temp = near.block.getArgBlockItem(near.arg)
-      near.block.setArgByItem(near.arg, this.dragItem)
+      this.removeDragShadow(near)
+      if(near.temp === undefined){
+        if(near.arg.isBlockType() && near.arg.content){
+          near.temp = near.arg.content as Block
+        }else{
+          near.temp = null
+        }
+        this.log('SetTemp', near.temp)
+        if(this.dragItem){
+          const item: Item = deepCopy(this.dragItem)
+          this.log('ReRender', item)
+          const hadNext = near.temp && near.arg.type === ArgType.Statement
+          near.block.setArgByItem(near.arg, item, !hadNext)
+          if(hadNext){
+            this.log('SetNext', item)
+            const inner = near.arg.content as Block
+            inner.setArgByBlock(inner.next, near.temp, true)
+          }
+        }else{
+          this.log('Remove', near.block.name)
+          near.block.setArgByItem(near.arg, null, true)
+        }
+      }
+    }else{
+      this.removeDragShadow()
+    }
+  }
+
+  static removeDragShadow(expect: InputPuzzle | null = null): void{
+    for (const input of this.inputs) {
+      if(expect && input === expect) continue
+      if(input.temp !== undefined) {
+        this.log('RemoveTo', input.block.name, input.temp)
+        input.block.setArgByBlock(input.arg, input.temp, true)
+        input.temp = undefined
+      }
     }
   }
 
@@ -120,13 +155,19 @@ export default class DragManager {
     document.getElementById(this.DRAG_VIEW_ID)?.remove()
     this.dragView = null
   }
+
+  static DEBUG_MODE = true
+  static log(...args: any[]) {
+    if(this.DEBUG_MODE) console.log(...args)
+  }
+
 }
 
 interface InputPuzzle {
   block: Block,
   arg: Arg,
   position: number[],
-  temp: Item | null,
+  temp: Block | null | undefined,
 }
 
 

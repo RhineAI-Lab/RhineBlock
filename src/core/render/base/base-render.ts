@@ -50,9 +50,7 @@ export default class BaseRender {
   }
 
   static rerender(block: Block) {
-    while(block.parent) {
-      block = block.parent
-    }
+    while(block.parent) block = block.parent
     this.rerenderBlock(block)
   }
   static rerenderBlock(block: Block) {
@@ -60,9 +58,12 @@ export default class BaseRender {
       class: 'rb-block-holder'
     })
     const el = block.view
-    block.mapValueArgs((arg: Arg) => {
-      if((arg.type === ArgType.Value || arg.type === ArgType.Statement)) {
+    block.mapArgs((arg: Arg) => {
+      if(arg.isBlockType()) {
         if(arg.content){
+          if(!arg.view){
+            arg.view = this.render(arg.content as Block, el)
+          }
           const content = arg.content as Block
           this.rerenderBlock(content)
         }

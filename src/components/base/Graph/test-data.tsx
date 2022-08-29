@@ -1,5 +1,28 @@
 import {Item, RootItem} from "../../../core/block/block.class";
 
+export const easyTestData: RootItem[] = [
+  {
+    x: 100,
+    y: 80,
+    block: 'event_equipstate',
+    args: [
+      {
+        next: true,
+        block: 'logic_if',
+        args: [
+          {
+            block: 'equipment_state',
+            args: ['C','关']
+          },{
+            block: 'equipment_control',
+            args: ['开启', 'C'],
+          },
+        ]
+      }
+    ]
+  },
+]
+
 export const testData: RootItem[] = [
   {
     x: 100,

@@ -1,7 +1,7 @@
 import React, {useEffect} from 'react';
 import Style from './graph.module.css'
 import renderGraph from "../../../core/view/graph/graph";
-import {testData} from "./test-data";
+import {easyTestData, testData} from "./test-data";
 
 let initialized = false;
 
@@ -10,7 +10,7 @@ export default function Graph(props: any) {
 
   useEffect(() => {
     if (ref.current && !initialized) {
-      const graph = renderGraph(ref.current, testData);
+      const graph = renderGraph(ref.current, easyTestData);
       initialized = true;
     }
   }, [])
