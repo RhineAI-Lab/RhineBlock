@@ -1,4 +1,4 @@
-import Block, {Item} from "../block/block.class";
+import Block, {Item, OpacityType} from "../block/block.class";
 import SvgElCreator from "../utils/svg-el-creator";
 import BaseRender from "../render/base/base-render";
 import Arg, {ArgType} from "../block/arg.class";
@@ -15,6 +15,8 @@ export default class DragManager {
 
   static offset: number[] = [0, 0] // 当前鼠标相对拖拽块左上角的偏移量
   static dragView: SVGElement | null = null; // 当前鼠标拖拽布局
+
+  static current: Block | null = null  // 鼠标移动时当前落点的临时渲染图形块实例
 
   static onDragBlockDown(block: Block, e: MouseEvent) {
     this.dragItem = block.getItem()
@@ -77,40 +79,42 @@ export default class DragManager {
     }
     if (near) {
       this.removeDragShadow(near)
-      if(near.temp === undefined){
-        if(near.arg.isBlockType() && near.arg.content){
+      if (near.temp === undefined) {
+        if (near.arg.isBlockType() && near.arg.content) {
           near.temp = near.arg.content as Block
-        }else{
+        } else {
           near.temp = null
         }
         this.log('SetTemp', near.temp)
-        if(this.dragItem){
+        if (this.dragItem) {
           const item: Item = deepCopy(this.dragItem)
           this.log('ReRender', item)
           const hadNext = near.temp && near.arg.type === ArgType.Statement
-          near.block.setArgByItem(near.arg, item, !hadNext)
-          if(hadNext){
+          near.block.setArgByItem(near.arg, item, !hadNext, true)
+          if (hadNext) {
             this.log('SetNext', item)
+            this.current = near.arg.content as Block
             let inner = near.arg.content as Block
-            while(inner.hadNext() && inner.next.content){
+            while (inner.hadNext() && inner.next.content) {
               inner = inner.next.content as Block
             }
+            if (near.temp) near.temp.isOpacity = OpacityType.False
             inner.setArgByBlock(inner.next, near.temp, true)
           }
-        }else{
+        } else {
           this.log('Remove', near.block.name)
           near.block.setArgByItem(near.arg, null, true)
         }
       }
-    }else{
+    } else {
       this.removeDragShadow()
     }
   }
 
-  static removeDragShadow(expect: InputPuzzle | null = null): void{
+  static removeDragShadow(expect: InputPuzzle | null = null): void {
     for (const input of this.inputs) {
-      if(expect && input === expect) continue
-      if(input.temp !== undefined) {
+      if (expect && input === expect) continue
+      if (input.temp !== undefined) {
         this.log('RemoveTo', input.block.name, input.temp)
         input.block.setArgByBlock(input.arg, input.temp, true)
         input.temp = undefined
@@ -120,6 +124,10 @@ export default class DragManager {
 
   static onDragBlockUp(e: MouseEvent) {
     DragManager.clearDragView()
+    if(this.current) {
+      BaseRender.clearOpacity(this.current)
+      this.current = null
+    }
     this.dragItem = null
     this.inputs = []
   }
@@ -160,8 +168,9 @@ export default class DragManager {
   }
 
   static DEBUG_MODE = true
+
   static log(...args: any[]) {
-    if(this.DEBUG_MODE) console.log(...args)
+    if (this.DEBUG_MODE) console.log(...args)
   }
 
 }

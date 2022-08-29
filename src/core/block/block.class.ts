@@ -3,6 +3,7 @@ import {RhineBlock} from "../RhineBlock";
 import BaseRender from "../render/base/base-render";
 import DragManager from "../drag/drag-manager";
 import {Graph} from "../view/graph/graph";
+import {adjustColorBright} from "../utils/color-adjust";
 
 export default class Block {
 
@@ -17,8 +18,10 @@ export default class Block {
   isRoot: boolean = false; // 是否为根元素
   x: number = 0;
   y: number = 0;
-  isShadow: boolean = false;
   graph?: Graph
+
+  isShadow: boolean = false;
+  isOpacity: OpacityType = OpacityType.Default;
 
   constructor(
     public name: string,
@@ -157,7 +160,7 @@ export default class Block {
     }), next)
   }
 
-  setArgByItem(arg: Arg, item: ItemValue, rerender: boolean = false): void {
+  setArgByItem(arg: Arg, item: ItemValue, rerender: boolean = false, opacity: boolean = false): void {
     if (!item) {
       arg.clear()
     } else if (typeof item === 'object') {
@@ -176,6 +179,9 @@ export default class Block {
         )
       ) {
         arg.content = Block.fromDataAndArgs(blockData, item.args, this)
+        if (opacity) {
+          arg.content.isOpacity = OpacityType.True
+        }
         if (item.next) {
           if (item.args) arg.content.setArgsFromItems(item.args)
           arg.content.previous = this
@@ -184,7 +190,7 @@ export default class Block {
         return;
       }
       arg.content.parent = this
-      if(this.next === arg){
+      if (this.next === arg) {
         arg.content.previous = this
       }
     } else {
@@ -197,14 +203,14 @@ export default class Block {
   }
 
   setArgByBlock(arg: Arg, block: Block | null, rerender: boolean = false): void {
-    if(!block) {
+    if (!block) {
       arg.clear()
-    }else{
-      if(arg.isBlockType()) {
+    } else {
+      if (arg.isBlockType()) {
         arg.clear()
         arg.content = block
         arg.content.parent = this
-        if(this.next === arg){
+        if (this.next === arg) {
           arg.content.previous = this
         }
       }
@@ -282,6 +288,14 @@ export default class Block {
     this.view?.setAttribute('transform', `translate(${x}, ${y})`)
   }
 
+  getOpacity(): boolean {
+    let block: Block = this
+    while (block.isOpacity === OpacityType.Default && block.parent) {
+      block = block.parent
+    }
+    return block.isOpacity === OpacityType.True
+  }
+
 }
 
 // 图形块类型
@@ -304,6 +318,12 @@ export interface IBlock {
   color?: string;
 
   toolbox?: ItemValue[] | boolean;
+}
+
+export enum OpacityType {
+  Default, // 根据父控件
+  True,
+  False,
 }
 
 

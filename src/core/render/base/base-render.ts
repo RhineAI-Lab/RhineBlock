@@ -1,4 +1,4 @@
-import Block, {BlockType, ItemValue} from "../../block/block.class";
+import Block, {BlockType, OpacityType} from "../../block/block.class";
 import PathBuilder, {PLine} from "../../utils/path-builder";
 import Arg, {ArgType, FieldType} from "../../block/arg.class";
 import './base-style.css'
@@ -18,6 +18,11 @@ export default class BaseRender {
   static PADDING_VERTICAL_VL = 5; // 当此行有VALUE输入时 额外增加垂直边距高度
   static PADDING_HORIZONTAL = 7; // 图形块水平边距
   static CONTENT_SPACING = 4; // 行内内容之间间距
+
+  // 半透明度值
+  static OPACITY_BODY = 0.28;
+  static OPACITY_SHADOW = 0.1;
+  static OPACITY_CONTENT = 0.32;
 
   // 输入图形块大小
   static MIN_STATEMENT_WIDTH = 36 // 最小STATEMENT宽度
@@ -81,6 +86,7 @@ export default class BaseRender {
   }
 
   static renderBody(path: string,block: Block, parentEl: SVGElement) {
+    const opacity = block.getOpacity()
     for (const i in this.SHADOW_COLORS) {
       const body = SvgElCreator.newPath(path, adjustColorBright(block.color, this.SHADOW_COLORS[i]), 'none');
       if (i === '0') {
@@ -90,6 +96,7 @@ export default class BaseRender {
         body.classList.add('rb-block-body-shadow')
         body.style.transform = `translate(${this.SHADOW_POSITIONS[i][0]}px, ${this.SHADOW_POSITIONS[i][1]}px)`
       }
+      body.style.opacity = opacity ? (i === '0' ? this.OPACITY_BODY : this.OPACITY_SHADOW) + '' : '1'
       appendChildToFirst(parentEl, body);
     }
   }
@@ -98,6 +105,7 @@ export default class BaseRender {
   // 渲染出所有内部元素并记录所有元素宽高。
   // 当有内部拼接图形块时，进行递归，计算全部宽高。
   static renderView(block: Block, parentEl: SVGElement): void {
+    const opacity = block.getOpacity()
     block.mapArgs((arg) => {
       let el: SVGElement | null = null;
       if (arg.type === ArgType.Text) {
@@ -122,6 +130,9 @@ export default class BaseRender {
         }
       }
       if (el != null) {
+        if(!arg.isBlockType()){
+          el.style.opacity = opacity ? this.OPACITY_CONTENT + '' : '1'
+        }
         parentEl.appendChild(el)
         arg.view = el
       }
@@ -298,6 +309,19 @@ export default class BaseRender {
       }
     })
     return builder.build()
+  }
+
+  // 清除图形块内部的透明度参数
+  static clearOpacity(block: Block): void {
+    block.recurMapBlock(tb => {
+      tb.isOpacity = OpacityType.Default
+      if(tb.view){
+        const children = tb.view?.children
+        for (let i = 0; i < children.length; i++) {
+          (children[i] as SVGElement).style.opacity = '1'
+        }
+      }
+    });
   }
 
 
