@@ -91,9 +91,9 @@ export default class DragManager {
           this.log('ReRender', item)
           const hadNext = near.temp && near.arg.type === ArgType.Statement
           near.block.setArgByItem(near.arg, item, !hadNext, true)
+          this.current = near.arg.content as Block
           if (hadNext) {
             this.log('SetNext', item)
-            this.current = near.arg.content as Block
             let inner = near.arg.content as Block
             while (inner.hadNext() && inner.next.content) {
               inner = inner.next.content as Block

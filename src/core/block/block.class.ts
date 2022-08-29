@@ -2,8 +2,6 @@ import Arg, {ArgType, IArg} from "./arg.class";
 import {RhineBlock} from "../RhineBlock";
 import BaseRender from "../render/base/base-render";
 import DragManager from "../drag/drag-manager";
-import {Graph} from "../view/graph/graph";
-import {adjustColorBright} from "../utils/color-adjust";
 
 export default class Block {
 
@@ -16,9 +14,9 @@ export default class Block {
   parent?: Block
 
   isRoot: boolean = false; // 是否为根元素
-  x: number = 0;
-  y: number = 0;
-  graph?: Graph
+  x: number = 0; // 在画布中的坐标X
+  y: number = 0; // 在画布中的坐标Y
+  zIndex: number = 1; // 在画布中的层级
 
   isShadow: boolean = false;
   isOpacity: OpacityType = OpacityType.Default;
