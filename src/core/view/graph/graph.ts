@@ -5,13 +5,10 @@ import {RhineBlock} from "../../RhineBlock";
 
 
 export default function renderGraph(dom: HTMLElement, items: Item[]): Graph {
-
   const graph = new Graph(dom);
   graph.render(items, true);
   RhineBlock.registerGraph(graph);
-
   return graph
-
 }
 
 export class Graph {
@@ -26,9 +23,9 @@ export class Graph {
   render(items: Item[] = [], clear = false) {
     if (clear) this.clear()
     for (const item of items) {
-      console.log(item)
       const block = Block.fromItem(item)
       BaseRender.render(block, this.svg)
+      console.log(item.x, item.y)
       block.setPosition(item.x || 100, item.y || 100)
       block.graph = this
       this.blocks.push(block)

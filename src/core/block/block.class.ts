@@ -14,14 +14,15 @@ export default class Block {
   previous?: Block
   parent?: Block
 
+  isShadow: boolean = false;
+  isOpacity: OpacityType = OpacityType.Default;
+
+  // 仅根元素有以下参数的值
   isRoot: boolean = false; // 是否为根元素
   x: number = 0; // 在画布中的坐标X
   y: number = 0; // 在画布中的坐标Y
   zIndex: number = 1; // 在画布中的层级
-  graph: Graph | null = null;
-
-  isShadow: boolean = false;
-  isOpacity: OpacityType = OpacityType.Default;
+  graph: Graph | null = null; // 画布对象
 
   constructor(
     public name: string,
@@ -296,6 +297,11 @@ export default class Block {
     return block.isOpacity === OpacityType.True
   }
 
+  getGraph(): Graph | null {
+    if (this.graph) return this.graph
+    if (this.parent) return this.parent.getGraph()
+    return null
+  }
 }
 
 // 图形块类型
@@ -309,6 +315,13 @@ export enum BlockType {  // Next  Previous  Hat  Output
   HatSingle,        //                  √
 }
 
+// 图形块透明类型
+export enum OpacityType {
+  Default, // 根据父控件
+  True,
+  False,
+}
+
 // 图形块申明接口
 export interface IBlock {
   name: string;
@@ -318,12 +331,6 @@ export interface IBlock {
   color?: string;
 
   toolbox?: ItemValue[] | boolean;
-}
-
-export enum OpacityType {
-  Default, // 根据父控件
-  True,
-  False,
 }
 
 

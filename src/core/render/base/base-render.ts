@@ -36,7 +36,7 @@ export default class BaseRender {
   static SHADOW_BIAS = 1;
 
   static render(block: Block, parentEl: SVGElement): SVGElement {
-    if(block.view) block.view.remove()
+    if (block.view) block.view.remove()
     // 创建图形块根元素
     const el = SvgElCreator.newGroup({
       class: 'rb-block-holder'
@@ -54,19 +54,22 @@ export default class BaseRender {
     return el
   }
 
+  // 块整体重渲染
   static rerender(block: Block) {
-    while(block.parent) block = block.parent
+    while (block.parent) block = block.parent
     this.rerenderBlock(block)
   }
+
+  // 局部重渲染
   static rerenderBlock(block: Block) {
-    if(!block.view) block.view = SvgElCreator.newGroup({
+    if (!block.view) block.view = SvgElCreator.newGroup({
       class: 'rb-block-holder'
     })
     const el = block.view
     block.mapArgs((arg: Arg) => {
-      if(arg.isBlockType()) {
-        if(arg.content){
-          if(!arg.view){
+      if (arg.isBlockType()) {
+        if (arg.content) {
+          if (!arg.view) {
             arg.view = this.render(arg.content as Block, el)
           }
           const content = arg.content as Block
@@ -77,7 +80,7 @@ export default class BaseRender {
     this.freshViewSize(block)
     this.renderPositionCalculate(block)
     const bodyPath = this.makeBodyPath(block)
-    for (let i = 0; i<el.children.length; i++) {
+    for (let i = 0; i < el.children.length; i++) {
       const child = el.children[i] as SVGElement
       if (child.classList.contains('rb-block-body') || child.classList.contains('rb-block-body-shadow')) {
         child.setAttribute('d', bodyPath)
@@ -85,7 +88,8 @@ export default class BaseRender {
     }
   }
 
-  static renderBody(path: string,block: Block, parentEl: SVGElement) {
+  // 渲染主体块
+  static renderBody(path: string, block: Block, parentEl: SVGElement) {
     const opacity = block.getOpacity()
     for (const i in this.SHADOW_COLORS) {
       const body = SvgElCreator.newPath(path, adjustColorBright(block.color, this.SHADOW_COLORS[i]), 'none');
@@ -118,7 +122,8 @@ export default class BaseRender {
             parentEl,
             (text) => {
               arg.content = text
-            });
+            }
+          );
         }
       } else if (arg.type === ArgType.Statement) {
         if (arg.content) {
@@ -130,7 +135,7 @@ export default class BaseRender {
         }
       }
       if (el != null) {
-        if(!arg.isBlockType()){
+        if (!arg.isBlockType()) {
           el.style.opacity = opacity ? this.OPACITY_CONTENT + '' : '1'
         }
         parentEl.appendChild(el)
@@ -157,7 +162,7 @@ export default class BaseRender {
         arg.h = this.MIN_VALUE_HEIGHT
       }
       if (arg.content && arg.content instanceof Block && arg.isBlockType()) {
-        if(inner){
+        if (inner) {
           this.freshViewSize(arg.content as Block)
         }
       }
@@ -198,7 +203,7 @@ export default class BaseRender {
         let th = arg.h
         if (arg.type !== ArgType.Statement) {
           th += this.PADDING_VERTICAL * 2
-        }else{
+        } else {
           th -= this.provider.PUZZLE_HEIGHT - this.SHADOW_BIAS
         }
         if (th > height) height = th
@@ -226,7 +231,7 @@ export default class BaseRender {
 
         arg.x = x
         arg.y = y + (h - arg.h) / 2 + this.SHADOW_BIAS
-        if (arg.type === ArgType.Statement) arg.updateViewPosition([this.SHADOW_BIAS, this.SHADOW_BIAS * 2])
+        if (arg.type === ArgType.Statement) arg.updateViewPosition([this.SHADOW_BIAS, this.SHADOW_BIAS])
         else if (arg.type === ArgType.Value) arg.updateViewPosition([this.SHADOW_BIAS, this.SHADOW_BIAS])
         else arg.updateViewPosition()
 
@@ -315,7 +320,7 @@ export default class BaseRender {
   static clearOpacity(block: Block): void {
     block.recurMapBlock(tb => {
       tb.isOpacity = OpacityType.Default
-      if(tb.view){
+      if (tb.view) {
         const children = tb.view?.children
         for (let i = 0; i < children.length; i++) {
           (children[i] as SVGElement).style.opacity = '1'

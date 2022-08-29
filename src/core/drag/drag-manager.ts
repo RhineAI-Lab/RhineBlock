@@ -14,6 +14,9 @@ export default class DragManager {
   static RESET_POS_MOVE = 40 // 移动溢出画布时回弹感知范围
   static RESET_WIDTH = 20 // 感知默认扩展宽度
 
+  static THROW_BIAS = 60 // 弹出偏移量
+
+
   static dragItem: Item | null = null; // 当前拖拽内容信息
   static inputs: InputPuzzle[] = [] // 当前可拼接接口
 
@@ -21,6 +24,8 @@ export default class DragManager {
   static dragView: SVGElement | null = null; // 当前鼠标拖拽布局
 
   static current: Block | null = null  // 鼠标移动时当前落点的临时渲染图形块实例
+
+  static throwBlock: Block | null = null
 
   static onDragBlockDown(block: Block, e: MouseEvent) {
     this.dragItem = block.getItem()
@@ -105,8 +110,16 @@ export default class DragManager {
             while (inner.hadNext() && inner.next.content) {
               inner = inner.next.content as Block
             }
-            if (near.temp) near.temp.isOpacity = OpacityType.False
-            inner.setArgByBlock(inner.next, near.temp, true)
+            if(inner.hadNext()){
+              if (near.temp) near.temp.isOpacity = OpacityType.False
+              inner.setArgByBlock(inner.next, near.temp, true)
+              this.setThrow(null)
+            }else{
+              inner.setArgByBlock(inner.next, null, true)
+              this.setThrow(near.temp)
+            }
+          }else{
+            this.setThrow(near.temp)
           }
         } else {
           this.log('Remove', near.block.name)
@@ -116,7 +129,14 @@ export default class DragManager {
     } else {
       this.removeDragShadow()
       this.current = null
+      this.setThrow(null)
     }
+  }
+
+  static setThrow(block: Block | null) {
+    if(this.throwBlock && !block) console.log('RemoveThrow')
+    this.throwBlock = block
+    if(block) console.log('SetThrow', this.throwBlock)
   }
 
   static removeDragShadow(expect: InputPuzzle | null = null): void {
@@ -133,24 +153,34 @@ export default class DragManager {
   static onDragBlockUp(e: MouseEvent) {
     DragManager.clearDragView()
     const item = this.dragItem
+
     if (!item) return
+
+    const pos = this.getEventBlockPosition(e)
+    let graph = RhineBlock.graphs[0]
+    RhineBlock.graphs.some(tg => {
+      const rect = tg.svg.getBoundingClientRect()
+      if (pos[0] >= rect.x && pos[0] <= rect.x + rect.width && pos[1] >= rect.y && pos[1] <= rect.y + rect.height) {
+        graph = tg
+        return true
+      }
+    })
+    const rect = graph.svg.getBoundingClientRect()
+
     if (this.current) {
       BaseRender.clearOpacity(this.current)
+      if(this.throwBlock){
+        const throwItem = this.throwBlock.getItem()
+        const cr = this.current.view!.getBoundingClientRect()
+        throwItem.x = cr.x - rect.x + this.THROW_BIAS
+        throwItem.y = cr.y - rect.y + this.THROW_BIAS
+        graph.render([throwItem])
+      }
       this.current = null
     } else {
-      const pos = this.getEventBlockPosition(e)
-      let graph = RhineBlock.graphs[0]
-      RhineBlock.graphs.some(tg => {
-        const rect = tg.svg.getBoundingClientRect()
-        if (pos[0] >= rect.x && pos[0] <= rect.x + rect.width && pos[1] >= rect.y && pos[1] <= rect.y + rect.height) {
-          graph = tg
-          return true
-        }
-      })
-      const rect = graph.svg.getBoundingClientRect()
       item.x = pos[0] - rect.x
       item.y = pos[1] - rect.y
-      if (item.x > rect.width  - this.RESET_POS_CATCH) item.x = rect.width  - this.RESET_POS_MOVE - this.RESET_WIDTH
+      if (item.x > rect.width - this.RESET_POS_CATCH) item.x = rect.width - this.RESET_POS_MOVE - this.RESET_WIDTH
       if (item.y > rect.height - this.RESET_POS_CATCH) item.y = rect.height - this.RESET_POS_MOVE - this.RESET_WIDTH
       if (item.x < this.RESET_POS_CATCH) item.x = this.RESET_POS_MOVE
       if (item.y < this.RESET_POS_CATCH) item.y = this.RESET_POS_MOVE
