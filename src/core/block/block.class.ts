@@ -2,6 +2,7 @@ import Arg, {ArgType, IArg} from "./arg.class";
 import {RhineBlock} from "../RhineBlock";
 import BaseRender from "../render/base/base-render";
 import DragManager from "../drag/drag-manager";
+import {Graph} from "../view/graph/graph";
 
 export default class Block {
 
@@ -17,6 +18,7 @@ export default class Block {
   x: number = 0; // 在画布中的坐标X
   y: number = 0; // 在画布中的坐标Y
   zIndex: number = 1; // 在画布中的层级
+  graph: Graph | null = null;
 
   isShadow: boolean = false;
   isOpacity: OpacityType = OpacityType.Default;
@@ -335,11 +337,8 @@ export interface Item {
 
   next?: boolean; // 是否为下行属性
   shadow?: boolean; // 是否为阴影块
-}
 
-// 根图形块内容
-export interface RootItem extends Item {
-  x: number;
-  y: number;
+  x?: number;
+  y?: number;
 }
 

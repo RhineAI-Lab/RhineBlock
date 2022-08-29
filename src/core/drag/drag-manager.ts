@@ -10,6 +10,10 @@ export default class DragManager {
   static DRAG_VIEW_ID = 'rb-drag-view'
   static NEAR_DIS = 16
 
+  static RESET_POS_CATCH = 5 // 移动溢出画布时回弹感知范围
+  static RESET_POS_MOVE = 40 // 移动溢出画布时回弹感知范围
+  static RESET_WIDTH = 20 // 感知默认扩展宽度
+
   static dragItem: Item | null = null; // 当前拖拽内容信息
   static inputs: InputPuzzle[] = [] // 当前可拼接接口
 
@@ -27,9 +31,12 @@ export default class DragManager {
     this.offset = [e.clientX - rect.x, e.clientY - rect.y]
 
     block.parent?.setArgFromContent(block, null, true)
+    if (block.graph) {
+      block.graph.remove(block)
+    }
 
     for (const graph of RhineBlock.graphs) {
-      graph.mapAllBlocks(tb => {
+      graph.recurBlocks(tb => {
         if (tb === block) return
         tb.mapBlockArgs(arg => {
           if (!tb.view) return
@@ -108,6 +115,7 @@ export default class DragManager {
       }
     } else {
       this.removeDragShadow()
+      this.current = null
     }
   }
 
@@ -115,7 +123,7 @@ export default class DragManager {
     for (const input of this.inputs) {
       if (expect && input === expect) continue
       if (input.temp !== undefined) {
-        this.log('RemoveTo', input.block.name, input.temp)
+        this.log('RemoveFrom', input.block.name, input.temp)
         input.block.setArgByBlock(input.arg, input.temp, true)
         input.temp = undefined
       }
@@ -124,9 +132,30 @@ export default class DragManager {
 
   static onDragBlockUp(e: MouseEvent) {
     DragManager.clearDragView()
-    if(this.current) {
+    const item = this.dragItem
+    if (!item) return
+    if (this.current) {
       BaseRender.clearOpacity(this.current)
       this.current = null
+    } else {
+      const pos = this.getEventBlockPosition(e)
+      let graph = RhineBlock.graphs[0]
+      RhineBlock.graphs.some(tg => {
+        const rect = tg.svg.getBoundingClientRect()
+        if (pos[0] >= rect.x && pos[0] <= rect.x + rect.width && pos[1] >= rect.y && pos[1] <= rect.y + rect.height) {
+          graph = tg
+          return true
+        }
+      })
+      const rect = graph.svg.getBoundingClientRect()
+      item.x = pos[0] - rect.x
+      item.y = pos[1] - rect.y
+      if (item.x > rect.width  - this.RESET_POS_CATCH) item.x = rect.width  - this.RESET_POS_MOVE - this.RESET_WIDTH
+      if (item.y > rect.height - this.RESET_POS_CATCH) item.y = rect.height - this.RESET_POS_MOVE - this.RESET_WIDTH
+      if (item.x < this.RESET_POS_CATCH) item.x = this.RESET_POS_MOVE
+      if (item.y < this.RESET_POS_CATCH) item.y = this.RESET_POS_MOVE
+      this.log('RenderToGraph', item)
+      graph.render([item])
     }
     this.dragItem = null
     this.inputs = []

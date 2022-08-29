@@ -1,6 +1,6 @@
-import {Item, RootItem} from "../../../core/block/block.class";
+import {Item} from "../../../core/block/block.class";
 
-export const easyTestData: RootItem[] = [
+export const easyTestData: Item[] = [
   {
     x: 100,
     y: 80,
@@ -23,7 +23,7 @@ export const easyTestData: RootItem[] = [
   },
 ]
 
-export const testData: RootItem[] = [
+export const testData: Item[] = [
   {
     x: 100,
     y: 80,
