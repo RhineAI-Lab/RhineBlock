@@ -35,7 +35,7 @@ export default class Block {
       console.error('Block is not register', item.block)
       data = RhineBlock.getBlockData('unknown')!
     }
-    if(toolboxMode) {
+    if (toolboxMode) {
       item.args = typeof data.toolbox !== "boolean" ? data.toolbox : []
     }
     return Block.fromDataAndArgs(data, item.args, parent)
@@ -58,7 +58,7 @@ export default class Block {
       data.color ? data.color : '#329eff',
     )
     block.parent = parent
-    if(args) {
+    if (args) {
       block.setArgsFromItems(args)
     }
     return block
@@ -71,50 +71,43 @@ export default class Block {
     }
   }
 
-  setArgFromContent(content: Block, item: Item | null = null): void {
-    this.mapBlockArgs(arg => {
-      if (arg.content === content) {
-        if(item) {
-          this.setArgFromItem(item, arg)
-        }else{
-          this.clearArg(arg)
-        }
-        BaseRender.rerender(this)
-      }
-    })
+  setArgFromContent(content: Block, item: Item | null = null, rerender: boolean = false): void {
+    const arg = this.getArgByContent(content)
+    if (!arg) return
+    this.setArgByItem(arg, item, rerender)
   }
 
   getArgByContent(content: Block): Arg | void {
+    let result = undefined
     this.mapBlockArgs(arg => {
       if (arg.content === content) {
-        return arg
+        result = arg
       }
     })
+    return result
   }
 
-  mapBlockArgs(fn: (arg: Arg) => void) {
+  mapBlockArgs(fn: (arg: Arg) => boolean | void) {
     this.mapValueArgs(arg => {
       if (arg.isBlockType()) {
-        fn(arg)
+        return fn(arg)
       }
-    })
+    }, true)
   }
 
   recurMapBlock(fn: (block: Block) => void) {
     fn(this)
     this.mapBlockArgs(arg => {
-      if(arg.content) {
+      if (arg.content) {
         (arg.content as Block).recurMapBlock(fn)
       }
     })
   }
 
-  clearArg(arg: Arg): void {
-    arg.content = null
-    if(arg.view) {
-      arg.view.remove()
-    }
-    arg.view = null
+  clearArgs(): void {
+    this.mapValueArgs(arg => {
+      arg.clear()
+    })
   }
 
   clone(): Block {
@@ -125,12 +118,15 @@ export default class Block {
   hadHat(): boolean {
     return this.type === BlockType.HatSingle || this.type === BlockType.Hat
   }
+
   hadNext(): boolean {
     return [BlockType.Hat, BlockType.Statement, BlockType.Start].indexOf(this.type) > -1
   }
+
   hadPrevious(): boolean {
     return this.type === BlockType.Statement || this.type === BlockType.Finish
   }
+
   hadOutput(): boolean {
     return this.type === BlockType.Output
   }
@@ -139,33 +135,32 @@ export default class Block {
     return this.lines[i].some(arg => arg.type === ArgType.Statement)
   }
 
-  mapArgs(fn: (arg: Arg, i: number, j: number) => void, next = true): void {
-    this.lines.forEach((line, i) => {
-      line.forEach((arg, j) => {
-        fn(arg, i, j);
+  mapArgs(fn: (arg: Arg, i: number, j: number) => boolean | void, next = true): void {
+    let breakFlag: boolean | void = false
+    this.lines.some((line, i) => {
+      line.some((arg, j) => {
+        breakFlag = fn(arg, i, j)
+        return Boolean(breakFlag)
       })
+      return Boolean(breakFlag)
     })
-    if(this.next && next) {
+    if (this.hadNext() && this.next && next) {
       fn(this.next, this.lines.length, 0)
     }
   }
-  mapValueArgs(fn: (arg: Arg, id: number, i: number, j: number) => void, next = true): void {
-    this.lines.forEach((line, i) => {
-      line.forEach((arg, j) => {
-        if (arg.type !== ArgType.Text) {
-          fn(arg, arg.id, i, j)
-        }
-      })
-    })
-    if(this.hadNext() && next) {
-      fn(this.next, this.next.id, this.lines.length, 0)
-    }
+
+  mapValueArgs(fn: (arg: Arg, id: number, i: number, j: number) => boolean | void, next = true): void {
+    this.mapArgs(((arg, i, j) => {
+      if (arg.type !== ArgType.Text) {
+        return fn(arg, arg.id, i, j)
+      }
+    }), next)
   }
 
-  setArgFromItem(item: ItemValue, arg: Arg): void {
-    if(item === null) {
-      arg.content = null
-    }else if (typeof item === 'object') {
+  setArgByItem(arg: Arg, item: ItemValue, rerender: boolean = false): void {
+    if (!item) {
+      arg.clear()
+    } else if (typeof item === 'object') {
       const blockData = RhineBlock.getBlockData(item.block)
       if (!blockData) {
         console.error('Block is not register', item.block)
@@ -180,8 +175,8 @@ export default class Block {
         )
       ) {
         arg.content = Block.fromDataAndArgs(blockData, item.args, this)
-        if(item.next){
-          if(item.args) arg.content.setArgsFromItems(item.args)
+        if (item.next) {
+          if (item.args) arg.content.setArgsFromItems(item.args)
           arg.content.previous = this
         }
       } else {
@@ -190,20 +185,24 @@ export default class Block {
     } else {
       arg.content = item
     }
+    if (rerender) {
+      BaseRender.rerender(this)
+    }
   }
+
   setArgsFromItems(contents: ItemValue[]): void {
     if (!contents) return
     try {
       // 设置所有内部参数
       this.mapValueArgs((arg, id) => {
         const content = contents[id];
-        if(!content) return
-        this.setArgFromItem(content, arg)
+        if (!content) return
+        this.setArgByItem(arg, content)
       }, false)
       // 设置下方参数
       const content = contents[contents.length - 1]
-      if(content && typeof content === 'object' && content.next) {
-        this.setArgFromItem(content, this.next)
+      if (content && typeof content === 'object' && content.next) {
+        this.setArgByItem(this.next, content)
       }
     } catch (e) {
       console.error('Args is invalid for this block', e)
@@ -222,19 +221,19 @@ export default class Block {
   getItem(): Item {
     const contents: ItemValue[] = []
     this.mapValueArgs((arg, id) => {
-      if(arg.type === ArgType.Statement || arg.type === ArgType.Value) {
-        if(arg.content) {
+      if (arg.type === ArgType.Statement || arg.type === ArgType.Value) {
+        if (arg.content) {
           contents.push(this.getArgBlockItem(arg))
-        }else{
+        } else {
           contents.push(null)
         }
-      }else if(typeof arg.content !== 'object') {
+      } else if (typeof arg.content !== 'object') {
         contents.push(arg.content)
-      }else{
+      } else {
         contents.push(null)
       }
     }, false);
-    if(this.next.content) {
+    if (this.next.content) {
       contents.push(this.getArgBlockItem(this.next));
       (contents[contents.length - 1]! as Item).next = true
     }
@@ -242,12 +241,15 @@ export default class Block {
       block: this.name,
       args: contents,
     }
-    if(this.isShadow) item.shadow = true
+    if (this.isShadow) item.shadow = true
     return item
   }
 
-  getArgBlockItem(arg: Arg): Item {
-    return (arg.content as Block).getItem()
+  getArgBlockItem(arg: Arg): Item | null {
+    if (arg.isBlockType() && arg.content) {
+      return (arg.content as Block).getItem()
+    }
+    return null
   }
 
   setPosition(x: number, y: number): void {

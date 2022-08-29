@@ -1,4 +1,4 @@
-import Block from "../block/block.class";
+import Block, {Item} from "../block/block.class";
 import SvgElCreator from "../utils/svg-el-creator";
 import BaseRender from "../render/base/base-render";
 import Arg, {ArgType} from "../block/arg.class";
@@ -9,19 +9,21 @@ export default class DragManager {
   static DRAG_VIEW_ID = 'rb-drag-view'
   static NEAR_DIS = 6
 
-  static dragBlock: Block | null = null;
+  static dragItem: Item | null = null;
   static inputs: InputPuzzle[] = []
 
   static offset: number[] = [0, 0]
   static dragView: SVGElement | null = null;
 
   static onDragBlockDown(block: Block, e: MouseEvent) {
+    this.dragItem = block.getItem()
+
     const svg = this.newDragView()
     BaseRender.render(block.clone(), svg)
     const rect = (e.target as SVGPathElement).getBoundingClientRect()
     this.offset = [e.clientX - rect.x, e.clientY - rect.y]
 
-    block.parent?.setArgFromContent(block, null)
+    block.parent?.setArgFromContent(block, null, true)
 
     for (const graph of RhineBlock.graphs) {
       graph.mapAllBlocks(tb => {
@@ -37,7 +39,8 @@ export default class DragManager {
             this.inputs.push({
               block: tb,
               arg: arg,
-              position: [rect.x+arg.x, rect.y+arg.y]
+              position: [rect.x + arg.x, rect.y + arg.y],
+              temp: null,
             })
           }
         })
@@ -62,23 +65,24 @@ export default class DragManager {
     this.setDragViewPosition(this.getEventBlockPosition(e))
 
     const position = this.getEventBlockPosition(e)
-    let nearInput: InputPuzzle | null = null
+    let near: InputPuzzle | null = null
     let currentDis = this.NEAR_DIS
     for (const input of this.inputs) {
       const dis = this.getDis(position, input.position)
       if (dis <= currentDis) {
-        nearInput = input
+        near = input
         currentDis = dis
       }
     }
-    if (nearInput) {
-      // console.log(nearInput.block.name)
+    if (near) {
+      near.temp = near.block.getArgBlockItem(near.arg)
+      near.block.setArgByItem(near.arg, this.dragItem)
     }
   }
 
   static onDragBlockUp(e: MouseEvent) {
     DragManager.clearDragView()
-    this.dragBlock = null
+    this.dragItem = null
     this.inputs = []
   }
 
@@ -122,6 +126,7 @@ interface InputPuzzle {
   block: Block,
   arg: Arg,
   position: number[],
+  temp: Item | null,
 }
 
 

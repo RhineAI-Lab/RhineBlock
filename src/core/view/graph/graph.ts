@@ -24,7 +24,7 @@ export class Graph {
   }
 
   render(items: RootItem[] = [], clear = true) {
-    if(clear) this.clear()
+    if (clear) this.clear()
     for (const item of items) {
       const block = Block.fromItem(item)
       BaseRender.render(block, this.svg)
@@ -34,7 +34,7 @@ export class Graph {
   }
 
   // 递归遍历所有图形块
-  mapAllBlocks(fn: (block: Block) => void){
+  mapAllBlocks(fn: (block: Block) => void) {
     for (const tb of this.blocks) {
       tb.recurMapBlock(fn)
     }

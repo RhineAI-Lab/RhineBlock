@@ -34,6 +34,14 @@ export default class Arg {
     return this.type === ArgType.Statement || this.type === ArgType.Value;
   }
 
+  clear(): void {
+    this.content = null
+    if (this.view) {
+      this.view.remove()
+    }
+    this.view = null
+  }
+
   static fromJson(id: number, data: IArg): Arg {
     if (!data.type) {
       if (data.text !== undefined) {
@@ -49,20 +57,10 @@ export default class Arg {
       }
     }
     let arg = new Arg(id, data.type);
-    switch (data.type) {
-      case ArgType.Text:
-        arg.text = data.text!;
-        break;
-      case ArgType.Field:
-        arg.fieldType = data.field!;
-        break;
-      case ArgType.Value:
-        arg.valueType = data.value!;
-        break;
-      case ArgType.Statement:
-        arg.statementType = data.statement!;
-        break;
-    }
+    arg.text = data.text || '';
+    arg.fieldType = data.field || FieldType.Text;
+    arg.valueType = data.value || '';
+    arg.statementType = data.statement || '';
     if (data.content) {
       arg.content = data.content;
     }
