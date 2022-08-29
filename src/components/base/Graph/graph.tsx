@@ -10,7 +10,7 @@ export default function Graph(props: any) {
 
   useEffect(() => {
     if (ref.current && !initialized) {
-      const graph = renderGraph(ref.current, easyTestData);
+      const graph = renderGraph(ref.current, testData);
       initialized = true;
     }
   }, [])

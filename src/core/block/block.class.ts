@@ -183,6 +183,10 @@ export default class Block {
       } else {
         return;
       }
+      arg.content.parent = this
+      if(this.next === arg){
+        arg.content.previous = this
+      }
     } else {
       arg.content = item
     }
@@ -199,6 +203,10 @@ export default class Block {
       if(arg.isBlockType()) {
         arg.clear()
         arg.content = block
+        arg.content.parent = this
+        if(this.next === arg){
+          arg.content.previous = this
+        }
       }
     }
     if (rerender) {

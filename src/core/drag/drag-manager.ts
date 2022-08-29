@@ -91,7 +91,10 @@ export default class DragManager {
           near.block.setArgByItem(near.arg, item, !hadNext)
           if(hadNext){
             this.log('SetNext', item)
-            const inner = near.arg.content as Block
+            let inner = near.arg.content as Block
+            while(inner.hadNext() && inner.next.content){
+              inner = inner.next.content as Block
+            }
             inner.setArgByBlock(inner.next, near.temp, true)
           }
         }else{
