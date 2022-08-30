@@ -18,9 +18,9 @@ const numberBlocks: IBlock[] = [
     color: '#5eead8',
     lines: [
       [
-        {value: 'number'},
+        {value: 'num'},
         {field: FieldType.Text, default: '+'},
-        {value: 'number'},
+        {value: 'num'},
       ]
     ],
     toolbox: []
@@ -31,7 +31,7 @@ const numberBlocks: IBlock[] = [
     lines: [
       [
         {field: FieldType.Text, default: '平方根'},
-        {value: 'number'},
+        {value: 'num'},
       ]
     ],
     toolbox: []
@@ -42,7 +42,7 @@ const numberBlocks: IBlock[] = [
     lines: [
       [
         {field: FieldType.Text, default: 'sin'},
-        {value: 'number'},
+        {value: 'num'},
       ]
     ],
     toolbox: []
@@ -61,7 +61,7 @@ const numberBlocks: IBlock[] = [
     color: '#5eead8',
     lines: [
       [
-        {value: 'number'},
+        {value: 'num'},
         {field: FieldType.Text, default: '是偶数'},
       ]
     ],
@@ -75,7 +75,7 @@ const numberBlocks: IBlock[] = [
     lines: [
       [
         {field: FieldType.Text, default: '四舍五入'},
-        {value: 'number'},
+        {value: 'num'},
       ]
     ],
     toolbox: []
@@ -86,7 +86,7 @@ const numberBlocks: IBlock[] = [
     lines: [
       [
         {field: FieldType.Text, default: '列表中数值的和'},
-        {value: 'Array'},
+        {value: 'list'},
       ]
     ],
     toolbox: []

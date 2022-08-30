@@ -20,7 +20,7 @@ const textBlocks: IBlock[] = [
     color: '#7b36ee',
     lines: [
       [
-        {value: 'Text'},
+        {value: 'str'},
         {text: "的长度"},
       ]
     ]
@@ -41,7 +41,7 @@ const textBlocks: IBlock[] = [
     lines: [
       [
         {text: "倒转文本"},
-        {value: 'Text'},
+        {value: 'str'},
       ]
     ]
   }, {
@@ -51,7 +51,7 @@ const textBlocks: IBlock[] = [
     lines: [
       [
         {text: "转换为数字"},
-        {value: 'Text'},
+        {value: 'str'},
       ]
     ]
   }, {
@@ -61,7 +61,7 @@ const textBlocks: IBlock[] = [
     lines: [
       [
         {text: "转换为文本"},
-        {value: 'Text'},
+        {value: 'any'},
       ]
     ]
   }, {
