@@ -18,7 +18,7 @@ export default class BaseRender {
   static MIN_LINE_HEIGHT = 28; // 每行最小高度
   static PADDING_VERTICAL = 5; // 每行垂直边距
   static PADDING_VERTICAL_VL = 5; // 当此行有VALUE输入时 额外增加垂直边距高度
-  static PADDING_HORIZONTAL = 7; // 图形块水平边距
+  static PADDING_HORIZONTAL = 6; // 图形块水平边距
   static CONTENT_SPACING = 4; // 行内内容之间间距
 
   // 半透明度值

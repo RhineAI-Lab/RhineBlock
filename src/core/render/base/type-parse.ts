@@ -28,6 +28,12 @@ export function parseType(type: sourceType = ''): string[] {
 }
 
 export function checkContains(a: string[], b: string[]): boolean {
+  if(b.indexOf('Boolean')>-1){
+    for (const t of a) {
+      if (t === 'Boolean') return true
+    }
+    return false
+  }
   if (a.indexOf('') > -1 || b.indexOf('') > -1) return true
   for (const t of a) {
     if (b.indexOf(t) > -1) return true

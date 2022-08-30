@@ -35,6 +35,7 @@ const logicBlocks: IBlock[] = [
   }, {
     name: 'logic_gate',
     type: BlockType.Output,
+    output: 'bool',
     color: '#59c75b',
     lines: [
       [
@@ -47,6 +48,7 @@ const logicBlocks: IBlock[] = [
   },{
     name: 'logic_not',
     type: BlockType.Output,
+    output: 'bool',
     color: '#59c75b',
     lines: [
       [

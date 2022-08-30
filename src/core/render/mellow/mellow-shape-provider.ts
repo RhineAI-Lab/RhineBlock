@@ -16,7 +16,7 @@ export class MellowShapeProvider extends ShapeProvider{
   TAB_WIDTH = 6 // 左右拼图宽度
   TAB_HEIGHT = 15 // 左右拼图高度
 
-  HAT_WIDTH = 56 // 帽子宽度
+  HAT_WIDTH = 76 // 帽子宽度
   HAT_HEIGHT = 10 // 帽子高度
 
   makeTopLeftCorner(reverse: boolean = false, isRect: boolean = false): PLine[]{
@@ -66,9 +66,7 @@ export class MellowShapeProvider extends ShapeProvider{
 
   makeHat(reverse: boolean = false): PLine[]{
     return new PathBuilder()
-      .lineTo(this.HAT_HEIGHT, -this.HAT_HEIGHT)
-      .horizontalTo(this.HAT_WIDTH - this.HAT_HEIGHT * 2)
-      .lineTo(this.HAT_HEIGHT, this.HAT_HEIGHT)
+      .arcTo(this.HAT_WIDTH, this.HAT_HEIGHT*9, 180, false, true, this.HAT_WIDTH, 0)
       .getPath(reverse)
   }
 

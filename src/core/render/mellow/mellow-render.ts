@@ -6,6 +6,9 @@ import {parseType, sourceType} from "../base/type-parse";
 export default class MellowRender extends BaseRender{
 
   static provider = new MellowShapeProvider();
+  static MIN_VALUE_WIDTH = 42;
+  static MIN_VALUE_HEIGHT = 30; // 最小VALUE块高度
+  static PADDING_VERTICAL = 5;
 
   // 绘制数值路径
   static makeValuePath(
@@ -18,16 +21,18 @@ export default class MellowRender extends BaseRender{
   ): PathBuilder {
     let vt = MellowValueType.Any
     const type = parseType(valueType);
-    if(type.includes('Bool')) vt = MellowValueType.Bool
+    if(type.includes('Boolean')) vt = MellowValueType.Bool
 
     const builder =  new PathBuilder()
     const hh = height / 2
     if(vt === MellowValueType.Bool){
-      builder.moveTo(x, y, true)
-      builder.lineTo(width, 0)
-      builder.lineTo(0, height)
-      builder.lineTo(-width, 0)
-      builder.close()
+      builder.moveTo(x + hh, y, true)
+      builder.lineTo(width - height, 0)
+      builder.lineTo(hh, hh)
+      builder.lineTo(-hh, hh)
+      builder.lineTo(height - width, 0)
+      builder.lineTo(-hh, -hh)
+      builder.lineTo(hh, -hh)
     }else{
       builder.moveTo(x + hh, y, true)
       builder.lineTo( width - height, 0)

@@ -4,6 +4,7 @@ import Arg, {ArgType} from "../block/arg.class";
 import {RhineBlock} from "../RhineBlock";
 import {deepCopy} from "../utils/normal";
 import './drag-view.css';
+import {checkContains} from "../render/base/type-parse";
 
 
 export default class DragManager {
@@ -49,7 +50,7 @@ export default class DragManager {
         tb.mapBlockArgs(arg => {
           if (!tb.view) return
           if (
-            (block.hadOutput() && arg.type === ArgType.Value) ||
+            ((block.hadOutput() && arg.type === ArgType.Value) && checkContains(block.output, arg.valueType)) ||
             (block.hadPrevious() && arg.type === ArgType.Statement)
           ) {
             const rect = tb.view.getBoundingClientRect()

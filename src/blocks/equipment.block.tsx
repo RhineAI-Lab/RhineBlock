@@ -6,6 +6,7 @@ const equipmentBlocks: IBlock[] = [
   {
     name: 'equipment_state',
     type: BlockType.Output,
+    output: 'bool',
     color: '#ffac5d',
     lines: [
       [
@@ -13,6 +14,8 @@ const equipmentBlocks: IBlock[] = [
         {field: FieldType.Text, default: 'A'},
         {text: '为'},
         {field: FieldType.Text, default: '开'},
+        {text: ' '},
+        {text: ' '},
       ]
     ]
   }, {
