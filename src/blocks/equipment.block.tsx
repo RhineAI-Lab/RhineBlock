@@ -45,7 +45,7 @@ const equipmentBlocks: IBlock[] = [
         {text: "设置"},
         {field: FieldType.Text, default: 'A'},
         {text: "的数值为"},
-        {value: 'number'},
+        {value: 'num'},
       ],
     ]
   }

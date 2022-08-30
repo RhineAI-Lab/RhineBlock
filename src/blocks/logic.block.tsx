@@ -10,7 +10,7 @@ const logicBlocks: IBlock[] = [
     lines: [
       [
         {text: '如果'},
-        {value: 'boolean'},
+        {value: 'bool'},
       ],
       [
         {text: '执行'},
@@ -38,9 +38,9 @@ const logicBlocks: IBlock[] = [
     color: '#59c75b',
     lines: [
       [
-        {value: 'boolean'},
+        {value: 'bool'},
         {field: FieldType.Text, default: '并且'},
-        {value: 'boolean'},
+        {value: 'bool'},
       ]
     ],
     toolbox:[]
@@ -51,7 +51,7 @@ const logicBlocks: IBlock[] = [
     lines: [
       [
         {text: "非"},
-        {value: 'boolean'},
+        {value: 'bool'},
       ]
     ]
   },

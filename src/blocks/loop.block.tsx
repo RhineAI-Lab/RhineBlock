@@ -29,7 +29,7 @@ const loopBlocks: IBlock[] = [
     lines: [
       [
         {text: "当满足"},
-        {value: 'boolean'},
+        {value: 'bool'},
         {text: "时重复"}
       ],
       [
