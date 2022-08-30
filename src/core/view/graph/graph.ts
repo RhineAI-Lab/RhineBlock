@@ -1,6 +1,5 @@
 import SvgElCreator, {transformEl} from "../../utils/svg-el-creator";
 import Block, {Item} from "../../block/block.class";
-import BaseRender from "../../render/base/base-render";
 import {RhineBlock} from "../../RhineBlock";
 
 
@@ -26,7 +25,7 @@ export class Graph {
     if (clear) this.clear()
     for (const item of items) {
       const block = Block.fromItem(item)
-      BaseRender.render(block, this.svg)
+      RhineBlock.Render.render(block, this.svg)
       block.setPosition(item.x || 100, item.y || 100)
       block.graph = this
       this.blocks.push(block)

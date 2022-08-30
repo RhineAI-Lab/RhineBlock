@@ -2,13 +2,13 @@ import SvgElCreator from "../../utils/svg-el-creator";
 
 export default class FieldProvider {
 
-  static FIELD_RADIUS = 4;
-  static FIELD_BACKGROUND = '#ffffffaa' // 背景颜色
+  FIELD_RADIUS = 4;
+  FIELD_BACKGROUND = '#ffffffaa' // 背景颜色
 
-  static FIELD_PADDING_HORIZONTAL = 5
-  static FIELD_PADDING_VERTICAL = 0
+  FIELD_PADDING_HORIZONTAL = 5
+  FIELD_PADDING_VERTICAL = 0
 
-  static makeTextInput(
+  makeTextInput(
     text: string,
     parent: SVGElement,
     onChange: (text: string) => void

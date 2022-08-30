@@ -1,6 +1,5 @@
 import Arg, {ArgType, IArg} from "./arg.class";
 import {RhineBlock} from "../RhineBlock";
-import BaseRender from "../render/base/base-render";
 import DragManager from "../drag/drag-manager";
 import {Graph} from "../view/graph/graph";
 
@@ -211,7 +210,7 @@ export default class Block {
     }
     if (rerender) {
       // console.log('ReRender', this)
-      BaseRender.rerender(this)
+      RhineBlock.Render.rerender(this)
     }
   }
 
@@ -229,7 +228,7 @@ export default class Block {
       }
     }
     if (rerender) {
-      BaseRender.rerender(this)
+      RhineBlock.Render.rerender(this)
     }
   }
 

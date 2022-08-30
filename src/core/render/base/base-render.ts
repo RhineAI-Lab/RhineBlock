@@ -10,6 +10,7 @@ import FieldProvider from "./field-provider";
 export default class BaseRender {
   // 细节形状提供器
   static provider = new ShapeProvider()
+  static fieldProvider = new FieldProvider()
 
   // 整图形块参数
   static MIN_WIDTH = 36; // 最小宽度
@@ -117,7 +118,7 @@ export default class BaseRender {
       } else if (arg.type === ArgType.Field) {
         if (arg.fieldType === FieldType.Text) {
           if (!arg.content) arg.content = arg.default
-          el = FieldProvider.makeTextInput(
+          el = this.fieldProvider.makeTextInput(
             arg.content as string,
             parentEl,
             (text) => {

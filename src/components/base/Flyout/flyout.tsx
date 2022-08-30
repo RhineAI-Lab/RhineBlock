@@ -2,6 +2,8 @@ import React, {useEffect} from 'react';
 import Style from './flyout.module.css'
 import {IBlock} from "../../../core/block/block.class";
 import renderFlyout from "../../../core/view/flyout/flyout";
+import {RhineBlock} from "../../../core/RhineBlock";
+import MellowRender from "../../../core/render/mellow/mellow-render";
 
 let initialised = false;
 
@@ -57,6 +59,7 @@ export default function Flyout(props: FlyoutProps) {
     ]
     if (ref.current) {
       if (!initialised) {
+        RhineBlock.setRender(MellowRender);
         renderFlyout(ref.current, flyoutBlocks);
         initialised = true;
       }

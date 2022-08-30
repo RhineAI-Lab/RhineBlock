@@ -1,6 +1,5 @@
 import Block, {Item, OpacityType} from "../block/block.class";
 import SvgElCreator from "../utils/svg-el-creator";
-import BaseRender from "../render/base/base-render";
 import Arg, {ArgType} from "../block/arg.class";
 import {RhineBlock} from "../RhineBlock";
 import {deepCopy} from "../utils/normal";
@@ -8,6 +7,7 @@ import './drag-view.css';
 
 
 export default class DragManager {
+
   static DRAG_VIEW_ID = 'rb-drag-view'
   static NEAR_DIS = 16
 
@@ -32,7 +32,7 @@ export default class DragManager {
     this.dragItem = block.getItem()
 
     const svg = this.newDragView()
-    BaseRender.render(block.clone(), svg)
+    RhineBlock.Render.render(block.clone(), svg)
     const rect = (e.target as SVGPathElement).getBoundingClientRect()
     this.offset = [e.clientX - rect.x, e.clientY - rect.y]
 
@@ -180,7 +180,7 @@ export default class DragManager {
 
     const rect = graph.svg.getBoundingClientRect()
     if (this.current) {
-      BaseRender.clearOpacity(this.current)
+      RhineBlock.Render.clearOpacity(this.current)
       if (this.throwBlock) {
         const throwItem = this.throwBlock.getItem()
         const cr = this.current.view!.getBoundingClientRect()

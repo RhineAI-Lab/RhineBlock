@@ -1,7 +1,15 @@
 import Block, {IBlock, Item, ItemValue} from "./block/block.class";
 import {Graph} from "./view/graph/graph";
+import BaseRender from "./render/base/base-render";
 
 export class RhineBlock {
+  static Render: typeof BaseRender = BaseRender;
+
+  static setRender(render: typeof BaseRender) {
+    this.Render = render;
+  }
+
+
   static blocksData: IBlock[] = [];
 
   static registerBlocksData(blocks: IBlock[]) {
@@ -15,6 +23,7 @@ export class RhineBlock {
   static getBlockToolbox(name: string): ItemValue[] | boolean | undefined {
     return this.getBlockData(name)?.toolbox
   }
+
 
   static graphs: Graph[] = [];
 
