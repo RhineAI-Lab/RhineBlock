@@ -81,9 +81,9 @@ const eventBlocks: IBlock[] = [
     type: BlockType.Output,
     lines: [
       [
-        {value: 10},
+        {field: FieldType.Number, default: '10'},
         {text: '+'},
-        {value: 20},
+        {field: FieldType.Number, default: '20'},
       ],
     ],
   },

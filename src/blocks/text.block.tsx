@@ -30,7 +30,7 @@ const textBlocks: IBlock[] = [
     color: '#7b36ee',
     lines: [
       [
-        {value: 'Text'},
+        {value: 'str'},
         {text: "是否为空"},
       ]
     ]

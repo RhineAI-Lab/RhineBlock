@@ -6,6 +6,7 @@ import {ShapeProvider} from "./shape-provider";
 import SvgElCreator from "../../utils/svg-el-creator";
 import {adjustColorBright} from "../../utils/color-adjust";
 import FieldProvider from "./field-provider";
+import {sourceType} from "./type-parse";
 
 export default class BaseRender {
   // 细节形状提供器
@@ -282,7 +283,7 @@ export default class BaseRender {
     // 绘制图形块主体路径
     const builder = new PathBuilder()
     if (block.type === BlockType.Output) {
-      builder.pushPath(this.makeValuePath(0, 0, block.width, block.height, rightBuilder.getPath()).getPath(false))
+      builder.pushPath(this.makeValuePath(0, 0, block.width, block.height, rightBuilder.getPath(), block.output).getPath(false))
     } else {
       if (block.hadHat()) {
         builder.moveTo(0, this.provider.HAT_HEIGHT, true)
@@ -311,7 +312,7 @@ export default class BaseRender {
     }
     block.mapValueArgs((arg, id, i, j) => {
       if (arg.type === ArgType.Value) {
-        builder.pushPath(this.makeValuePath(arg.x, arg.y, arg.w, arg.h, []).getPath())
+        builder.pushPath(this.makeValuePath(arg.x, arg.y, arg.w, arg.h, [], arg.valueType).getPath())
       }
     })
     return builder.build()
@@ -332,7 +333,14 @@ export default class BaseRender {
 
 
   // 绘制内部拼接路径边框
-  static makeValuePath(x: number = 0, y: number = 0, width: number = this.MIN_VALUE_WIDTH, height: number = this.MIN_VALUE_HEIGHT, rightLine: PLine[] = []): PathBuilder {
+  static makeValuePath(
+    x: number = 0,
+    y: number = 0,
+    width: number = this.MIN_VALUE_WIDTH,
+    height: number = this.MIN_VALUE_HEIGHT,
+    rightLine: PLine[] = [],
+    valueType: sourceType = 'Any',
+  ): PathBuilder {
     return new PathBuilder()
       .moveTo(x + width, y + height, true)
       .horizontalTo(-width + this.provider.TAB_WIDTH)

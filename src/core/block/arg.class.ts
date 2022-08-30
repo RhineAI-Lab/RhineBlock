@@ -1,4 +1,5 @@
 import Block from "./block.class";
+import {sourceType} from "../render/base/type-parse";
 
 export default class Arg {
   content: Block | string | boolean | number | null = null; // 当前内容值
@@ -6,8 +7,8 @@ export default class Arg {
 
   text: string = ''; // 仅当文本模式启用，表示文本内容
   fieldType: FieldType = FieldType.None; // 仅当填充模式启用，表示填充类型
-  valueType: string | number | boolean = ''; // 仅当输入图形块模式启用，表示输入图形块类型
-  statementType: string = ''; // 仅当语句块输入模式启用，表示下方语句块类型
+  valueType: sourceType = ''; // 仅当输入图形块模式启用，表示输入图形块类型
+  statementType: sourceType = ''; // 仅当语句块输入模式启用，表示下方语句块类型
 
   onValueChange: (arg: Arg) => void = () => {
   }; // 当数据发生变化时
@@ -83,8 +84,8 @@ export interface IArg {
 
   text?: string;
   field?: FieldType;
-  value?: string | number | boolean;
-  statement?: string | null;
+  value?: sourceType;
+  statement?: sourceType;
 }
 
 export enum ArgType {

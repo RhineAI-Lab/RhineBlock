@@ -19,7 +19,7 @@ const consoleBlock: IBlock[] = [
     lines: [
       [
         {text: '输出'},
-        {value: 'Hello World'},
+        {value: 'str'},
       ],
     ],
   }, {

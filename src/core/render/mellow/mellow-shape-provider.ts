@@ -1,14 +1,15 @@
 import Block from "../../block/block.class";
 import PathBuilder, {PLine} from "../../utils/path-builder";
+import {ShapeProvider} from "../base/shape-provider";
 
-export class MellowShapeProvider {
+export class MellowShapeProvider extends ShapeProvider{
 
   CORNER_SIZE = 4 // 边角大小
 
   SEAT_HEIGHT = 8 // 占位行高度
 
   PUZZLE_LEFT = 14 // 上下拼图距左侧距离(相对图形块)
-  PUZZLE_WIDTH = 20 // 上下拼图宽度
+  PUZZLE_WIDTH = 18 // 上下拼图宽度
   PUZZLE_HEIGHT = 4 // 上下拼图高度
 
   TAB_TOP = 4 // 左右拼图距顶部距离(相对图形块)
