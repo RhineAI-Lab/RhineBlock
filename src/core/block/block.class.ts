@@ -69,6 +69,15 @@ export default class Block {
   }
 
   setMouseEvent(body: SVGPathElement): void {
+    if(this.getGraph()?.isToolbox){
+      if(this.isRoot){
+        this.setOnDragEvent(body)
+      }
+    }else{
+      this.setOnDragEvent(body)
+    }
+  }
+  setOnDragEvent(body: SVGPathElement): void {
     body.onmousedown = (e) => {
       DragManager.onDragBlockDown(this, e)
       return false

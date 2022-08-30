@@ -22,6 +22,20 @@ export class RhineBlock {
     this.graphs.push(graph);
   }
 
+  static mapGraph(fn: (graph: Graph) => void, expectToolbox = true) {
+    if (!expectToolbox) {
+      this.graphs.forEach(fn)
+    }else{
+      this.graphs.forEach(graph => {
+        if(!graph.isToolbox) fn(graph)
+      })
+    }
+  }
+
+  static getFirstGraphWithoutToolbox(): Graph | null {
+    return this.graphs.find(graph => !graph.isToolbox) || null;
+  }
+
 
 
 }

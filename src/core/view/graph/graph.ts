@@ -14,22 +14,24 @@ export default function renderGraph(dom: HTMLElement, items: Item[]): Graph {
 export class Graph {
   blocks: Block[] = [];
   svg: SVGSVGElement
-  isFlyout: boolean = false;
+  isToolbox: boolean = false;
 
   constructor(dom: HTMLElement) {
     this.svg = SvgElCreator.appendSvg(dom)
   }
 
-  render(items: Item[] = [], clear = false) {
+  // 渲染图形块至当前画布
+  // 返回当前画布中根节点的个数
+  render(items: Item[] = [], clear = false): number {
     if (clear) this.clear()
     for (const item of items) {
       const block = Block.fromItem(item)
       BaseRender.render(block, this.svg)
-      console.log(item.x, item.y)
       block.setPosition(item.x || 100, item.y || 100)
       block.graph = this
       this.blocks.push(block)
     }
+    return this.blocks.length
   }
 
   // 递归遍历所有图形块
@@ -42,8 +44,8 @@ export class Graph {
   // 通过Block移除内容
   remove(block: Block) {
     const i = this.blocks.indexOf(block)
-    if(i<0) return
-    if(block.view) {
+    if (i < 0) return
+    if (block.view) {
       this.svg.removeChild(block.view)
     }
     block.graph = null

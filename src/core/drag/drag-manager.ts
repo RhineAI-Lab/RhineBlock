@@ -40,7 +40,7 @@ export default class DragManager {
       block.graph.remove(block)
     }
 
-    for (const graph of RhineBlock.graphs) {
+    RhineBlock.mapGraph( graph => {
       graph.recurBlocks(tb => {
         if (tb === block) return
         tb.mapBlockArgs(arg => {
@@ -60,7 +60,7 @@ export default class DragManager {
           }
         })
       })
-    }
+    })
     this.log(this.inputs)
 
     const onDragBlockMove = (e: MouseEvent) => this.onDragBlockMove(e)
@@ -157,7 +157,7 @@ export default class DragManager {
     if (!item) return
 
     const pos = this.getEventBlockPosition(e)
-    let graph = RhineBlock.graphs[0]
+    let graph = RhineBlock.getFirstGraphWithoutToolbox()
     RhineBlock.graphs.some(tg => {
       const rect = tg.svg.getBoundingClientRect()
       if (pos[0] >= rect.x && pos[0] <= rect.x + rect.width && pos[1] >= rect.y && pos[1] <= rect.y + rect.height) {
@@ -165,8 +165,13 @@ export default class DragManager {
         return true
       }
     })
-    const rect = graph.svg.getBoundingClientRect()
+    if(!graph) {
+      console.error('No graph for block', item)
+      this.clearAllArgs()
+      return
+    }
 
+    const rect = graph.svg.getBoundingClientRect()
     if (this.current) {
       BaseRender.clearOpacity(this.current)
       if(this.throwBlock){
@@ -176,7 +181,6 @@ export default class DragManager {
         throwItem.y = cr.y - rect.y + this.THROW_BIAS
         graph.render([throwItem])
       }
-      this.current = null
     } else {
       item.x = pos[0] - rect.x
       item.y = pos[1] - rect.y
@@ -187,8 +191,7 @@ export default class DragManager {
       this.log('RenderToGraph', item)
       graph.render([item])
     }
-    this.dragItem = null
-    this.inputs = []
+    this.clearAllArgs()
   }
 
   // 新建拖拽布局
@@ -226,7 +229,15 @@ export default class DragManager {
     this.dragView = null
   }
 
-  static DEBUG_MODE = true
+  // 清除所有相关信息
+  static clearAllArgs() {
+    this.current = null
+    this.dragItem = null
+    this.inputs = []
+    this.clearDragView()
+  }
+
+  static DEBUG_MODE = false
 
   static log(...args: any[]) {
     if (this.DEBUG_MODE) console.log(...args)
