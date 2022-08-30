@@ -16,8 +16,32 @@ export default class MellowRender extends BaseRender{
     rightLine: PLine[] = [],
     valueType: sourceType = 'Any',
   ): PathBuilder {
-    const builder =  new PathBuilder()
+    let vt = MellowValueType.Any
     const type = parseType(valueType);
+    if(type.includes('Bool')) vt = MellowValueType.Bool
+
+    const builder =  new PathBuilder()
+    const hh = height / 2
+    if(vt === MellowValueType.Bool){
+      builder.moveTo(x, y, true)
+      builder.lineTo(width, 0)
+      builder.lineTo(0, height)
+      builder.lineTo(-width, 0)
+      builder.close()
+    }else{
+      builder.moveTo(x + hh, y, true)
+      builder.lineTo( width - height, 0)
+      builder.arcTo(hh, hh, 180, false, true, 0,  height)
+      builder.lineTo( height - width, 0)
+      builder.arcTo(hh, hh, 180, false, true, 0,  -height)
+    }
     return builder
   }
+}
+
+enum MellowValueType {
+  Any,
+  Number,
+  String,
+  Bool,
 }
