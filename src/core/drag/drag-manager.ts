@@ -4,6 +4,7 @@ import BaseRender from "../render/base/base-render";
 import Arg, {ArgType} from "../block/arg.class";
 import {RhineBlock} from "../RhineBlock";
 import {deepCopy} from "../utils/normal";
+import './drag-view.css';
 
 
 export default class DragManager {
@@ -27,7 +28,7 @@ export default class DragManager {
 
   static throwBlock: Block | null = null
 
-  static onDragBlockDown(block: Block, e: MouseEvent) {
+  static onDragBlockDown(block: Block, e: MouseEvent, inToolbox: boolean = false) {
     this.dragItem = block.getItem()
 
     const svg = this.newDragView()
@@ -35,12 +36,14 @@ export default class DragManager {
     const rect = (e.target as SVGPathElement).getBoundingClientRect()
     this.offset = [e.clientX - rect.x, e.clientY - rect.y]
 
-    block.parent?.setArgFromContent(block, null, true)
-    if (block.graph) {
-      block.graph.remove(block)
+    if (!inToolbox) {
+      block.parent?.setArgFromContent(block, null, true)
+      if (block.graph) {
+        block.graph.remove(block)
+      }
     }
 
-    RhineBlock.mapGraph( graph => {
+    RhineBlock.mapGraph(graph => {
       graph.recurBlocks(tb => {
         if (tb === block) return
         tb.mapBlockArgs(arg => {
@@ -110,15 +113,15 @@ export default class DragManager {
             while (inner.hadNext() && inner.next.content) {
               inner = inner.next.content as Block
             }
-            if(inner.hadNext()){
+            if (inner.hadNext()) {
               if (near.temp) near.temp.isOpacity = OpacityType.False
               inner.setArgByBlock(inner.next, near.temp, true)
               this.setThrow(null)
-            }else{
+            } else {
               inner.setArgByBlock(inner.next, null, true)
               this.setThrow(near.temp)
             }
-          }else{
+          } else {
             this.setThrow(near.temp)
           }
         } else {
@@ -134,9 +137,9 @@ export default class DragManager {
   }
 
   static setThrow(block: Block | null) {
-    if(this.throwBlock && !block) console.log('RemoveThrow')
+    if (this.throwBlock && !block) this.log('RemoveThrow')
     this.throwBlock = block
-    if(block) console.log('SetThrow', this.throwBlock)
+    if (block) this.log('SetThrow', this.throwBlock)
   }
 
   static removeDragShadow(expect: InputPuzzle | null = null): void {
@@ -165,8 +168,12 @@ export default class DragManager {
         return true
       }
     })
-    if(!graph) {
+    if (!graph) {
       console.error('No graph for block', item)
+      this.clearAllArgs()
+      return
+    }
+    if (graph.isToolbox) {
       this.clearAllArgs()
       return
     }
@@ -174,7 +181,7 @@ export default class DragManager {
     const rect = graph.svg.getBoundingClientRect()
     if (this.current) {
       BaseRender.clearOpacity(this.current)
-      if(this.throwBlock){
+      if (this.throwBlock) {
         const throwItem = this.throwBlock.getItem()
         const cr = this.current.view!.getBoundingClientRect()
         throwItem.x = cr.x - rect.x + this.THROW_BIAS

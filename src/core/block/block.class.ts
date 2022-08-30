@@ -68,9 +68,12 @@ export default class Block {
     return block
   }
 
+  isInToolbox(): boolean {
+    return Boolean(this.getGraph()?.isToolbox)
+  }
   setMouseEvent(body: SVGPathElement): void {
     if(this.getGraph()?.isToolbox){
-      if(this.isRoot){
+      if(this.graph){
         this.setOnDragEvent(body)
       }
     }else{
@@ -79,7 +82,7 @@ export default class Block {
   }
   setOnDragEvent(body: SVGPathElement): void {
     body.onmousedown = (e) => {
-      DragManager.onDragBlockDown(this, e)
+      DragManager.onDragBlockDown(this, e, this.isInToolbox())
       return false
     }
   }

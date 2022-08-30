@@ -113,7 +113,7 @@ export default class BaseRender {
     block.mapArgs((arg) => {
       let el: SVGElement | null = null;
       if (arg.type === ArgType.Text) {
-        el = SvgElCreator.newText(arg.text, 'rb-block-text');
+        el = SvgElCreator.newText(arg.text);
       } else if (arg.type === ArgType.Field) {
         if (arg.fieldType === FieldType.Text) {
           if (!arg.content) arg.content = arg.default

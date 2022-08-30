@@ -1,0 +1,11 @@
+.rb-drag-view {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.rb-drag-view svg {
+  position: absolute;
+}
