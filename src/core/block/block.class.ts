@@ -2,6 +2,7 @@ import Arg, {ArgType, IArg} from "./arg.class";
 import {RhineBlock} from "../RhineBlock";
 import DragManager from "../drag/drag-manager";
 import {Graph} from "../view/graph/graph";
+import {parseType} from "../render/base/type-parse";
 
 export default class Block {
 
@@ -27,7 +28,7 @@ export default class Block {
     public name: string,
     public type: BlockType,
     public lines: Arg[][],
-    public output: string | null,
+    public output: string[],
     public color: string,
   ) {
   }
@@ -57,7 +58,7 @@ export default class Block {
       data.name,
       data.type ? data.type : BlockType.Statement,
       lines,
-      data.output ? data.output : null,
+      data.output ? parseType(data.output) : [''],
       data.color ? data.color : '#329eff',
     )
     block.parent = parent
