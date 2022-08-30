@@ -1,5 +1,5 @@
 import Block from "./block.class";
-import {sourceType} from "../render/base/type-parse";
+import {parseType, sourceType} from "../render/base/type-parse";
 
 export default class Arg {
   content: Block | string | boolean | number | null = null; // 当前内容值
@@ -7,7 +7,7 @@ export default class Arg {
 
   text: string = ''; // 仅当文本模式启用，表示文本内容
   fieldType: FieldType = FieldType.None; // 仅当填充模式启用，表示填充类型
-  valueType: sourceType = ''; // 仅当输入图形块模式启用，表示输入图形块类型
+  valueType: string[] = ['']; // 仅当输入图形块模式启用，表示输入图形块类型
   statementType: sourceType = ''; // 仅当语句块输入模式启用，表示下方语句块类型
 
   onValueChange: (arg: Arg) => void = () => {
@@ -60,7 +60,7 @@ export default class Arg {
     let arg = new Arg(id, data.type);
     arg.text = data.text || '';
     arg.fieldType = data.field || FieldType.Text;
-    arg.valueType = data.value || '';
+    arg.valueType = parseType(data.value);
     arg.statementType = data.statement || '';
     if (data.content) {
       arg.content = data.content;

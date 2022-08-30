@@ -332,7 +332,7 @@ export default class BaseRender {
   }
 
 
-  // 绘制内部拼接路径边框
+  // 绘制数值路径
   static makeValuePath(
     x: number = 0,
     y: number = 0,

@@ -15,7 +15,7 @@ const typeEasyMap = {
   'array': 'Array',
 }
 
-export function parseType(type: sourceType): string[] {
+export function parseType(type: sourceType = ''): string[] {
   if(!type) return ['']
   if (typeof type === 'string') {
     type = type.split('|')
@@ -27,9 +27,7 @@ export function parseType(type: sourceType): string[] {
   })
 }
 
-export function checkContains(typeA: sourceType, typeB: sourceType): boolean {
-  const a = parseType(typeA)
-  const b = parseType(typeB)
+export function checkContains(a: string[], b: string[]): boolean {
   if (a.indexOf('') > -1 || b.indexOf('') > -1) return true
   for (const t of a) {
     if (b.indexOf(t) > -1) return true
